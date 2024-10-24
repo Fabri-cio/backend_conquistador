@@ -12,7 +12,6 @@ class ProductoSerializer(serializers.ModelSerializer):
     # categoria = CategoriaSerializer()
     categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())  # Solo retorna el ID de la categoría
 
-
     class Meta:
         model = Producto    
         fields = '__all__'
