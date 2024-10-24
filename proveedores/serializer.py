@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from ..productos.serializer import ProductoSerializer
+from productos.serializer import ProductoSerializer
 from .models import Proveedor, OrdenCompra, DetalleOrden
 
 class ProveedorSerializer(serializers.ModelSerializer):

@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from .models import Cliente, Venta, DetalleVenta
-from ..productos.serializer import ProductoSerializer
+from productos.serializer import ProductoSerializer
 
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
