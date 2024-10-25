@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import Cliente, Venta, DetalleVenta
-from productos.serializer import ProductoSerializer
+# from productos.serializer import ProductoSerializer
+from productos.models import Producto
 
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:
@@ -18,7 +19,9 @@ class VentaSerializer(serializers.ModelSerializer):
 class DetalleVentaSerializer(serializers.ModelSerializer):
     # venta = VentaSerializer()
     venta = serializers.PrimaryKeyRelatedField(queryset=Venta.objects.all())  # Solo el ID de la venta
-    producto = ProductoSerializer()
+
+    # producto = ProductoSerializer()
+    producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
 
     class Meta:
         model = DetalleVenta

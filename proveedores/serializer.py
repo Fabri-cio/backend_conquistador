@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from productos.serializer import ProductoSerializer
 from .models import Proveedor, OrdenCompra, DetalleOrden
+from productos.models import Producto
 
 class ProveedorSerializer(serializers.ModelSerializer):
     class Meta:
@@ -20,7 +20,7 @@ class OrdenCompraSerializer(serializers.ModelSerializer):
 class DetalleOrdenSerializer(serializers.ModelSerializer):
     # orden = OrdenCompraSerializer()
     orden = serializers.PrimaryKeyRelatedField(queryset=OrdenCompra.objects.all())  # Solo retorna el ID de la orden
-    producto = ProductoSerializer()
+    producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
 
     class Meta:
         model = DetalleOrden
