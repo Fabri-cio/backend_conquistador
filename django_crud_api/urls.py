@@ -24,4 +24,5 @@ urlpatterns = [
     path('api/v1/proveedores/', include(('proveedores.urls', 'proveedores'), namespace='proveedores')),
     path('api/v1/usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
     path('api/v1/ventas/', include(('ventas.urls', 'ventas'), namespace='ventas')),
+    path('api/v1/prediccion/', include(('prediccion.urls', 'prediccion'), namespace='prediccion')),
 ]
