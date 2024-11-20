@@ -11,9 +11,9 @@ class ProductoSerializer(serializers.ModelSerializer):
     # Serializador anidado para mostrar los detalles de la categoría
     # categoria = CategoriaSerializer()
 
-    categoria = serializers.CharField(source='categoria.nombre_categoria')
+    #categoria = serializers.CharField(source='categoria.nombre_categoria')
 
-    # categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())  # Solo retorna el ID de la categoría
+    categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())  # Solo retorna el ID de la categoría
 
     class Meta:
         model = Producto    
