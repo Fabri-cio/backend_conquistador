@@ -40,17 +40,9 @@ INSTALLED_APPS = [
     'corsheaders',
     'rest_framework',
     'coreapi',
-    'usuarios',
-    'productos',
-    'proveedores',
-    'ventas',
-    'inventario',
-    'prediccion',
-    
+    'productos', 
 ]
 
-# Define el modelo de usuario personalizado
-AUTH_USER_MODEL = 'usuarios.Usuario'  # Reemplaza 'usuarios' por el nombre de tu app si es diferente
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

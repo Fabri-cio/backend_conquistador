@@ -1,4 +1,5 @@
 from django.db import models
+from django.core.validators import MinValueValidator  # Importar el validador
 
 # Modelo de Categoría
 class Categoria(models.Model):
@@ -13,11 +14,15 @@ class Categoria(models.Model):
 class Producto(models.Model):
     id_producto = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    descripcion = models.TextField()
-    precio = models.DecimalField(max_digits=10, decimal_places=2)
-    cantidad_stock = models.IntegerField()
-    unidad_medida = models.CharField(max_length=50)
+    marca = models.CharField(max_length=100)  # Si lo necesitas
+    precio = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(0.01)]  # Validación para asegurar que el precio no sea menor que 0.01
+    )
+    stock = models.IntegerField()
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
+    codigo_barras = models.CharField(max_length=50, unique=True)  # Asegura que el código de barras sea único
 
     def __str__(self):
         return self.nombre

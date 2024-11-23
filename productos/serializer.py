@@ -13,8 +13,17 @@ class ProductoSerializer(serializers.ModelSerializer):
 
     #categoria = serializers.CharField(source='categoria.nombre_categoria')
 
+    precio = serializers.DecimalField(max_digits=10, decimal_places=2)
+
     categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())  # Solo retorna el ID de la categoría
 
     class Meta:
         model = Producto    
         fields = '__all__'
+
+    # Opcional: Ajustes en la representación (si deseas asegurar que el precio sea flotante)
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        # Asegúrate de que el precio se represente como float en lugar de cadena
+        representation['precio'] = float(representation['precio'])
+        return representation

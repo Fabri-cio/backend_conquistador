@@ -1,15 +1,3 @@
-from rest_framework import viewsets
-from .serializer import ClienteSerializer, VentaSerializer, DetalleVentaSerializer
-from .models import Cliente, Venta, DetalleVenta
+from django.shortcuts import render
 
-class ClienteView(viewsets.ModelViewSet):
-    serializer_class = ClienteSerializer
-    queryset = Cliente.objects.all()
-    
-class VentaView(viewsets.ModelViewSet):
-    serializer_class = VentaSerializer
-    queryset = Venta.objects.all()
-    
-class DetalleVentaView(viewsets.ModelViewSet):
-    serializer_class = DetalleVentaSerializer
-    queryset = DetalleVenta.objects.all()
+# Create your views here.
