@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'coreapi',
     'productos',
     'ventas',
-    'usuarios'
+    'usuarios',
+    'almacenes',
 ]
 
 
