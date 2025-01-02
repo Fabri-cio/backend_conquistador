@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'productos',
     'ventas',
-    'usuarios'
+    'usuarios',
+    'almacenes',
 ]
 
 
