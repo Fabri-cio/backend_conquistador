@@ -38,8 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'drf_yasg',
     'rest_framework',
-    'coreapi',
     'productos',
     'ventas',
     'usuarios'
@@ -141,5 +141,5 @@ CORS_ALLOWED_ORIGINS = ["http://localhost:5173"]
 
 REST_FRAMEWORK = {
     ...: ...,
-    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.coreapi.AutoSchema",
+    "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
 }
