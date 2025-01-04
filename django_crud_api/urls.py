@@ -19,6 +19,7 @@ from django.urls import include, path, re_path
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
+from knox import views as knox_views
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -38,4 +39,12 @@ urlpatterns = [
     path('api/v1/productos/', include(('productos.urls', 'productos'), namespace='productos')),
     path('api/v1/ventas/', include(('ventas.urls', 'ventas'), namespace='ventas')),
     path('api/v1/usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
+
+    path('',include('usuarios.urls')), 
+    #path('api/auth/',include('knox.urls')), 
+
+    path('logout/',knox_views.LogoutView.as_view(), name='knox_logout'), 
+    path('logoutall/',knox_views.LogoutAllView.as_view(), name='knox_logoutall'), 
+    path('api/password_reset/',include('django_rest_passwordreset.urls', namespace='password_reset')), 
+
 ]
