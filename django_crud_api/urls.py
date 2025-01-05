@@ -39,6 +39,7 @@ urlpatterns = [
     path('api/v1/productos/', include(('productos.urls', 'productos'), namespace='productos')),
     path('api/v1/ventas/', include(('ventas.urls', 'ventas'), namespace='ventas')),
     path('api/v1/usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
+    path('api/v1/almacenes/', include(('almacenes.urls', 'almacenes'), namespace='almacenes')),
 
     path('',include('usuarios.urls')), 
     #path('api/auth/',include('knox.urls')), 
