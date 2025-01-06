@@ -1,10 +1,15 @@
 from rest_framework import serializers
-from .models import Categoria, Producto
+from .models import Categoria, Proveedor, Producto
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
         # fields = ('id_categoria', 'nombre_categoria', 'descripcion')
+        fields = '__all__'
+
+class ProveedorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Proveedor
         fields = '__all__'
 
 class ProductoSerializer(serializers.ModelSerializer):
@@ -17,6 +22,8 @@ class ProductoSerializer(serializers.ModelSerializer):
 
     categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())  # Solo retorna el ID de la categoría
 
+    id_proveedor = serializers.PrimaryKeyRelatedField(queryset=Proveedor.objects.all())  # Solo retorna el ID del proveedor
+
     class Meta:
         model = Producto    
         fields = '__all__'
@@ -27,3 +34,4 @@ class ProductoSerializer(serializers.ModelSerializer):
         # Asegúrate de que el precio se represente como float en lugar de cadena
         representation['precio'] = float(representation['precio'])
         return representation
+    

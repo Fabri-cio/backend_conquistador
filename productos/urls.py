@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 from rest_framework import routers
-from .views import ProductoView, CategoriaView
+from .views import CategoriaView, ProveedorView, ProductoView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -9,6 +9,7 @@ router = routers.DefaultRouter()
 
 router.register(r'categorias', CategoriaView)  # Rutas para manejar categorías
 router.register(r'productos', ProductoView)  # Rutas para manejar productos
+router.register(r'proveedores', ProveedorView)  # Rutas para manejar proveedores
 
 schema_view = get_schema_view(
    openapi.Info(
