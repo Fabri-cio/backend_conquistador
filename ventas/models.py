@@ -1,35 +1,108 @@
 from django.db import models
+from django.dispatch import receiver
+from django.db.models.signals import post_save, post_delete
 from productos.models import Producto
+from usuarios.models import CustomUser as User
+from almacenes.models import Almacen
+from almacenes.models import Movimiento, TipoMovimiento, Inventario
+from django.db import transaction
+from django.core.exceptions import ValidationError
 
+# Definir los posibles estados de la venta
+ESTADOS_VENTA = [
+    ("Pendiente", "Pendiente"),
+    ("Pagada", "Pagada"),
+    ("Cancelada", "Cancelada"),
+]
+
+# Definir la clase Venta
 class Venta(models.Model):
     id_venta = models.AutoField(primary_key=True)
-    fecha_venta = models.DateField()
-    forma_pago = models.CharField(max_length=50, default="Efectivo")
-    id_empleado = models.IntegerField()
+    fecha_venta = models.DateTimeField(auto_now_add=True)
+    id_usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_tienda = models.ForeignKey(Almacen, on_delete=models.CASCADE)
+    metodo_pago = models.CharField(max_length=50, default="Efectivo",editable=False)
+    descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Descuento global de la venta
+    total_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
-    def calcular_total(self):
-        total = sum(detalle.cantidad * detalle.precio_venta for detalle in self.detalles.all())
-        return total
-    
-    def save(self, *args, **kwargs):
-        # Guardar la instancia primero para generar el PK
-        super().save(*args, **kwargs)
-        
-        # Ahora que la venta tiene un PK, podemos calcular el total
-        self.total_venta = self.calcular_total()
-        
-        # Guardamos de nuevo para actualizar el campo total_venta
-        super().save(*args, **kwargs)
-        
     def __str__(self):
         return f"Venta {self.id_venta} - {self.fecha_venta}"
 
+# Definir los detalles de la venta
 class DetalleVenta(models.Model):
-    id_detalle = models.AutoField(primary_key=True)
-    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
-    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='ventas')
+    id_detalle_venta = models.AutoField(primary_key=True)
+    id_venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
+    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='ventas')
     cantidad = models.IntegerField()
-    precio_venta = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    descuento_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Detalle {self.id_detalle} - Venta {self.venta.id_venta}"
+        return f"Detalle de Venta {self.id_detalle_venta} - Producto {self.id_producto}"
+
+    # Método para calcular el subtotal de este detalle
+    def save(self, *args, **kwargs):
+        self.subtotal = self.cantidad * self.precio_unitario - self.descuento_unitario
+        super().save(*args, **kwargs)
+
+# Señales para actualizar el total de la venta
+@receiver(post_save, sender=DetalleVenta)
+@receiver(post_delete, sender=DetalleVenta)
+def actualizar_total_venta(sender, instance, **kwargs):
+    # Obtener la venta asociada al detalle
+    venta = instance.id_venta
+    
+    # Calcular el nuevo total sumando los subtotales de los detalles
+    total = sum(detalle.subtotal for detalle in venta.detalles.all())
+    
+    # Calcular el descuento total sumando los descuentos unitarios de todos los detalles
+    total_descuentos_unitarios = sum(detalle.descuento_unitario for detalle in venta.detalles.all())
+    
+    # Restar el descuento de la venta (descuento global)
+    total -= venta.descuento
+    
+    # Restar los descuentos unitarios de los detalles de la venta
+    total -= total_descuentos_unitarios
+    
+    # Actualizar el campo total_venta en la venta
+    venta.total_venta = total
+    venta.save()
+
+# Señal para registrar los movimientos de inventario después de guardar un detalle de venta
+@receiver(post_save, sender=DetalleVenta)
+def registrar_movimiento(sender, instance, **kwargs):
+    """
+    Registra un movimiento de salida por cada producto en un detalle de venta.
+    """
+    try:
+        # Iniciar transacción para asegurar que tanto los movimientos como el inventario se actualicen correctamente
+        with transaction.atomic():
+            venta = instance.id_venta
+            producto = instance.id_producto
+            cantidad_vendida = instance.cantidad
+            tienda_origen = venta.id_tienda  # Almacén o tienda de la venta (origen)
+            
+            # Crear un tipo de movimiento "Salida" (esto podría definirse previamente en tu base de datos)
+            tipo_movimiento = TipoMovimiento.objects.get(nombre='Salida')
+
+            # Crear el movimiento de salida para el producto
+            movimiento = Movimiento.objects.create(
+                id_producto=producto,
+                id_origen=tienda_origen,
+                id_tipo=tipo_movimiento,
+                cantidad=-cantidad_vendida,  # Cantidad negativa para salida
+                id_usuario=venta.id_usuario,  # Usuario que realizó la venta
+            )
+
+            # Actualizar el inventario, restando la cantidad vendida
+            inventario = Inventario.objects.get(id_producto=producto, id_almacen_tienda=tienda_origen)
+            inventario.cantidad -= cantidad_vendida
+            inventario.save()
+
+    except Inventario.DoesNotExist:
+        # En caso de que no se encuentre el inventario de algún producto
+        raise ValidationError("No hay suficiente stock para este producto.")
+    except Exception as e:
+        # Manejo de cualquier otro error que pueda ocurrir
+        raise ValidationError(f"Error al registrar el movimiento: {e}")

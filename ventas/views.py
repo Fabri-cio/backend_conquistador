@@ -1,21 +1,32 @@
 from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework.decorators import action
 from .models import Venta, DetalleVenta
-from .serializer import VentaSerializer, DetalleVentaSerializer
-from rest_framework.permissions import IsAuthenticated  # Si necesitas autenticación
+from .serializers import VentaSerializer, DetalleVentaSerializer
+from rest_framework.permissions import IsAuthenticated
 
-# ViewSet para el modelo Venta
 class VentaViewSet(viewsets.ModelViewSet):
-    queryset = Venta.objects.all()  # Obtener todas las ventas
-    serializer_class = VentaSerializer  # Usar el serializador de la venta
-    # permission_classes = [IsAuthenticated]  # Si necesitas autenticar a los usuarios
+    queryset = Venta.objects.all()
+    serializer_class = VentaSerializer
+    permission_classes = [IsAuthenticated]
+
+    # Acción personalizada para obtener detalles de una venta específica
+    @action(detail=True, methods=['get'])
+    def detalles(self, request, pk=None):
+        venta = self.get_object()
+        detalles = venta.detalles.all()
+        serializer = DetalleVentaSerializer(detalles, many=True)
+        return Response(serializer.data)
 
     def perform_create(self, serializer):
-        # Si deseas realizar alguna acción adicional al crear una venta, puedes hacerlo aquí
-        # Por ejemplo, manejar el cálculo del total o cualquier validación extra
-        serializer.save()  # Guarda la venta
+        # Aquí podrías agregar lógica adicional si necesitas
+        serializer.save(id_usuario=self.request.user)
 
-# ViewSet para el modelo DetalleVenta
 class DetalleVentaViewSet(viewsets.ModelViewSet):
-    queryset = DetalleVenta.objects.all()  # Obtener todos los detalles de la venta
-    serializer_class = DetalleVentaSerializer  # Usar el serializador de detalle de venta
-    # permission_classes = [IsAuthenticated]  # Si necesitas autenticar a los usuarios
+    queryset = DetalleVenta.objects.all()
+    serializer_class = DetalleVentaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        # Aquí podrías agregar lógica adicional si necesitas
+        serializer.save()

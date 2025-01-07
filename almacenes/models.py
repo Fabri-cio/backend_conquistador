@@ -55,33 +55,8 @@ class Movimiento(models.Model):
     )  # FK al Almacén de destino (puede ser nulo)
     id_tipo = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE)  # FK al Tipo de Movimiento
     cantidad = models.IntegerField()  # Cantidad (positiva para entrada, negativa para salida)
-    fecha = models.DateTimeField(auto_now_add=True)  # Fecha y hora del movimiento
-    id_usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)  # FK a Usuario
+    id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, editable=False)  # FK a Usuario
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación del registro
 
-    def clean(self):
-        # Asegura que haya al menos un origen o destino
-        if not self.id_origen and not self.id_destino:
-            raise ValidationError("Debe especificar al menos un origen o un destino.")
-        # Validación lógica para la cantidad
-        if self.cantidad == 0:
-            raise ValidationError("La cantidad no puede ser cero.")
-        # Verificación adicional para traslados
-        if self.id_origen == self.id_destino and self.id_origen:
-            raise ValidationError("El origen y destino no pueden ser el mismo.")
-
-    def save(self, *args, **kwargs):
-        usuario = kwargs.pop('usuario', None)  # Captura el usuario que realiza la operación
-        if not self.pk:  # Si es un nuevo registro
-            self.id_usuario = usuario
-        else:  # Si es una actualización
-            self.id_usuario = usuario
-        self.clean()  # Llama a las validaciones personalizadas
-        super().save(*args, **kwargs)
-
     def __str__(self):
-        movimiento_tipo = f"{self.id_tipo.nombre} ({'Entrada' if self.cantidad > 0 else 'Salida'})"
-        return f"{movimiento_tipo}: {self.cantidad} {self.id_producto.nombre} ({self.fecha})"
-
-    class Meta:
-        ordering = ['-fecha_creacion']  # Ordena por fecha de creación (más reciente primero)
+        return f"{self.cantidad} {self.id_producto.nombre}"

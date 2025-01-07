@@ -34,7 +34,7 @@ class ProductoAdmin(admin.ModelAdmin):
 
     # Método para mostrar el id_user
     def get_user(self, obj):
-        return obj.id_user.username  # Muestra el nombre de usuario del ID
+        return obj.id_user.email   # Muestra el nombre de usuario del ID
 
     get_user.short_description = 'Creado Por'  # Título del campo en el admin
 
