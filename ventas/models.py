@@ -44,65 +44,47 @@ class DetalleVenta(models.Model):
     # Método para calcular el subtotal de este detalle
     def save(self, *args, **kwargs):
         self.subtotal = self.cantidad * self.precio_unitario - self.descuento_unitario
+        if self.subtotal < 0:
+            raise ValidationError("El subtotal no puede ser negativo.")
         super().save(*args, **kwargs)
 
 # Señales para actualizar el total de la venta
 @receiver(post_save, sender=DetalleVenta)
 @receiver(post_delete, sender=DetalleVenta)
 def actualizar_total_venta(sender, instance, **kwargs):
-    # Obtener la venta asociada al detalle
     venta = instance.id_venta
-    
-    # Calcular el nuevo total sumando los subtotales de los detalles
     total = sum(detalle.subtotal for detalle in venta.detalles.all())
-    
-    # Calcular el descuento total sumando los descuentos unitarios de todos los detalles
-    total_descuentos_unitarios = sum(detalle.descuento_unitario for detalle in venta.detalles.all())
-    
-    # Restar el descuento de la venta (descuento global)
-    total -= venta.descuento
-    
-    # Restar los descuentos unitarios de los detalles de la venta
-    total -= total_descuentos_unitarios
-    
-    # Actualizar el campo total_venta en la venta
+    total -= venta.descuento if total > venta.descuento else total
     venta.total_venta = total
     venta.save()
 
-# Señal para registrar los movimientos de inventario después de guardar un detalle de venta
 @receiver(post_save, sender=DetalleVenta)
 def registrar_movimiento(sender, instance, **kwargs):
-    """
-    Registra un movimiento de salida por cada producto en un detalle de venta.
-    """
     try:
-        # Iniciar transacción para asegurar que tanto los movimientos como el inventario se actualicen correctamente
         with transaction.atomic():
             venta = instance.id_venta
             producto = instance.id_producto
             cantidad_vendida = instance.cantidad
-            tienda_origen = venta.id_tienda  # Almacén o tienda de la venta (origen)
-            
-            # Crear un tipo de movimiento "Salida" (esto podría definirse previamente en tu base de datos)
-            tipo_movimiento = TipoMovimiento.objects.get(nombre='Salida')
+            tienda_origen = venta.id_tienda
 
-            # Crear el movimiento de salida para el producto
-            movimiento = Movimiento.objects.create(
+            inventario = Inventario.objects.get(id_producto=producto, id_almacen_tienda=tienda_origen)
+            if inventario.cantidad < cantidad_vendida:
+                raise ValidationError("No hay suficiente stock para este producto.")
+
+            tipo_movimiento = TipoMovimiento.objects.get(nombre='Salida')
+            Movimiento.objects.create(
                 id_producto=producto,
                 id_origen=tienda_origen,
                 id_tipo=tipo_movimiento,
-                cantidad=-cantidad_vendida,  # Cantidad negativa para salida
-                id_usuario=venta.id_usuario,  # Usuario que realizó la venta
+                cantidad=-cantidad_vendida,
+                id_usuario=venta.id_usuario,
             )
 
-            # Actualizar el inventario, restando la cantidad vendida
-            inventario = Inventario.objects.get(id_producto=producto, id_almacen_tienda=tienda_origen)
             inventario.cantidad -= cantidad_vendida
             inventario.save()
 
     except Inventario.DoesNotExist:
-        # En caso de que no se encuentre el inventario de algún producto
-        raise ValidationError("No hay suficiente stock para este producto.")
+        raise ValidationError("El producto no tiene inventario asociado en esta tienda.")
     except Exception as e:
-        # Manejo de cualquier otro error que pueda ocurrir
         raise ValidationError(f"Error al registrar el movimiento: {e}")
+
