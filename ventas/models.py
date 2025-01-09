@@ -34,7 +34,7 @@ class DetalleVenta(models.Model):
     id_venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='ventas')
     cantidad = models.IntegerField()
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     descuento_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
