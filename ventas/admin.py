@@ -38,20 +38,27 @@ class DetalleVentaInline(admin.TabularInline):
         obj.subtotal = obj.cantidad * obj.precio_unitario - obj.descuento_unitario
         super().save_model(request, obj, form, change)
 
-
 # Admin para Venta
 class VentaAdmin(admin.ModelAdmin):
     list_display = ['id_venta', 'fecha_venta', 'id_usuario', 'id_tienda', 'total_venta']
     list_filter = ['fecha_venta', 'id_tienda']
     search_fields = ['id_venta', 'id_usuario__username', 'id_tienda__nombre']
     inlines = [DetalleVentaInline]
+    readonly_fields = ['id_usuario', 'id_tienda', 'fecha_venta', 'total_venta']
 
     def save_model(self, request, obj, form, change):
+        if not change:  # Asignar solo en la creación
+            obj.id_usuario = request.user
+            if request.user.lugar_de_trabajo:
+                obj.id_tienda = request.user.lugar_de_trabajo
+            else:
+                raise forms.ValidationError("El usuario no tiene un almacén asignado en 'lugar_de_trabajo'.")
         super().save_model(request, obj, form, change)
+
+        # Calcular el total de la venta
         total = sum(detalle.subtotal for detalle in obj.detalles.all())
         obj.total_venta = total
         obj.save()
-
 
 admin.site.register(Venta, VentaAdmin)
 admin.site.register(DetalleVenta)

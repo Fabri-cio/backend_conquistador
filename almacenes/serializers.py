@@ -36,8 +36,7 @@ class InventarioSerializer(serializers.ModelSerializer):
 class MovimientoSerializer(serializers.ModelSerializer):
     # Similar a los anteriores, definimos las relaciones a otras tablas
     id_producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
-    id_origen = serializers.PrimaryKeyRelatedField(queryset=Almacen.objects.all(), required=False)
-    id_destino = serializers.PrimaryKeyRelatedField(queryset=Almacen.objects.all(), required=False)
+    id_almacen = serializers.PrimaryKeyRelatedField(queryset=Almacen.objects.all())
     id_tipo = serializers.PrimaryKeyRelatedField(queryset=TipoMovimiento.objects.all())
     id_usuario = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
 
@@ -46,8 +45,7 @@ class MovimientoSerializer(serializers.ModelSerializer):
         fields = [
             'id_movimiento',
             'id_producto',
-            'id_origen',
-            'id_destino',
+            'id_almacen',
             'id_tipo',
             'cantidad',
             'fecha',

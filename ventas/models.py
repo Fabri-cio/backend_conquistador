@@ -71,10 +71,10 @@ def registrar_movimiento(sender, instance, **kwargs):
             if inventario.cantidad < cantidad_vendida:
                 raise ValidationError("No hay suficiente stock para este producto.")
 
-            tipo_movimiento = TipoMovimiento.objects.get(nombre='Salida')
+            tipo_movimiento = TipoMovimiento.objects.get(nombre='Venta')
             Movimiento.objects.create(
                 id_producto=producto,
-                id_origen=tienda_origen,
+                id_almacen=tienda_origen,
                 id_tipo=tipo_movimiento,
                 cantidad=-cantidad_vendida,
                 id_usuario=venta.id_usuario,

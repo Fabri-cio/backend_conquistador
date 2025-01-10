@@ -3,6 +3,12 @@ from usuarios.models import CustomUser as User
 from productos.models import Producto
 from django.core.exceptions import ValidationError
 
+
+from django.db.models.signals import post_save, post_delete
+from django.dispatch import receiver
+from django.db import transaction
+from django.core.exceptions import ValidationError
+
 # Almacenes y Tiendas
 class Almacen(models.Model):
     id_almacen_tienda = models.AutoField(primary_key=True)  # PK
@@ -17,9 +23,14 @@ class TipoMovimiento(models.Model):
     id_tipo = models.AutoField(primary_key=True)  # PK
     nombre = models.CharField(max_length=255, unique=True)  # Nombre del tipo de movimiento
     descripcion = models.TextField(blank=True, null=True)  # Descripción opcional
+    naturelaza = models.CharField(
+        max_length=10, 
+        choices=(('Entrada', 'Entrada'), ('Salida', 'Salida')),
+        default='Entrada'
+    )
 
     def __str__(self):
-        return self.nombre
+        return f"{self.nombre} ({self.naturelaza})"  
 
 
 # Inventario
@@ -47,12 +58,7 @@ class Inventario(models.Model):
 class Movimiento(models.Model):
     id_movimiento = models.AutoField(primary_key=True)  # PK
     id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)  # FK a Producto
-    id_origen = models.ForeignKey(
-        Almacen, on_delete=models.SET_NULL, null=True, blank=True, related_name='movimientos_salida'
-    )  # FK al Almacén de origen (puede ser nulo)
-    id_destino = models.ForeignKey(
-        Almacen, on_delete=models.SET_NULL, null=True, blank=True, related_name='movimientos_entrada'
-    )  # FK al Almacén de destino (puede ser nulo)
+    id_almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='movimientos',null=True, blank=True)  # FK a Almacén
     id_tipo = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE)  # FK al Tipo de Movimiento
     cantidad = models.IntegerField()  # Cantidad (positiva para entrada, negativa para salida)
     id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, editable=False)  # FK a Usuario
@@ -60,3 +66,65 @@ class Movimiento(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} {self.id_producto.nombre}"
+
+# Señal para actualizar el inventario al guardar un movimiento
+@receiver(post_save, sender=Movimiento)
+def actualizar_inventario_guardar(sender, instance, **kwargs):
+    try:
+        with transaction.atomic():
+            inventario = Inventario.objects.get(
+                id_producto=instance.id_producto,
+                id_almacen_tienda=instance.id_almacen
+            )
+
+            # Procesar según la naturaleza del movimiento
+            if instance.id_tipo.naturelaza == 'Entrada':
+                # Sumar al inventario
+                inventario.cantidad += abs(instance.cantidad)
+            elif instance.id_tipo.naturelaza == 'Salida':
+                # Restar del inventario y validar cantidad suficiente
+                if abs(instance.cantidad) > inventario.cantidad:
+                    raise ValidationError(
+                        f"Stock insuficiente para {instance.id_producto.nombre} en el almacén {instance.id_almacen.nombre}."
+                    )
+                inventario.cantidad -= abs(instance.cantidad)
+
+            # Validar que el inventario nunca sea negativo
+            if inventario.cantidad < 0:
+                raise ValidationError("El inventario no puede ser negativo.")
+
+            inventario.save()
+
+    except Inventario.DoesNotExist:
+        raise ValidationError(
+            "No existe inventario para este producto en el almacén especificado."
+        )
+
+# Señal para revertir el inventario al eliminar un movimiento
+@receiver(post_delete, sender=Movimiento)
+def revertir_inventario_eliminar(sender, instance, **kwargs):
+    try:
+        with transaction.atomic():
+            inventario = Inventario.objects.get(
+                id_producto=instance.id_producto,
+                id_almacen_tienda=instance.id_almacen
+            )
+
+            # Revertir la operación según la naturaleza del movimiento
+            if instance.id_tipo.naturelaza == 'Entrada':
+                # Restar del inventario al revertir una entrada
+                inventario.cantidad -= abs(instance.cantidad)
+            elif instance.id_tipo.naturelaza == 'Salida':
+                # Sumar al inventario al revertir una salida
+                inventario.cantidad += abs(instance.cantidad)
+
+            # Validar que el inventario nunca sea negativo
+            if inventario.cantidad < 0:
+                raise ValidationError("El inventario no puede ser negativo.")
+
+            inventario.save()
+
+    except Inventario.DoesNotExist:
+        raise ValidationError(
+            "No existe inventario para este producto en el almacén especificado."
+        )

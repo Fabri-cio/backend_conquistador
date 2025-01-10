@@ -38,15 +38,15 @@ class InventarioAdmin(admin.ModelAdmin):
 
 @admin.register(Movimiento)
 class MovimientoAdmin(admin.ModelAdmin):
-    list_display = ['id_producto', 'id_origen', 'id_destino', 'id_tipo', 'cantidad', 'get_id_usuario', 'fecha_creacion']
-    search_fields = ['id_producto', 'id_origen', 'id_destino']
-    list_filter = ['id_tipo', 'id_origen', 'id_destino']
+    list_display = ['id_producto', 'id_almacen', 'id_tipo', 'cantidad', 'get_id_usuario', 'fecha_creacion']
+    search_fields = ['id_producto', 'id_almacen']
+    list_filter = ['id_tipo', 'id_almacen']
     
     readonly_fields = ['id_usuario','fecha_creacion']
 
     fieldsets = (
         (None, {
-            'fields': ('id_producto', 'id_origen', 'id_destino', 'id_tipo', 'cantidad'),
+            'fields': ('id_producto', 'id_almacen', 'id_tipo', 'cantidad'),
         }),
         ('Información Adicional', {
             'fields': ('id_usuario','fecha_creacion',),
