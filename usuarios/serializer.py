@@ -25,8 +25,10 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 class LoginSerializer(serializers.Serializer):
+    id=serializers.IntegerField(read_only=True)
     email = serializers.EmailField()
     password = serializers.CharField()
+    lugar_de_trabajo = serializers.CharField()
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
