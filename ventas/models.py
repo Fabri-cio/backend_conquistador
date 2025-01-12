@@ -8,13 +8,6 @@ from almacenes.models import Movimiento, TipoMovimiento, Inventario
 from django.db import transaction
 from django.core.exceptions import ValidationError
 
-# Definir los posibles estados de la venta
-ESTADOS_VENTA = [
-    ("Pendiente", "Pendiente"),
-    ("Pagada", "Pagada"),
-    ("Cancelada", "Cancelada"),
-]
-
 # Definir la clase Venta
 class Venta(models.Model):
     id_venta = models.AutoField(primary_key=True)
@@ -41,22 +34,22 @@ class DetalleVenta(models.Model):
     def __str__(self):
         return f"Detalle de Venta {self.id_detalle_venta} - Producto {self.id_producto}"
 
-    # Método para calcular el subtotal de este detalle
-    def save(self, *args, **kwargs):
-        self.subtotal = self.cantidad * self.precio_unitario - self.descuento_unitario
-        if self.subtotal < 0:
-            raise ValidationError("El subtotal no puede ser negativo.")
-        super().save(*args, **kwargs)
+    # # Método para calcular el subtotal de este detalle
+    # def save(self, *args, **kwargs):
+    #     self.subtotal = self.cantidad * self.precio_unitario - self.descuento_unitario
+    #     if self.subtotal < 0:
+    #         raise ValidationError("El subtotal no puede ser negativo.")
+    #     super().save(*args, **kwargs)
 
-# Señales para actualizar el total de la venta
-@receiver(post_save, sender=DetalleVenta)
-@receiver(post_delete, sender=DetalleVenta)
-def actualizar_total_venta(sender, instance, **kwargs):
-    venta = instance.id_venta
-    total = sum(detalle.subtotal for detalle in venta.detalles.all())
-    total -= venta.descuento if total > venta.descuento else total
-    venta.total_venta = total
-    venta.save()
+# # Señales para actualizar el total de la venta
+# @receiver(post_save, sender=DetalleVenta)
+# @receiver(post_delete, sender=DetalleVenta)
+# def actualizar_total_venta(sender, instance, **kwargs):
+#     venta = instance.id_venta
+#     total = sum(detalle.subtotal for detalle in venta.detalles.all())
+#     total -= venta.descuento if total > venta.descuento else total
+#     venta.total_venta = total
+#     venta.save()
 
 @receiver(post_save, sender=DetalleVenta)
 def registrar_movimiento(sender, instance, **kwargs):
@@ -67,10 +60,15 @@ def registrar_movimiento(sender, instance, **kwargs):
             cantidad_vendida = instance.cantidad
             tienda_origen = venta.id_tienda
 
-            inventario = Inventario.objects.get(id_producto=producto, id_almacen_tienda=tienda_origen)
+            # Verificar si el producto tiene inventario en la tienda
+            inventario = Inventario.objects.filter(id_producto=producto, id_almacen_tienda=tienda_origen).first()
+            if not inventario:
+                raise ValidationError(f"El producto {producto.nombre} no tiene inventario registrado en esta tienda.")
+            
             if inventario.cantidad < cantidad_vendida:
                 raise ValidationError("No hay suficiente stock para este producto.")
 
+            # Registrar el movimiento
             tipo_movimiento = TipoMovimiento.objects.get(nombre='Venta')
             Movimiento.objects.create(
                 id_producto=producto,
@@ -80,11 +78,13 @@ def registrar_movimiento(sender, instance, **kwargs):
                 id_usuario=venta.id_usuario,
             )
 
+            # Actualizar el inventario
             inventario.cantidad -= cantidad_vendida
             inventario.save()
 
-    except Inventario.DoesNotExist:
-        raise ValidationError("El producto no tiene inventario asociado en esta tienda.")
-    except Exception as e:
+    except ValidationError as e:
+        # Asegúrate de que la excepción sea propagada correctamente
         raise ValidationError(f"Error al registrar el movimiento: {e}")
-
+    except Exception as e:
+        # Cualquier otra excepción también será propagada
+        raise ValidationError(f"Error al registrar el movimiento: {e}")

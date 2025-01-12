@@ -48,7 +48,7 @@ class MovimientoSerializer(serializers.ModelSerializer):
             'id_almacen',
             'id_tipo',
             'cantidad',
-            'fecha',
+            'fecha_creacion',
             'id_usuario',
             'fecha_creacion'
         ]
