@@ -6,16 +6,21 @@ from .models import Inventario
 from .models import Venta, DetalleVenta
 
 class DetalleVentaSerializer(serializers.ModelSerializer):
+    # Obtener el nombre del producto desde el objeto relacionado Producto
+    nombre_producto = serializers.CharField(source='id_producto.nombre', read_only=True)
+
     class Meta:
         model = DetalleVenta
-        fields = ['id_producto', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
+        fields = ['id_producto','nombre_producto', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
 
 class VentaSerializer(serializers.ModelSerializer):
     detalles = DetalleVentaSerializer(many=True)
+    nombre_tienda = serializers.CharField(source='id_tienda.nombre', read_only=True)  # Campo personalizado
+
 
     class Meta:
         model = Venta
-        fields = ['id_usuario', 'id_tienda', 'metodo_pago', 'descuento', 'total_venta', 'detalles']
+        fields = ['id_venta', 'fecha_venta', 'id_usuario', 'id_tienda','nombre_tienda', 'metodo_pago', 'descuento', 'total_venta', 'detalles']
 
     def create(self, validated_data):
         # Extraer los datos de los detalles de venta
