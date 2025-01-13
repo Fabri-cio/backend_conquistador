@@ -8,10 +8,11 @@ from .models import Venta, DetalleVenta
 class DetalleVentaSerializer(serializers.ModelSerializer):
     # Obtener el nombre del producto desde el objeto relacionado Producto
     nombre_producto = serializers.CharField(source='id_producto.nombre', read_only=True)
+    fecha_venta = serializers.DateTimeField(source='id_venta.fecha_venta', read_only=True)
 
     class Meta:
         model = DetalleVenta
-        fields = ['id_producto','nombre_producto', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
+        fields = ['id_producto','nombre_producto', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal', 'fecha_venta']
 
 class VentaSerializer(serializers.ModelSerializer):
     detalles = DetalleVentaSerializer(many=True)
