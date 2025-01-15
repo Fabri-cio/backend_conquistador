@@ -12,4 +12,4 @@ class ProveedorView(viewsets.ModelViewSet):
 
 class ProductoView(viewsets.ModelViewSet):
     serializer_class = ProductoSerializer
-    queryset = Producto.objects.all()
+    queryset = Producto.objects.select_related('categoria', 'id_proveedor')

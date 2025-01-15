@@ -13,20 +13,26 @@ class ProveedorSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductoSerializer(serializers.ModelSerializer):
-    # Serializador anidado para mostrar los detalles de la categoría
-    # categoria = CategoriaSerializer()
-
-    #categoria = serializers.CharField(source='categoria.nombre_categoria')
 
     precio = serializers.DecimalField(max_digits=10, decimal_places=2)
-
-    categoria = serializers.PrimaryKeyRelatedField(queryset=Categoria.objects.all())  # Solo retorna el ID de la categoría
-
-    id_proveedor = serializers.PrimaryKeyRelatedField(queryset=Proveedor.objects.all())  # Solo retorna el ID del proveedor
+    nombre_categoria = serializers.CharField(source="categoria.nombre_categoria", read_only=True)
+    nombre_proveedor = serializers.CharField(source="id_proveedor.nombre_proveedor", read_only=True)
+    nombre_usuario = serializers.CharField(source="id_user.email", read_only=True)
 
     class Meta:
-        model = Producto    
-        fields = '__all__'
+        model = Producto
+        fields = [
+            "id_producto",        # ID del producto
+            "nombre_usuario",      # ID del usuario
+            "estado",             # Estado del producto
+            "nombre",             # Nombre del producto
+            "precio",             # Precio del producto
+            "codigo_barras",      # Código de barras
+            "nombre_proveedor",   # Nombre del proveedor
+            "nombre_categoria",   # Nombre de la categoría
+            "fecha_creacion",     # Fecha de creación
+            "fecha_modificacion", # Fecha de modificación
+        ]
 
     # Opcional: Ajustes en la representación (si deseas asegurar que el precio sea flotante)
     def to_representation(self, instance):
