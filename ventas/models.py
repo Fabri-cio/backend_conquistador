@@ -35,21 +35,23 @@ class DetalleVenta(models.Model):
         return f"Detalle de Venta {self.id_detalle_venta} - Producto {self.id_producto}"
 
     # # Método para calcular el subtotal de este detalle
-    # def save(self, *args, **kwargs):
-    #     self.subtotal = self.cantidad * self.precio_unitario - self.descuento_unitario
-    #     if self.subtotal < 0:
-    #         raise ValidationError("El subtotal no puede ser negativo.")
-    #     super().save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        if self.precio_unitario is None:
+            raise ValidationError("El precio unitario no puede ser nulo.")
+        self.subtotal = (self.cantidad * self.precio_unitario) - self.descuento_unitario
+        if self.subtotal < 0:
+            raise ValidationError("El subtotal no puede ser negativo.")
+        super().save(*args, **kwargs)
 
 # # Señales para actualizar el total de la venta
-# @receiver(post_save, sender=DetalleVenta)
-# @receiver(post_delete, sender=DetalleVenta)
-# def actualizar_total_venta(sender, instance, **kwargs):
-#     venta = instance.id_venta
-#     total = sum(detalle.subtotal for detalle in venta.detalles.all())
-#     total -= venta.descuento if total > venta.descuento else total
-#     venta.total_venta = total
-#     venta.save()
+@receiver(post_save, sender=DetalleVenta)
+@receiver(post_delete, sender=DetalleVenta)
+def actualizar_total_venta(sender, instance, **kwargs):
+    venta = instance.id_venta
+    total = sum(detalle.subtotal for detalle in venta.detalles.all())
+    total -= venta.descuento if total > venta.descuento else total
+    venta.total_venta = total
+    venta.save()
 
 @receiver(post_save, sender=DetalleVenta)
 def registrar_movimiento(sender, instance, **kwargs):

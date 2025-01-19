@@ -35,7 +35,7 @@ class DetalleVentaInline(admin.TabularInline):
     readonly_fields = ['subtotal']
 
     def save_model(self, request, obj, form, change):
-        obj.subtotal = obj.cantidad * obj.precio_unitario - obj.descuento_unitario
+        obj.subtotal = (obj.cantidad * obj.precio_unitario) - obj.descuento_unitario
         super().save_model(request, obj, form, change)
 
 # Admin para Venta
