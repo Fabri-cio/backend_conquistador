@@ -9,8 +9,11 @@ class LoginSerializer(serializers.Serializer):
     id=serializers.IntegerField(read_only=True)
     email = serializers.EmailField()
     password = serializers.CharField()
-    lugar_de_trabajo = serializers.PrimaryKeyRelatedField(queryset=Almacen.objects.all(), source='lugar_de_trabajo_id')
-
+    lugar_de_trabajo = serializers.PrimaryKeyRelatedField(
+        queryset=Almacen.objects.all(),
+        source='lugar_de_trabajo_id',
+        required=False  # Hacer que el campo sea opcional
+    )
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret.pop('password', None)
