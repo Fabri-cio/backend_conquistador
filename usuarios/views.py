@@ -5,6 +5,7 @@ from .models import *
 from rest_framework.response import Response 
 from django.contrib.auth import get_user_model, authenticate
 from knox.models import AuthToken
+from rest_framework.permissions import IsAuthenticated
 
 User = get_user_model()
 
@@ -56,3 +57,8 @@ class UserViewset(viewsets.ViewSet):
         queryset = User.objects.all()
         serializer = self.serializer_class(queryset, many=True)
         return Response(serializer.data)
+    
+class CustomUserViewSet(viewsets.ModelViewSet):
+    queryset = CustomUser.objects.all()
+    serializer_class = CustomUserSerializer
+    permission_classes = [permissions.AllowAny]
