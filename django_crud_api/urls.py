@@ -42,7 +42,6 @@ urlpatterns = [
     path('api/v1/almacenes/', include(('almacenes.urls', 'almacenes'), namespace='almacenes')),
     path('api/v1/predicciones/', include(('predicciones.urls', 'predicciones'), namespace='predicciones')),
 
-    path('',include('usuarios.urls')), 
     #path('api/auth/',include('knox.urls')), 
 
     path('logout/',knox_views.LogoutView.as_view(), name='knox_logout'), 

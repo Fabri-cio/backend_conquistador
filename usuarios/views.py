@@ -48,7 +48,7 @@ class RegisterViewset(viewsets.ViewSet):
 
 
 class UserViewset(viewsets.ViewSet):
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
