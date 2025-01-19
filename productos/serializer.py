@@ -35,6 +35,8 @@ class ProductoSerializer(serializers.ModelSerializer):
             "usuario_modificacion",
             "fecha_creacion",     # Fecha de creación
             "fecha_modificacion", # Fecha de modificación
+            "id_proveedor",
+            "categoria",
         ]
 
     # Opcional: Ajustes en la representación (si deseas asegurar que el precio sea flotante)
