@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Categoria, Proveedor, Producto
+from .models import Categoria, Proveedor, Producto, User
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -17,19 +17,22 @@ class ProductoSerializer(serializers.ModelSerializer):
     precio = serializers.DecimalField(max_digits=10, decimal_places=2)
     nombre_categoria = serializers.CharField(source="categoria.nombre_categoria", read_only=True)
     nombre_proveedor = serializers.CharField(source="id_proveedor.nombre_proveedor", read_only=True)
-    nombre_usuario = serializers.CharField(source="id_user.email", read_only=True)
+    usuario_creacion = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    usuario_modificacion = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+
 
     class Meta:
         model = Producto
         fields = [
             "id_producto",        # ID del producto
-            "nombre_usuario",      # ID del usuario
             "estado",             # Estado del producto
             "nombre",             # Nombre del producto
             "precio",             # Precio del producto
             "codigo_barras",      # Código de barras
             "nombre_proveedor",   # Nombre del proveedor
             "nombre_categoria",   # Nombre de la categoría
+            "usuario_creacion",
+            "usuario_modificacion",
             "fecha_creacion",     # Fecha de creación
             "fecha_modificacion", # Fecha de modificación
         ]

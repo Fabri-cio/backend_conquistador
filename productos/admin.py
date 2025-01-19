@@ -13,44 +13,46 @@ class ProveedorAdmin(admin.ModelAdmin):
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
-    # Cambiar el nombre de los campos y su formato
-    list_display = ['nombre', 'precio', 'estado', 'get_user', 'get_fecha_creacion', 'get_fecha_modificacion']
+    list_display = [
+        'nombre', 'precio', 'estado', 'get_usuario_creacion', 'get_usuario_modificacion',
+        'get_fecha_creacion', 'get_fecha_modificacion'
+    ]
     list_filter = ['estado', 'categoria']
     search_fields = ['nombre', 'codigo_barras']
-    
-    # Campos de solo lectura
-    readonly_fields = ['id_user', 'fecha_creacion', 'fecha_modificacion']
-    
-    # Organizar los campos en el formulario
+    readonly_fields = ['usuario_creacion', 'usuario_modificacion', 'fecha_creacion', 'fecha_modificacion']
+
     fieldsets = (
         (None, {
             'fields': ('nombre', 'precio', 'codigo_barras', 'categoria', 'id_proveedor', 'estado'),
         }),
         ('Información Adicional', {
-            'fields': ('id_user', 'fecha_creacion', 'fecha_modificacion'),
-            'classes': ('collapse',),  # Los hace colapsables
+            'fields': ('usuario_creacion', 'usuario_modificacion', 'fecha_creacion', 'fecha_modificacion'),
+            'classes': ('collapse',),
         }),
     )
 
-    # Método para mostrar el id_user
-    def get_user(self, obj):
-        return obj.id_user.email   # Muestra el nombre de usuario del ID
+    def get_usuario_creacion(self, obj):
+        return obj.usuario_creacion.email if obj.usuario_creacion else "No asignado"
 
-    get_user.short_description = 'Creado Por'  # Título del campo en el admin
+    get_usuario_creacion.short_description = "Creado por"
 
-    # Métodos para formatear las fechas
+    def get_usuario_modificacion(self, obj):
+        return obj.usuario_modificacion.email if obj.usuario_modificacion else "No asignado"
+
+    get_usuario_modificacion.short_description = "Modificado por"
+
     def get_fecha_creacion(self, obj):
-        return obj.fecha_creacion.strftime('%d/%m/%Y %H:%M')  # Personaliza el formato de fecha
+        return obj.fecha_creacion.strftime('%d/%m/%Y %H:%M')
 
-    get_fecha_creacion.short_description = 'Fecha de Creación'  # Título del campo en el admin
+    get_fecha_creacion.short_description = "Fecha de creación"
 
     def get_fecha_modificacion(self, obj):
-        return obj.fecha_modificacion.strftime('%d/%m/%Y %H:%M')  # Personaliza el formato de fecha
+        return obj.fecha_modificacion.strftime('%d/%m/%Y %H:%M')
 
-    get_fecha_modificacion.short_description = 'Fecha de Modificación'  # Título del campo en el admin
+    get_fecha_modificacion.short_description = "Fecha de modificación"
 
-    # Sobrescribe save_model para asignar automáticamente el usuario autenticado
     def save_model(self, request, obj, form, change):
-        if not change or not obj.id_user:
-            obj.id_user = request.user
+        if not change or not obj.usuario_creacion:
+            obj.usuario_creacion = request.user
+        obj.usuario_modificacion = request.user
         super().save_model(request, obj, form, change)

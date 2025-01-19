@@ -40,6 +40,11 @@ class MovimientoSerializer(serializers.ModelSerializer):
     id_tipo = serializers.PrimaryKeyRelatedField(queryset=TipoMovimiento.objects.all())
     id_usuario = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
 
+    nom_produc = serializers.CharField(source="id_producto.nombre", read_only=True)
+    nom_alm = serializers.CharField(source="id_almacen.nombre", read_only=True)
+    nom_tip = serializers.CharField(source="id_tipo.nombre", read_only=True)
+    nom_user = serializers.CharField(source="id_usuario.email", read_only=True)
+
     class Meta:
         model = Movimiento
         fields = [
@@ -50,5 +55,9 @@ class MovimientoSerializer(serializers.ModelSerializer):
             'cantidad',
             'fecha_creacion',
             'id_usuario',
-            'fecha_creacion'
+            'fecha_creacion',
+            'nom_produc',
+            'nom_alm',
+            'nom_tip',
+            'nom_user',
         ]

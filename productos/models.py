@@ -28,7 +28,12 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     codigo_barras = models.CharField(max_length=50, unique=True)  # Asegura que el código de barras sea único
     estado = models.BooleanField(default=True)
-    id_user = models.ForeignKey(User, on_delete=models.CASCADE, editable=False)
+    usuario_creacion = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='producto_creado'
+    )  # FK a Usuario que creó el registro
+    usuario_modificacion = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='producto_modificado'
+    )  # FK a Usuario que modificó el registro
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
 
