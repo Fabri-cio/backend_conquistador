@@ -19,6 +19,8 @@ class LoginSerializer(serializers.Serializer):
         source='lugar_de_trabajo_id',
         required=False  # Hacer que el campo sea opcional
     )
+
+    name_rol = serializers.CharField(source="role.name", read_only=True)
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret.pop('password', None)
