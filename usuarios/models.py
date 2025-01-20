@@ -24,12 +24,22 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
+    
+class Role(models.Model):
+    name = models.CharField(max_length=100, unique=True)  # Nombre del rol
+    description = models.TextField(blank=True, null=True)  # Descripción opcional
+
+    def __str__(self):
+        return self.name
 
 class CustomUser(AbstractUser):
     email = models.EmailField(max_length=200, unique=True)
     birthday = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=200, null=True, blank=True)
     lugar_de_trabajo = models.ForeignKey('almacenes.Almacen', on_delete=models.SET_NULL, null=True, blank=True)
+
+    # Relación de muchos a uno con el modelo Role
+    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = CustomUserManager()
 
@@ -65,3 +75,5 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
 
     msg.attach_alternative(html_message, "text/html")
     msg.send()
+
+

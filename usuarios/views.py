@@ -1,6 +1,7 @@
 from django.shortcuts import render
-from rest_framework import viewsets, permissions 
+from rest_framework import viewsets, permissions
 from .serializer import * 
+from .serializer import RoleSerializer
 from .models import * 
 from rest_framework.response import Response 
 from django.contrib.auth import get_user_model, authenticate
@@ -47,6 +48,9 @@ class RegisterViewset(viewsets.ViewSet):
         else: 
             return Response(serializer.errors,status=400)
 
+class RoleViewSet(viewsets.ModelViewSet):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
 
 class UserViewset(viewsets.ViewSet):
     permission_classes = [permissions.AllowAny]

@@ -5,6 +5,11 @@ from .models import *
 from django.contrib.auth import get_user_model 
 User = get_user_model()
 
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+
 class LoginSerializer(serializers.Serializer):
     id=serializers.IntegerField(read_only=True)
     email = serializers.EmailField()
@@ -21,27 +26,35 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegisterSerializer(serializers.ModelSerializer):
+    
+    role = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), required=False)
+
     class Meta:
         model = User
-        fields = ('id', 'email', 'password', 'birthday', 'lugar_de_trabajo')
+        fields = ('id', 'email', 'password', 'birthday', 'lugar_de_trabajo','role')
         extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         lugar_de_trabajo = validated_data.pop('lugar_de_trabajo', None)  # Manejar el campo opcional
         user = User.objects.create_user(**validated_data)
 
+        role = validated_data.pop('role', None)
+
         # Si el campo lugar_de_trabajo es proporcionado, actualiza el usuario con él
         if lugar_de_trabajo:
             user.lugar_de_trabajo = lugar_de_trabajo
             user.save()
 
+        # Asignar el rol al usuario
+        if role:
+            user.role = role
+            user.save()
+
         return user
 
 class CustomUserSerializer(serializers.ModelSerializer):
-    # Acceder a los permisos relacionados con el usuario
-    user_permissions = serializers.StringRelatedField(many=True)  # Este es el campo correcto para los permisos
-    groups = serializers.StringRelatedField(many=True)  # Mostrar los grupos del usuario como texto
-
+    name_rol = serializers.CharField(source="role.name", read_only=True)
+    name_work = serializers.CharField(source="lugar_de_trabajo.nombre", read_only=True)
     class Meta:
         model = CustomUser
         fields = [
@@ -55,8 +68,9 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'birthday',
             'username',
             'lugar_de_trabajo',
-            'user_permissions',  # Cambié 'permissions' por 'user_permissions'
-            'groups',
+            'name_work',
+            'role',  # Asegúrate de agregar 'role' aquí
+            'name_rol'
         ]
 
 
