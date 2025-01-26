@@ -38,20 +38,19 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         lugar_de_trabajo = validated_data.pop('lugar_de_trabajo', None)  # Manejar el campo opcional
-        user = User.objects.create_user(**validated_data)
-
         role = validated_data.pop('role', None)
+
+        user = User.objects.create_user(**validated_data)
 
         # Si el campo lugar_de_trabajo es proporcionado, actualiza el usuario con él
         if lugar_de_trabajo:
             user.lugar_de_trabajo = lugar_de_trabajo
-            user.save()
 
         # Asignar el rol al usuario
         if role:
             user.role = role
-            user.save()
-
+        
+        user.save()
         return user
 
 class CustomUserSerializer(serializers.ModelSerializer):
