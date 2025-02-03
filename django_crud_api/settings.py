@@ -83,7 +83,7 @@ ROOT_URLCONF = 'django_crud_api.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -137,8 +137,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.environ.get('EMAIL_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_PASSWORD')
+EMAIL_HOST_USER = 'wil.fabri777@gmail.com'
+EMAIL_HOST_PASSWORD = 'mltt hzxs seqx zcnf'
 DEFAULT_FROM_EMAIL = 'CBI ANALYTICS'
 # Internationalization
 # https://docs.djangoproject.com/en/4.2/topics/i18n/
