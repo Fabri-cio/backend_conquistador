@@ -108,8 +108,14 @@ REST_FRAMEWORK = {
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        # 'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'django_api_db',
+        'USER': 'drf',
+        'PASSWORD': 'qwerty',
+        'HOST': 'localhost',  # O la dirección del servidor PostgreSQL
+        'PORT': '5432',  # Puerto por defecto de PostgreSQL
     }
 }
 
