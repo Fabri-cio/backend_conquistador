@@ -11,7 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import dj_database_url
+from dotenv import load_dotenv
 import os
+
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -110,19 +114,25 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        # 'NAME': BASE_DIR / 'db.sqlite3',
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'django_api_db',
-        'USER': 'drf',
-        'PASSWORD': 'qwerty',
-        'HOST': 'localhost',  # O la dirección del servidor PostgreSQL
-        'PORT': '5432',  # Puerto por defecto de PostgreSQL
-    }
-}
+# DATABASES = {
+#     'default': {
+#         # 'ENGINE': 'django.db.backends.sqlite3',
+#         # 'NAME': BASE_DIR / 'db.sqlite3',
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'django_api_db',
+#         'USER': 'drf',
+#         'PASSWORD': 'qwerty',
+#         'HOST': 'localhost',  # O la dirección del servidor PostgreSQL
+#         'PORT': '5432',  # Puerto por defecto de PostgreSQL
+#     }
+# }
 
+print(os.environ.get('DATABASE_URL'))
+DATABASES = {    
+    'default': dj_database_url.config(
+        default=os.environ.get('DATABASE_URL')
+    )
+}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
