@@ -182,6 +182,6 @@ STORAGES = {
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CSRF_TRUSTED_ORIGINS=['http://*','https://web-production-87467.up.railway.app/']
+CSRF_TRUSTED_ORIGINS=['http://*','https://web-production-87467.up.railway.app']
 
 
