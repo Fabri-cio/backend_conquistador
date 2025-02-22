@@ -32,7 +32,7 @@ DEBUG = True
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-ALLOWED_HOSTS = ['localhost', 'web-production-87467.up.railway.app']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'web-production-87467.up.railway.app']
 
 
 # Application definition
@@ -117,25 +117,25 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         # 'ENGINE': 'django.db.backends.sqlite3',
-#         # 'NAME': BASE_DIR / 'db.sqlite3',
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'django_api_db',
-#         'USER': 'drf',
-#         'PASSWORD': 'qwerty',
-#         'HOST': 'localhost',  # O la dirección del servidor PostgreSQL
-#         'PORT': '5432',  # Puerto por defecto de PostgreSQL
-#     }
-# }
-
-print(os.environ.get('DATABASE_URL'))
-DATABASES = {    
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_PUBLIC_URL')
-    )
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+        # 'ENGINE': 'django.db.backends.postgresql',
+        # 'NAME': 'django_api_db',
+        # 'USER': 'drf',
+        # 'PASSWORD': 'qwerty',
+        # 'HOST': 'localhost',  # O la dirección del servidor PostgreSQL
+        # 'PORT': '5432',  # Puerto por defecto de PostgreSQL
+    }
 }
+
+# print(os.environ.get('DATABASE_URL'))
+# DATABASES = {    
+#     'default': dj_database_url.config(
+#         default=os.environ.get('DATABASE_PUBLIC_URL')
+#     )
+# }
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
