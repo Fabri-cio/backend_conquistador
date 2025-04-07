@@ -37,7 +37,7 @@ class ProductoAdmin(admin.ModelAdmin):
     get_usuario_creacion.short_description = "Creado por"
 
     def get_usuario_modificacion(self, obj):
-        return obj.usuario_modificacion.email if obj.usuario_modificacion else "No asignado"
+        return obj.usuario_modificacion.email if obj.usuario_modificacion else "no modificado"
 
     get_usuario_modificacion.short_description = "Modificado por"
 
