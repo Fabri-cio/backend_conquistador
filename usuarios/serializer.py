@@ -54,6 +54,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
 
 class CustomUserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
     name_rol = serializers.CharField(source="role.name", read_only=True)
     name_work = serializers.CharField(source="lugar_de_trabajo.nombre", read_only=True)
     class Meta:
@@ -61,6 +62,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
         fields = [
             'id',
             'email',
+            'password',
             'first_name',
             'last_name',
             'is_staff',
@@ -74,4 +76,18 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'name_rol'
         ]
 
+    def create(self, validated_data):
+        return User.objects.create_user(**validated_data)
 
+    def update(self, instance, validated_data):
+        # Si viene una nueva contraseña, se hashea
+        password = validated_data.pop('password', None)
+        if password:
+            instance.set_password(password)
+
+        # Para el resto de campos, se actualiza normalmente
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+
+        instance.save()
+        return instance

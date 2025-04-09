@@ -1,14 +1,10 @@
-from django.shortcuts import render
-from rest_framework import viewsets, permissions
+from rest_framework import viewsets, permissions, status
 from .serializer import * 
-from .serializer import RoleSerializer
 from .models import * 
 from rest_framework.response import Response 
 from django.contrib.auth import get_user_model, authenticate
 from knox.models import AuthToken
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.pagination import PageNumberPagination
-from rest_framework import status
 
 User = get_user_model()
 
