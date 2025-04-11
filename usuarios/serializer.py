@@ -26,35 +26,9 @@ class LoginSerializer(serializers.Serializer):
         ret.pop('password', None)
         return ret
 
-
-class RegisterSerializer(serializers.ModelSerializer):
-    
-    role = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), required=False)
-
-    class Meta:
-        model = User
-        fields = ('id', 'email', 'password', 'birthday', 'lugar_de_trabajo','role')
-        extra_kwargs = {'password': {'write_only': True}}
-
-    def create(self, validated_data):
-        lugar_de_trabajo = validated_data.pop('lugar_de_trabajo', None)  # Manejar el campo opcional
-        role = validated_data.pop('role', None)
-
-        user = User.objects.create_user(**validated_data)
-
-        # Si el campo lugar_de_trabajo es proporcionado, actualiza el usuario con él
-        if lugar_de_trabajo:
-            user.lugar_de_trabajo = lugar_de_trabajo
-
-        # Asignar el rol al usuario
-        if role:
-            user.role = role
-        
-        user.save()
-        return user
-
 class CustomUserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=True)
+    password = serializers.CharField(write_only=True, required=False)
+    new_password = serializers.CharField(write_only=True, required=False)
     name_rol = serializers.CharField(source="role.name", read_only=True)
     name_work = serializers.CharField(source="lugar_de_trabajo.nombre", read_only=True)
     class Meta:
@@ -63,9 +37,10 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'id',
             'email',
             'password',
+            'new_password',
             'first_name',
             'last_name',
-            'is_staff',
+            'is_superuser',
             'is_active',
             'date_joined',
             'birthday',
@@ -75,19 +50,21 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'role',  # Asegúrate de agregar 'role' aquí
             'name_rol'
         ]
+        extra_kwargs = {
+            'password': {'write_only': True, 'required': False},
+            'new_password': {'write_only': True, 'required': False},  # 👈 Extra seguridad
+        }
 
     def create(self, validated_data):
+        if not validated_data.get('password'):
+            raise serializers.ValidationError({'password': 'Este campo es requerido para crear un usuario.'})
         return User.objects.create_user(**validated_data)
 
     def update(self, instance, validated_data):
-        # Si viene una nueva contraseña, se hashea
-        password = validated_data.pop('password', None)
-        if password:
-            instance.set_password(password)
-
-        # Para el resto de campos, se actualiza normalmente
+        new_password = validated_data.pop('new_password', None)
+        if new_password:
+            instance.set_password(new_password)
         for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-
+            setattr(instance, attr, value)  
         instance.save()
         return instance

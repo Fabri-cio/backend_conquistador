@@ -4,8 +4,6 @@ from knox import views as knox_views
 from .views import *
 
 router = DefaultRouter()
-router.register('register', RegisterViewset, basename='register')
-router.register('usuarios', UserViewset, basename='usuarios')
 router.register('customuser', CustomUserViewSet, basename='customuser')
 router.register('role', RoleViewSet, basename="role")
 

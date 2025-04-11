@@ -37,34 +37,9 @@ class LoginViewset(viewsets.ViewSet):
         else: 
             return Response(serializer.errors,status=400)
 
-
-
-class RegisterViewset(viewsets.ViewSet):
-    permission_classes = [permissions.AllowAny]
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
-
-    def create(self,request):
-        serializer = self.serializer_class(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else: 
-            return Response(serializer.errors,status=400)
-
 class RoleViewSet(viewsets.ModelViewSet):
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-
-class UserViewset(viewsets.ViewSet):
-    permission_classes = [permissions.AllowAny]
-    queryset = User.objects.all()
-    serializer_class = RegisterSerializer
-
-    def list(self,request):
-        queryset = User.objects.all()
-        serializer = self.serializer_class(queryset, many=True)
-        return Response(serializer.data)
     
 class CustomUserViewSet(viewsets.ModelViewSet):
     serializer_class = CustomUserSerializer
