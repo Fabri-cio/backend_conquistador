@@ -1,7 +1,7 @@
 from rest_framework import viewsets
 from .serializer import CategoriaSerializer, ProveedorSerializer, ProductoSerializer
 from .models import Categoria, Proveedor, Producto
-from .mixins import PaginacionYAllDataMixin
+from django_crud_api.mixins import PaginacionYAllDataMixin
 
 class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
