@@ -14,7 +14,7 @@ class ProveedorAdmin(admin.ModelAdmin):
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
     list_display = [
-        'nombre', 'precio', 'estado', 'get_usuario_creacion', 'get_usuario_modificacion',
+        'nombre', 'precio', 'estado', 'imagen', 'get_usuario_creacion', 'get_usuario_modificacion',
         'get_fecha_creacion', 'get_fecha_modificacion'
     ]
     list_filter = ['estado', 'categoria']
@@ -23,7 +23,7 @@ class ProductoAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('nombre', 'precio', 'codigo_barras', 'categoria', 'id_proveedor', 'estado'),
+            'fields': ('nombre', 'precio', 'codigo_barras', 'categoria', 'id_proveedor', 'estado', 'imagen'),
         }),
         ('Información Adicional', {
             'fields': ('usuario_creacion', 'usuario_modificacion', 'fecha_creacion', 'fecha_modificacion'),

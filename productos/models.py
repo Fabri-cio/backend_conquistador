@@ -28,6 +28,7 @@ class Producto(models.Model):
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
     codigo_barras = models.CharField(max_length=50, unique=True)  # Asegura que el código de barras sea único
     estado = models.BooleanField(default=True)
+    imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
     usuario_creacion = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, related_name='producto_creado'
     )  # FK a Usuario que creó el registro

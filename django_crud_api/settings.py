@@ -184,7 +184,9 @@ USE_TZ = False
 STATIC_URL = 'static/'
 
 STORAGES = {
-    # ...
+    "default": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+    },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
     },
@@ -197,4 +199,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CSRF_TRUSTED_ORIGINS=['http://*','https://web-production-87467.up.railway.app']
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+FILE_UPLOAD_MAX_MEMORY_SIZE = 2621440  # 2.5 MB
+FILE_UPLOAD_TEMP_DIR = os.path.join(BASE_DIR, 'media')
 
