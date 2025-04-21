@@ -24,7 +24,18 @@ class VentaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Venta
-        fields = ['id_venta', 'fecha_venta', 'id_usuario','nom_user', 'id_tienda','nombre_tienda', 'metodo_pago', 'descuento', 'total_venta', 'detalles']
+        fields = [
+            'id_venta', 
+            'fecha_venta', 
+            'id_usuario',
+            'nom_user', 
+            'id_tienda',
+            'nombre_tienda', 
+            'metodo_pago', 
+            'descuento', 
+            'total_venta', 
+            'detalles'
+        ]
 
     def create(self, validated_data):
         # Extraer los datos de los detalles de venta
