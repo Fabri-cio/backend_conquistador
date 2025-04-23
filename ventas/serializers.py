@@ -14,7 +14,16 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = DetalleVenta
-        fields = ['id_producto','nombre_producto','nombre_tienda', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal', 'fecha_venta']
+        fields = [
+            'id_producto',
+            'nombre_producto',
+            'nombre_tienda', 
+            'cantidad', 
+            'precio_unitario', 
+            'descuento_unitario', 
+            'subtotal', 
+            'fecha_venta'
+        ]
 
 class VentaSerializer(serializers.ModelSerializer):
     detalles = DetalleVentaSerializer(many=True)
