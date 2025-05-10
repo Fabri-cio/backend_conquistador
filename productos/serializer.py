@@ -21,10 +21,11 @@ class ProductoListSerializer(serializers.ModelSerializer):
             "id_producto",        
             "estado",             
             "nombre",             
-            "precio",                   
+            "precio",                     
             "nombre_proveedor",   
             "nombre_categoria",
             "imagen",  
+            "documento",
         ]
     
 class ProductoDetailSerializer(serializers.ModelSerializer):
@@ -40,6 +41,7 @@ class ProductoDetailSerializer(serializers.ModelSerializer):
             "id_proveedor",
             "categoria",
             "imagen",
+            "documento",
         ]
 
 class ProductoCreateSerializer(serializers.ModelSerializer):
@@ -55,4 +57,5 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
             "usuario_creacion",
             "usuario_modificacion",
             "imagen",
+            "documento",
         ]

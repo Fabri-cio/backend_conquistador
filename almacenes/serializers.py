@@ -12,8 +12,8 @@ class TipoMovimientoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class InventarioSerializer(serializers.ModelSerializer):
-    # Si quieres que el campo de producto sea más detallado, puedes usar un serializer para Producto
     id_producto_nombre = serializers.CharField(source="id_producto.nombre", read_only=True)
+    precio = serializers.DecimalField(source="id_producto.precio", read_only=True, max_digits=10, decimal_places=2)
     id_almacen_tienda_nombre = serializers.CharField(source="id_almacen_tienda.nombre", read_only=True)
     usuario_creacion = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
     usuario_modificacion = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
@@ -32,6 +32,7 @@ class InventarioSerializer(serializers.ModelSerializer):
             'usuario_modificacion',
             'comentario_modificacion',
             'id_producto_nombre',
+            'precio',
             'id_almacen_tienda_nombre',
         ]
 

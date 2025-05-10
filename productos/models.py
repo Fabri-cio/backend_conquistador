@@ -29,6 +29,7 @@ class Producto(models.Model):
     codigo_barras = models.CharField(max_length=50, unique=True)  # Asegura que el código de barras sea único
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
+    documento = models.FileField(upload_to='productos/documentos/', null=True, blank=True)
     usuario_creacion = models.ForeignKey(
         User, on_delete=models.SET_NULL, null=True, related_name='producto_creado'
     )  # FK a Usuario que creó el registro
@@ -37,6 +38,7 @@ class Producto(models.Model):
     )  # FK a Usuario que modificó el registro
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
+
 
     def __str__(self):
         return self.nombre

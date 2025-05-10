@@ -13,7 +13,14 @@ class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
 class InventarioViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = InventarioSerializer
-    queryset = Inventario.objects.all().order_by('id_inventario')
+
+    def get_queryset(self):
+        user = self.request.user
+        # Filtrar por lugar de trabajo solo si el usuario está autenticado y tiene un lugar de trabajo
+        if user.is_authenticated and user.lugar_de_trabajo:
+            return Inventario.objects.filter(id_almacen_tienda=user.lugar_de_trabajo).order_by('id_inventario')
+        return Inventario.objects.none()  # Si no tiene lugar de trabajo, no devuelve nada. O puedes devolver todo.
+
 
 class MovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = MovimientoSerializer 

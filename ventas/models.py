@@ -42,7 +42,6 @@ class DetalleVenta(models.Model):
         if self.subtotal < 0:
             raise ValidationError("El subtotal no puede ser negativo.")
         super().save(*args, **kwargs)
-
 # # Señales para actualizar el total de la venta
 @receiver(post_save, sender=DetalleVenta)
 @receiver(post_delete, sender=DetalleVenta)
