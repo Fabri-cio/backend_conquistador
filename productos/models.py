@@ -5,7 +5,17 @@ from usuarios.models import CustomUser as User
 class Categoria(models.Model):
     id_categoria = models.AutoField(primary_key=True)
     nombre_categoria = models.CharField(max_length=100)
-    descripcion = models.TextField()
+    descripcion = models.TextField(null=True, blank=True)
+    estado = models.BooleanField(default=True)
+    imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
+    usuario_creacion = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='categoria_creada'
+    )  # FK a Usuario que creó el registro
+    usuario_modificacion = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='categoria_modificada'
+    )  # FK a Usuario que modificó el registro
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.nombre_categoria
@@ -13,6 +23,17 @@ class Categoria(models.Model):
 class Proveedor(models.Model):
     id_proveedor = models.AutoField(primary_key=True)
     nombre_proveedor = models.CharField(max_length=100)
+    telefono = models.CharField(max_length=15, null=True, blank=True)
+    estado = models.BooleanField(default=True)
+    imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
+    usuario_creacion = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='proveedor_creado'
+    )  # FK a Usuario que creó el registro
+    usuario_modificacion = models.ForeignKey(
+        User, on_delete=models.SET_NULL, null=True, related_name='proveedor_modificado'
+    )  # FK a Usuario que modificó el registro
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.nombre_proveedor
