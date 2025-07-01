@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'usuarios',
     'knox',
     'django_rest_passwordreset',
+    'django_filters',
 ]
 
 
@@ -112,6 +113,11 @@ WSGI_APPLICATION = 'django_crud_api.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
 }
 
 # Database
