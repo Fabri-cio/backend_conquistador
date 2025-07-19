@@ -5,9 +5,9 @@ from .models import *
 from django.contrib.auth import get_user_model 
 User = get_user_model()
 
-class RoleSerializer(serializers.ModelSerializer):
+class RolSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Role
+        model = Rol
         fields = '__all__'
 
 class LoginSerializer(serializers.Serializer):
@@ -20,19 +20,19 @@ class LoginSerializer(serializers.Serializer):
         required=False  # Hacer que el campo sea opcional
     )
 
-    name_rol = serializers.CharField(source="role.name", read_only=True)
+    name_rol = serializers.CharField(source="rol.name", read_only=True)
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret.pop('password', None)
         return ret
 
-class CustomUserSerializer(serializers.ModelSerializer):
+class UsuarioSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     new_password = serializers.CharField(write_only=True, required=False)
-    name_rol = serializers.CharField(source="role.name", read_only=True)
+    name_rol = serializers.CharField(source="rol.name", read_only=True)
     name_work = serializers.CharField(source="lugar_de_trabajo.nombre", read_only=True)
     class Meta:
-        model = CustomUser
+        model = Usuario
         fields = [
             'id',
             'email',
@@ -47,7 +47,7 @@ class CustomUserSerializer(serializers.ModelSerializer):
             'username',
             'lugar_de_trabajo',
             'name_work',
-            'role',  # Asegúrate de agregar 'role' aquí
+            'rol',  # Asegúrate de agregar 'rol' aquí
             'name_rol'
         ]
         extra_kwargs = {

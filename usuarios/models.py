@@ -4,12 +4,11 @@ from django.contrib.auth.base_user import BaseUserManager
 
 from django_rest_passwordreset.signals import reset_password_token_created
 from django.dispatch import receiver 
-from django.urls import reverse 
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
 
-class CustomUserManager(BaseUserManager): 
+class UsuarioManager(BaseUserManager): 
     def create_user(self, email, password=None, **extra_fields ): 
         if not email: 
             raise ValueError('Email is a required field')
@@ -25,23 +24,23 @@ class CustomUserManager(BaseUserManager):
         extra_fields.setdefault('is_superuser', True)
         return self.create_user(email, password, **extra_fields)
     
-class Role(models.Model):
+class Rol(models.Model):
     name = models.CharField(max_length=100, unique=True)  # Nombre del rol
     description = models.TextField(blank=True, null=True)  # Descripción opcional
 
     def __str__(self):
         return self.name
 
-class CustomUser(AbstractUser):
+class Usuario(AbstractUser):
     email = models.EmailField(max_length=200, unique=True)
     birthday = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=200, null=True, blank=True)
     lugar_de_trabajo = models.ForeignKey('almacenes.Almacen', on_delete=models.SET_NULL, null=True, blank=True)
 
-    # Relación de muchos a uno con el modelo Role
-    role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True, blank=True)
+    # Relación de muchos a uno con el modelo Rol        
+    rol = models.ForeignKey('usuarios.Rol', on_delete=models.SET_NULL, null=True, blank=True)
 
-    objects = CustomUserManager()
+    objects = UsuarioManager()
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

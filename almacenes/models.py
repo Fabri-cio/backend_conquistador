@@ -1,6 +1,4 @@
 from django.db import models
-from usuarios.models import CustomUser as User
-from productos.models import Producto
 from django.core.exceptions import ValidationError
 
 
@@ -36,17 +34,17 @@ class TipoMovimiento(models.Model):
 # Inventario
 class Inventario(models.Model):
     id_inventario = models.AutoField(primary_key=True)  # PK
-    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)  # FK a Producto
-    id_almacen_tienda = models.ForeignKey(Almacen, on_delete=models.CASCADE)  # FK a Almacén
+    id_producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)  # FK a Producto
+    id_almacen_tienda = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE)  # FK a Almacén
     cantidad = models.PositiveIntegerField(default=0)  # Cantidad de stock disponible
     stock_minimo = models.PositiveIntegerField(default=0)  # Stock mínimo
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación
     fecha_modificacion = models.DateTimeField(auto_now=True)  # Fecha de última modificación
     usuario_creacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='inventario_creado'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='inventario_creado'
     )  # FK a Usuario que creó el registro
     usuario_modificacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='inventario_modificado'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='inventario_modificado'
     )  # FK a Usuario que modificó el registro
     comentario_modificacion = models.TextField(blank=True, null=True)  # Comentarios opcionales
 
@@ -57,11 +55,11 @@ class Inventario(models.Model):
 # Movimientos
 class Movimiento(models.Model):
     id_movimiento = models.AutoField(primary_key=True)  # PK
-    id_producto = models.ForeignKey(Producto, on_delete=models.CASCADE)  # FK a Producto
-    id_almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE, related_name='movimientos',null=True, blank=True)  # FK a Almacén
-    id_tipo = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE)  # FK al Tipo de Movimiento
+    id_producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)  # FK a Producto
+    id_almacen = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE, related_name='movimientos',null=True, blank=True)  # FK a Almacén
+    id_tipo = models.ForeignKey('almacenes.TipoMovimiento', on_delete=models.CASCADE)  # FK al Tipo de Movimiento
     cantidad = models.IntegerField()  # Cantidad (positiva para entrada, negativa para salida)
-    id_usuario = models.ForeignKey(User, on_delete=models.CASCADE, editable=False)  # FK a Usuario
+    id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, editable=False)  # FK a Usuario
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación del registro
 
     def __str__(self):

@@ -53,9 +53,11 @@ INSTALLED_APPS = [
     'predicciones',
     'ventas',
     'usuarios',
+    'compras',
     'knox',
     'django_rest_passwordreset',
     'django_filters',
+    "django_extensions",
 ]
 
 
@@ -83,7 +85,7 @@ CORS_ALLOWED_ORIGINS = [
 #     "http://127.0.0.1:9000",
 # ]
 
-AUTH_USER_MODEL = 'usuarios.CustomUser'
+AUTH_USER_MODEL = 'usuarios.Usuario'
 
 AUTHENTICATION_BACKENDS = [
     # 'users.authback.EmailBackend',

@@ -1,5 +1,5 @@
 from rest_framework import viewsets
-from .serializer import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer
+from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer
 from .models import Categoria, Proveedor, Producto
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import filters
@@ -9,6 +9,12 @@ from .filters import ProductoFilter
 class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
     queryset = Categoria.objects.all().order_by('id_categoria')
+
+    def perform_create(self, serializer):
+        serializer.save(usuario_creacion=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(usuario_modificacion=self.request.user)
 
 class ProveedorView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer

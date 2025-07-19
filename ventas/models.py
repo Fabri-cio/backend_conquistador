@@ -2,7 +2,6 @@ from django.db import models
 from django.dispatch import receiver
 from django.db.models.signals import post_save, post_delete
 from productos.models import Producto
-from usuarios.models import CustomUser as User
 from almacenes.models import Almacen
 from almacenes.models import Movimiento, TipoMovimiento, Inventario
 from django.db import transaction
@@ -12,7 +11,7 @@ from django.core.exceptions import ValidationError
 class Venta(models.Model):
     id_venta = models.AutoField(primary_key=True)
     fecha_venta = models.DateTimeField(auto_now_add=True)
-    id_usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE)
     id_tienda = models.ForeignKey(Almacen, on_delete=models.CASCADE)
     metodo_pago = models.CharField(max_length=50, default="Efectivo",editable=False)
     descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Descuento global de la venta

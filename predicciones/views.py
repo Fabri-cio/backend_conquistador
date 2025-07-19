@@ -5,8 +5,6 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions
 from django.http import JsonResponse
 from .models import Prediccion
-from productos.models import Producto
-from usuarios.models import CustomUser
 from .serializers import PrediccionSerializer
 
 
@@ -37,7 +35,7 @@ class PrediccionCSV(APIView):
 
     #     # Guardar el resultado de la predicción en la base de datos
     #     producto = Producto.objects.first()  # Puedes ajustar esto para obtener el producto específico
-    #     usuario = CustomUser.objects.first()  # Ajustar para el usuario que realiza la predicción
+    #     usuario = Usuario.objects.first()  # Ajustar para el usuario que realiza la predicción
 
     #     prediccion = Prediccion(
     #         producto=producto,
@@ -52,7 +50,7 @@ class PrediccionCSV(APIView):
     #         "prediccion_id": prediccion.id_prediccion
     #     }, status=status.HTTP_200_OK)
 
-   def post(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         file = request.FILES.get('file')
 
         if not file:

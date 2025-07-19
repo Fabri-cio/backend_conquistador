@@ -1,5 +1,4 @@
 from django.db import models
-from usuarios.models import CustomUser as User
 
 # Modelo de Categoría
 class Categoria(models.Model):
@@ -9,10 +8,10 @@ class Categoria(models.Model):
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
     usuario_creacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='categoria_creada'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='categoria_creada'
     )  # FK a Usuario que creó el registro
     usuario_modificacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='categoria_modificada'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='categoria_modificada'
     )  # FK a Usuario que modificó el registro
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
@@ -27,10 +26,10 @@ class Proveedor(models.Model):
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
     usuario_creacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='proveedor_creado'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='proveedor_creado'
     )  # FK a Usuario que creó el registro
     usuario_modificacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='proveedor_modificado'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='proveedor_modificado'
     )  # FK a Usuario que modificó el registro
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
@@ -52,10 +51,10 @@ class Producto(models.Model):
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
     documento = models.FileField(upload_to='productos/documentos/', null=True, blank=True)
     usuario_creacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='producto_creado'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='producto_creado'
     )  # FK a Usuario que creó el registro
     usuario_modificacion = models.ForeignKey(
-        User, on_delete=models.SET_NULL, null=True, related_name='producto_modificado'
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='producto_modificado'
     )  # FK a Usuario que modificó el registro
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)

@@ -1,12 +1,12 @@
 from rest_framework import serializers
 from .models import Prediccion
-from usuarios.models import CustomUser
+from usuarios.models import Usuario
 from productos.models import Producto
 
 class PrediccionSerializer(serializers.ModelSerializer):
     # Mostrar solo el ID para relaciones
     usuario_responsable_id = serializers.PrimaryKeyRelatedField(
-        queryset=CustomUser.objects.all(),
+        queryset=Usuario.objects.all(),
         source='usuario_responsable',
         write_only=True
     )

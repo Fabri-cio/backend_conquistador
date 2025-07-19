@@ -1,5 +1,7 @@
 from rest_framework import serializers
-from .models import Almacen, TipoMovimiento, Inventario, Movimiento, Producto, User
+from .models import Almacen, TipoMovimiento, Inventario, Movimiento
+from productos.models import Producto
+from usuarios.models import Usuario
 
 class AlmacenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -15,8 +17,8 @@ class InventarioSerializer(serializers.ModelSerializer):
     id_producto_nombre = serializers.CharField(source="id_producto.nombre", read_only=True)
     precio = serializers.DecimalField(source="id_producto.precio", read_only=True, max_digits=10, decimal_places=2)
     id_almacen_tienda_nombre = serializers.CharField(source="id_almacen_tienda.nombre", read_only=True)
-    usuario_creacion = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
-    usuario_modificacion = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    usuario_creacion = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), required=False)
+    usuario_modificacion = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), required=False)
 
     class Meta:
         model = Inventario
@@ -41,7 +43,7 @@ class MovimientoSerializer(serializers.ModelSerializer):
     id_producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
     id_almacen = serializers.PrimaryKeyRelatedField(queryset=Almacen.objects.all())
     id_tipo = serializers.PrimaryKeyRelatedField(queryset=TipoMovimiento.objects.all())
-    id_usuario = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=False)
+    id_usuario = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all())
 
     nom_produc = serializers.CharField(source="id_producto.nombre", read_only=True)
     nom_alm = serializers.CharField(source="id_almacen.nombre", read_only=True)
@@ -58,7 +60,6 @@ class MovimientoSerializer(serializers.ModelSerializer):
             'cantidad',
             'fecha_creacion',
             'id_usuario',
-            'fecha_creacion',
             'nom_produc',
             'nom_alm',
             'nom_tip',

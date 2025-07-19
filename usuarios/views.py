@@ -1,5 +1,5 @@
 from rest_framework import viewsets, permissions, status
-from .serializer import * 
+from .serializers import * 
 from .models import * 
 from rest_framework.response import Response 
 from django.contrib.auth import get_user_model, authenticate
@@ -31,14 +31,14 @@ class LoginViewset(viewsets.ViewSet):
         else: 
             return Response(serializer.errors,status=400)
 
-class RoleViewSet(viewsets.ModelViewSet):
-    queryset = Role.objects.all()
-    serializer_class = RoleSerializer
+class RolViewSet(viewsets.ModelViewSet):
+    queryset = Rol.objects.all()
+    serializer_class = RolSerializer
     
-class CustomUserViewSet(PaginacionYAllDataMixin ,viewsets.ModelViewSet):
-    serializer_class = CustomUserSerializer
+class UsuarioViewSet(PaginacionYAllDataMixin ,viewsets.ModelViewSet):
+    serializer_class = UsuarioSerializer
     permission_classes = [permissions.AllowAny]
-    queryset = CustomUser.objects.all().order_by('id')  # Ordena por id_producto en lugar de id
+    queryset = Usuario.objects.all().order_by('id')  # Ordena por id_producto en lugar de id
 
     def list(self, request, *args, **kwargs):
         all_data = request.query_params.get('all_data', 'false').lower() == 'true'  # Convierte a booleano correctamente
