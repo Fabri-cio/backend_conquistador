@@ -1,4 +1,5 @@
 from django.db import models
+from simple_history.models import HistoricalRecords
 
 # Modelo de Categoría
 class Categoria(models.Model):
@@ -58,6 +59,8 @@ class Producto(models.Model):
     )  # FK a Usuario que modificó el registro
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
+
+    history = HistoricalRecords() #añade el historial
 
 
     def __str__(self):

@@ -23,7 +23,7 @@ class ProductoAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('nombre', 'precio', 'codigo_barras', 'categoria', 'id_proveedor', 'estado', 'imagen'),
+            'fields': ('nombre', 'precio', 'codigo_barras', 'categoria', 'id_proveedor', 'estado', 'imagen', 'documento'),
         }),
         ('Información Adicional', {
             'fields': ('usuario_creacion', 'usuario_modificacion', 'fecha_creacion', 'fecha_modificacion'),

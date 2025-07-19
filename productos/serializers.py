@@ -59,3 +59,39 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
             "imagen",
             "documento",
         ]
+
+class ProductoHistorySerializer(serializers.ModelSerializer):
+    history_type = serializers.CharField()
+    history_date = serializers.DateTimeField()
+    history_user = serializers.SerializerMethodField()
+    cambios = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Producto.history.model
+        fields = [
+            'id_producto',
+            'nombre',
+            'precio',
+            'history_type',
+            'history_date',
+            'history_user',
+            'cambios',  # <- campo extra para mostrar qué cambió
+        ]
+
+    def get_history_user(self, obj):
+        return str(obj.history_user) if obj.history_user else None
+
+    def get_cambios(self, obj):
+        previous = obj.prev_record
+        if not previous:
+            return None
+        delta = obj.diff_against(previous)
+        cambios = {}
+        for change in delta.changes:
+            cambios[change.field] = {
+                "de": change.old,
+                "a": change.new,
+            }
+        return cambios
+
+

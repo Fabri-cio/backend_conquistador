@@ -1,10 +1,13 @@
 from rest_framework import viewsets
-from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer
+from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer, ProductoHistorySerializer
 from .models import Categoria, Proveedor, Producto
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import ProductoFilter
+from rest_framework import generics
+from rest_framework import permissions
+from django.shortcuts import get_object_or_404
 
 class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
@@ -56,3 +59,11 @@ class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         elif self.action in ['create', 'update', 'partial_update']:
             return ProductoCreateSerializer
         return ProductoDetailSerializer
+
+class ProductoHistoryView(generics.ListAPIView):
+    serializer_class = ProductoHistorySerializer
+    permission_classes = [permissions.AllowAny]
+    
+    def get_queryset(self):
+        producto = get_object_or_404(Producto, pk=self.kwargs['pk'])
+        return producto.history.all().order_by('-history_date')

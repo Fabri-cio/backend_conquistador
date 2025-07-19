@@ -57,6 +57,7 @@ INSTALLED_APPS = [
     'knox',
     'django_rest_passwordreset',
     'django_filters',
+    'simple_history', #para el historial
     "django_extensions",
 ]
 
@@ -69,6 +70,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware', #para el historial
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
