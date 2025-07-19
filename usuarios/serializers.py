@@ -1,9 +1,31 @@
+# ===========================
+# SERIALIZERS.PY ORDENADO Y COMENTADO
+# ===========================
+
+# Django
+from django.contrib.auth import get_user_model
+from django.contrib.auth.models import Permission, Group
+
+# Terceros
 from rest_framework import serializers
 
+# Proyecto local
 from almacenes.models import Almacen 
-from .models import * 
-from django.contrib.auth import get_user_model 
+from .models import Rol, Usuario
+
 User = get_user_model()
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Permission
+        fields = ['id', 'name', 'codename', 'content_type']
+
+class GroupSerializer(serializers.ModelSerializer):
+    permissions = serializers.PrimaryKeyRelatedField(queryset=Permission.objects.all(), many=True)
+
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'permissions']
 
 class RolSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,16 +33,16 @@ class RolSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class LoginSerializer(serializers.Serializer):
-    id=serializers.IntegerField(read_only=True)
+    id = serializers.IntegerField(read_only=True)
     email = serializers.EmailField()
     password = serializers.CharField()
     lugar_de_trabajo = serializers.PrimaryKeyRelatedField(
         queryset=Almacen.objects.all(),
         source='lugar_de_trabajo_id',
-        required=False  # Hacer que el campo sea opcional
+        required=False
     )
-
     name_rol = serializers.CharField(source="rol.name", read_only=True)
+
     def to_representation(self, instance):
         ret = super().to_representation(instance)
         ret.pop('password', None)
@@ -31,29 +53,27 @@ class UsuarioSerializer(serializers.ModelSerializer):
     new_password = serializers.CharField(write_only=True, required=False)
     name_rol = serializers.CharField(source="rol.name", read_only=True)
     name_work = serializers.CharField(source="lugar_de_trabajo.nombre", read_only=True)
+    group_names = serializers.SerializerMethodField()
+    permission_names = serializers.SerializerMethodField()
+
     class Meta:
         model = Usuario
         fields = [
-            'id',
-            'email',
-            'password',
-            'new_password',
-            'first_name',
-            'last_name',
-            'is_superuser',
-            'is_active',
-            'date_joined',
-            'birthday',
-            'username',
-            'lugar_de_trabajo',
-            'name_work',
-            'rol',  # Asegúrate de agregar 'rol' aquí
-            'name_rol'
+            'id', 'email', 'password', 'new_password', 'first_name', 'last_name',
+            'is_superuser', 'is_staff', 'user_permissions', 'groups', 'is_active',
+            'date_joined', 'birthday', 'username', 'lugar_de_trabajo', 'name_work',
+            'rol', 'name_rol', 'group_names', 'permission_names'
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
-            'new_password': {'write_only': True, 'required': False},  # 👈 Extra seguridad
+            'new_password': {'write_only': True, 'required': False},
         }
+
+    def get_group_names(self, obj):
+        return [group.name for group in obj.groups.all()]
+
+    def get_permission_names(self, obj):
+        return list(obj.get_all_permissions())
 
     def create(self, validated_data):
         if not validated_data.get('password'):

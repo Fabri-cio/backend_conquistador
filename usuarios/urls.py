@@ -1,16 +1,28 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 from knox import views as knox_views
-from .views import *
+
+from .views import (
+    GroupViewSet,
+    PermissionViewSet,
+    UsuarioViewSet,
+    RolViewSet,
+    LoginViewset,
+)
 
 router = DefaultRouter()
-router.register('usuario', UsuarioViewSet, basename='usuario')
-router.register('rol', RolViewSet, basename="rol")
+router.register('grupos', GroupViewSet, basename="grupo")
+router.register('permisos', PermissionViewSet, basename="permiso")
+router.register('usuarios', UsuarioViewSet, basename='usuario')
+router.register('roles', RolViewSet, basename="rol")
 
 login_view = LoginViewset.as_view({'post': 'create'})
 
 urlpatterns = [
-    path('', include(router.urls)),  # Usa el router para recursos CRUD
+    # CRUD para grupos, permisos, usuarios y roles
+    path('', include(router.urls)),
+
+    # Endpoints para autenticación con Knox
     path('login/', login_view, name='login'),
     path('logout/', knox_views.LogoutView.as_view(), name='knox_logout'),
     path('logoutall/', knox_views.LogoutAllView.as_view(), name='knox_logoutall'),
