@@ -55,74 +55,51 @@ class Inventario(models.Model):
 # Movimientos
 class Movimiento(models.Model):
     id_movimiento = models.AutoField(primary_key=True)  # PK
-    id_producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)  # FK a Producto
-    id_almacen = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE, related_name='movimientos',null=True, blank=True)  # FK a Almacén
+    id_inventario = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)  # FK a Inventario
     id_tipo = models.ForeignKey('almacenes.TipoMovimiento', on_delete=models.CASCADE)  # FK al Tipo de Movimiento
     cantidad = models.IntegerField()  # Cantidad (positiva para entrada, negativa para salida)
     id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, editable=False)  # FK a Usuario
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación del registro
 
     def __str__(self):
-        return f"{self.cantidad} {self.id_producto.nombre}"
+        return f"{self.cantidad} {self.id_inventario.id_producto.nombre}"
 
 # Señal para actualizar el inventario al guardar un movimiento
 @receiver(post_save, sender=Movimiento)
 def actualizar_inventario_guardar(sender, instance, **kwargs):
     try:
         with transaction.atomic():
-            inventario = Inventario.objects.get(
-                id_producto=instance.id_producto,
-                id_almacen_tienda=instance.id_almacen
-            )
+            inventario = instance.id_inventario  # YA NO HACE FALTA HACER UN GET
 
-            # Procesar según la naturaleza del movimiento
             if instance.id_tipo.naturelaza == 'Entrada':
-                # Sumar al inventario
                 inventario.cantidad += abs(instance.cantidad)
             elif instance.id_tipo.naturelaza == 'Salida':
-                # Restar del inventario y validar cantidad suficiente
                 if abs(instance.cantidad) > inventario.cantidad:
                     raise ValidationError(
-                        f"Stock insuficiente para {instance.id_producto.nombre} en el almacén {instance.id_almacen.nombre}."
+                        f"Stock insuficiente para {inventario.id_producto.nombre} en el almacén {inventario.id_almacen_tienda.nombre}."
                     )
                 inventario.cantidad -= abs(instance.cantidad)
-
-            # Validar que el inventario nunca sea negativo
             if inventario.cantidad < 0:
                 raise ValidationError("El inventario no puede ser negativo.")
-
             inventario.save()
+    except Exception as e:
+        raise ValidationError(str(e))
 
-    except Inventario.DoesNotExist:
-        raise ValidationError(
-            "No existe inventario para este producto en el almacén especificado."
-        )
 
 # Señal para revertir el inventario al eliminar un movimiento
 @receiver(post_delete, sender=Movimiento)
 def revertir_inventario_eliminar(sender, instance, **kwargs):
     try:
         with transaction.atomic():
-            inventario = Inventario.objects.get(
-                id_producto=instance.id_producto,
-                id_almacen_tienda=instance.id_almacen
-            )
+            inventario = instance.id_inventario
 
-            # Revertir la operación según la naturaleza del movimiento
             if instance.id_tipo.naturelaza == 'Entrada':
-                # Restar del inventario al revertir una entrada
                 inventario.cantidad -= abs(instance.cantidad)
             elif instance.id_tipo.naturelaza == 'Salida':
-                # Sumar al inventario al revertir una salida
                 inventario.cantidad += abs(instance.cantidad)
-
-            # Validar que el inventario nunca sea negativo
             if inventario.cantidad < 0:
                 raise ValidationError("El inventario no puede ser negativo.")
-
             inventario.save()
+    except Exception as e:
+        raise ValidationError(str(e))
 
-    except Inventario.DoesNotExist:
-        raise ValidationError(
-            "No existe inventario para este producto en el almacén especificado."
-        )

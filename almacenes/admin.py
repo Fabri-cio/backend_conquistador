@@ -13,7 +13,7 @@ class TipoMovimientoAdmin(admin.ModelAdmin):
 
 @admin.register(Inventario)
 class InventarioAdmin(admin.ModelAdmin):
-    list_display = ['id_producto', 'id_almacen_tienda', 'cantidad', 'stock_minimo', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion']
+    list_display = ['id_inventario', 'id_almacen_tienda', 'id_producto', 'cantidad', 'stock_minimo', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion']
     search_fields = ['id_producto', 'id_almacen_tienda']
     list_filter = ['id_almacen_tienda', 'id_producto']
     
@@ -38,15 +38,15 @@ class InventarioAdmin(admin.ModelAdmin):
 
 @admin.register(Movimiento)
 class MovimientoAdmin(admin.ModelAdmin):
-    list_display = ['id_producto', 'id_almacen', 'id_tipo', 'cantidad', 'get_id_usuario', 'fecha_creacion']
-    search_fields = ['id_producto', 'id_almacen']
-    list_filter = ['id_tipo', 'id_almacen']
+    list_display = ['id_movimiento', 'id_inventario', 'id_tipo', 'cantidad', 'get_id_usuario', 'fecha_creacion']
+    search_fields = ['id_inventario', 'id_tipo']
+    list_filter = ['id_tipo', 'id_inventario']
     
     readonly_fields = ['id_usuario','fecha_creacion']
 
     fieldsets = (
         (None, {
-            'fields': ('id_producto', 'id_almacen', 'id_tipo', 'cantidad'),
+            'fields': ('id_inventario', 'id_tipo', 'cantidad'),
         }),
         ('Información Adicional', {
             'fields': ('id_usuario','fecha_creacion',),

@@ -1,6 +1,6 @@
 from django.contrib import admin
-from .models import Venta, DetalleVenta
-from productos.models import Producto
+from .models import Venta, DetalleVenta, FacturaVenta, Cliente
+from almacenes.models import Inventario
 from django import forms
 
 
@@ -8,22 +8,23 @@ from django import forms
 class DetalleVentaForm(forms.ModelForm):
     class Meta:
         model = DetalleVenta
-        fields = ['id_producto', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
+        fields = ['id_inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
 
     def clean(self):
         cleaned_data = super().clean()
-        id_producto = cleaned_data.get('id_producto')
+        id_inventario = cleaned_data.get('id_inventario')
         precio_unitario = cleaned_data.get('precio_unitario')
 
-        # Si no se proporciona el precio unitario, autocompletarlo desde el producto
-        if id_producto and not precio_unitario:
+        # Si no se proporciona el precio unitario, autocompletarlo desde el producto relacionado
+        if id_inventario and not precio_unitario:
             try:
-                producto = Producto.objects.get(pk=id_producto.pk)
-                cleaned_data['precio_unitario'] = producto.precio
-            except Producto.DoesNotExist:
-                raise forms.ValidationError("El producto seleccionado no existe.")
+                inventario = Inventario.objects.get(pk=id_inventario.pk)
+                cleaned_data['precio_unitario'] = inventario.id_producto.precio  # Aquí el cambio
+            except Inventario.DoesNotExist:
+                raise forms.ValidationError("El inventario seleccionado no existe.")
         
         return cleaned_data
+
 
 
 # Inline personalizado para DetalleVenta
@@ -31,7 +32,7 @@ class DetalleVentaInline(admin.TabularInline):
     model = DetalleVenta
     form = DetalleVentaForm  # Usar el formulario personalizado
     extra = 1
-    fields = ['id_producto', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
+    fields = ['id_inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
     readonly_fields = ['subtotal']
 
     def save_model(self, request, obj, form, change):
@@ -62,3 +63,6 @@ class VentaAdmin(admin.ModelAdmin):
 
 admin.site.register(Venta, VentaAdmin)
 admin.site.register(DetalleVenta)
+admin.site.register(FacturaVenta)
+admin.site.register(Cliente)
+

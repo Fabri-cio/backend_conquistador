@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Factura {{ factura.numero_factura }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        color: #333;
+      }
+      h1 {
+        color: #2e86c1;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+      }
+      th,
+      td {
+        padding: 8px 12px;
+        border: 1px solid #ddd;
+      }
+      th {
+        background-color: #f2f2f2;
+      }
+      .total {
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Factura {{ factura.numero_factura }}</h1>
+    <p>Fecha: {{ factura.fecha_emision|date:"d/m/Y H:i" }}</p>
+    <p>
+      Cliente: {{ venta.id_cliente.nombre if venta.id_cliente else "Cliente no
+      registrado" }}
+    </p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Cantidad</th>
+          <th>Precio Unitario</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for detalle in venta.detalles.all %}
+        <tr>
+          <td>{{ detalle.id_producto.nombre }}</td>
+          <td>{{ detalle.cantidad }}</td>
+          <td>{{ detalle.precio_unitario }}</td>
+          <td>{{ detalle.subtotal }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <p class="total">Total: {{ factura.monto_total }}</p>
+
+    <p>Gracias por su compra.</p>
+  </body>
+</html>
