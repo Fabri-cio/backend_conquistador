@@ -54,8 +54,6 @@ class MovimientoSerializer(serializers.ModelSerializer):
         model = Movimiento
         fields = [
             'id_movimiento',
-            'id_producto',
-            'id_almacen',
             'id_tipo',
             'cantidad',
             'fecha_creacion',
