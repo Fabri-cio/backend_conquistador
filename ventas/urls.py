@@ -9,7 +9,6 @@ router.register(r'ventas', VentaView)
 router.register(r'detalles-venta', DetalleVentaView)
 router.register(r'facturas-venta', FacturaVentaView)
 
-
 urlpatterns = [
     path("", include(router.urls)),  # Incluir las URLs del router
 ]

@@ -49,29 +49,38 @@ class VentaSerializer(serializers.ModelSerializer):
 
     # --- 3. Transacción atómica en create ---
     def create(self, validated_data):
+        # 1. Se extrae la lista de detalles (items de venta) de los datos validados
         detalles_data = validated_data.pop('detalles')
+
+        # 2. Se obtiene la tienda origen desde los datos validados (donde se realiza la venta)
         tienda_origen = validated_data.get('id_tienda')
 
+        # 3. Se abre una transacción atómica para asegurar que todos los pasos se completen o ninguno
         with transaction.atomic():
+
+            # 4. Se crea la venta con los datos restantes (sin detalles)
             venta = Venta.objects.create(**validated_data)
 
+            # 5. Por cada detalle en la lista
             for detalle_data in detalles_data:
                 inventario = detalle_data.get('id_inventario')
                 cantidad_vendida = detalle_data.get('cantidad')
 
-                # Validar tienda
+                # 6. Validar que el inventario pertenece a la tienda origen
                 if inventario.id_almacen_tienda != tienda_origen:
                     raise ValidationError(f"El inventario seleccionado no pertenece a la tienda {tienda_origen.nombre}.")
 
-                # Validar stock suficiente
+                # 7. Validar que el stock disponible sea suficiente para la cantidad vendida
                 if inventario.cantidad < cantidad_vendida:
                     raise ValidationError(
                         f"No hay suficiente stock para el producto {inventario.id_producto.nombre}. "
                         f"Disponible: {inventario.cantidad}."
                     )
 
+                # 8. Crear el detalle de venta asociado a la venta recién creada
                 DetalleVenta.objects.create(id_venta=venta, **detalle_data)
 
+        # 9. Finalmente, devuelve el objeto venta creado con sus detalles
         return venta
 
 class FacturaVentaSerializer(serializers.ModelSerializer):

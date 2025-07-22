@@ -1,6 +1,7 @@
 from rest_framework import serializers
-from .models import Pedido, DetallePedido, RecepcionPedido, DetalleRecepcion, Compra
-
+from rest_framework.exceptions import ValidationError
+from django.db import transaction
+from .models import Pedido, DetallePedido, Compra, DetalleCompra
 
 class PedidoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -13,23 +14,56 @@ class DetallePedidoSerializer(serializers.ModelSerializer):
         model = DetallePedido
         fields = '__all__'
 
-
-class RecepcionPedidoSerializer(serializers.ModelSerializer):
-    detalles = DetalleRecepcionSerializer(many=True)
-
+class DetalleCompraSerializer(serializers.ModelSerializer):
     class Meta:
-        model = RecepcionPedido
+        model = DetalleCompra
         fields = '__all__'
-
-
-class DetalleRecepcionSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = DetalleRecepcion
-        fields = '__all__'
-
 
 class CompraSerializer(serializers.ModelSerializer):
+    detalles = DetalleCompraSerializer(many=True)
     class Meta:
         model = Compra
         fields = '__all__'
+
+    def create(self, validated_data):
+        # 1. Extraemos la lista de detalles (items de la compra) de los datos validados
+        detalles_data = validated_data.pop('detalles')
+
+        # 2. Obtenemos el almacén destino desde los datos validados (donde se almacenará la compra)
+        tienda_origen = validated_data.get('id_tienda')
+
+        # 3. Abrimos una transacción atómica para asegurar que todos los pasos se completen o ninguno
+        with transaction.atomic():
+            # 4. Creamos la compra con los datos restantes (sin detalles)
+            compra = Compra.objects.create(**validated_data)
+
+            # 5. Recorremos cada detalle en la lista
+            for detalle_data in detalles_data:
+                inventario = detalle_data.get('id_inventario')  # Objeto inventario relacionado
+                cantidad_compra = detalle_data.get('cantidad')  # Cantidad comprada o recepcionada
+
+            # 6. Validar que el inventario pertenece al almacén destino
+            if inventario.id_almacen_tienda != tienda_origen:
+                raise ValidationError(
+                    f"El inventario seleccionado no pertenece a la tienda {tienda_origen.nombre}."
+                )
+
+            # 7. Validar que la cantidad sea positiva (no se reciben cantidades negativas o cero)
+            if cantidad_compra <= 0:
+                raise ValidationError("La cantidad debe ser mayor que cero.")
+
+            # 8. Validar que la cantidad recepcionada no exceda la cantidad pedida (opcional)
+            # if cantidad_compra > detalle_data.get('cantidad_pedida', cantidad_compra):
+            #     raise ValidationError("La cantidad recepcionada no puede exceder la cantidad pedida.")
+
+            # 9. Crear el detalle de compra asociado a la compra recién creada
+            DetalleCompra.objects.create(id_compra=compra, **detalle_data)
+
+        # 10. Finalmente, devolver el objeto compra creado con sus detalles
+        return compra
+
+
+
+
+
 

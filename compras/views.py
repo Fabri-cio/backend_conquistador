@@ -1,32 +1,32 @@
-from django.shortcuts import render
-
-# Create your views here.
+# views.py
 from rest_framework import viewsets
-from .models import Pedido, DetallePedido, RecepcionPedido, DetalleRecepcion, Compra
-from .serializers import PedidoSerializer, DetallePedidoSerializer, RecepcionPedidoSerializer, DetalleRecepcionSerializer, CompraSerializer
+from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer
+from .models import Pedido, DetallePedido, Compra, DetalleCompra
+from django_crud_api.mixins import PaginacionYAllDataMixin
+from rest_framework import permissions
 
 
-class PedidoViewSet(viewsets.ModelViewSet):
+class PedidoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
-class DetallePedidoViewSet(viewsets.ModelViewSet):
+class DetallePedidoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = DetallePedido.objects.all()
     serializer_class = DetallePedidoSerializer
+    permission_classes = [permissions.IsAuthenticated]
 
 
-class RecepcionPedidoViewSet(viewsets.ModelViewSet):
-    queryset = RecepcionPedido.objects.all()
-    serializer_class = RecepcionPedidoSerializer
-
-
-class DetalleRecepcionViewSet(viewsets.ModelViewSet):
-    queryset = DetalleRecepcion.objects.all()
-    serializer_class = DetalleRecepcionSerializer
-
-
-class CompraViewSet(viewsets.ModelViewSet):
+class CompraViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Compra.objects.all()
     serializer_class = CompraSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class DetalleCompraViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    queryset = DetalleCompra.objects.all()
+    serializer_class = DetalleCompraSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
 
