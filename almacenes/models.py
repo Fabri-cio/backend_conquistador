@@ -35,7 +35,7 @@ class TipoMovimiento(models.Model):
 class Inventario(models.Model):
     id_inventario = models.AutoField(primary_key=True)  # PK
     id_producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)  # FK a Producto
-    id_almacen_tienda = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE)  # FK a Almacén
+    id_almacen_tienda = models.ForeignKey(Almacen, on_delete=models.CASCADE)  # FK a Almacén
     cantidad = models.PositiveIntegerField(default=0)  # Cantidad de stock disponible
     stock_minimo = models.PositiveIntegerField(default=0)  # Stock mínimo
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación
@@ -55,8 +55,8 @@ class Inventario(models.Model):
 # Movimientos
 class Movimiento(models.Model):
     id_movimiento = models.AutoField(primary_key=True)  # PK
-    id_inventario = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)  # FK a Inventario
-    id_tipo = models.ForeignKey('almacenes.TipoMovimiento', on_delete=models.CASCADE)  # FK al Tipo de Movimiento
+    id_inventario = models.ForeignKey(Inventario, on_delete=models.CASCADE)  # FK a Inventario
+    id_tipo = models.ForeignKey(TipoMovimiento, on_delete=models.CASCADE)  # FK al Tipo de Movimiento
     cantidad = models.IntegerField(help_text="Cantidad del movimiento. Siempre positiva. La naturaleza define si es entrada o salida.")  # Cantidad (positiva para entrada, negativa para salida)
     id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, editable=False)  # FK a Usuario
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación del registro
