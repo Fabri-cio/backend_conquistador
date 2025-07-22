@@ -26,6 +26,7 @@ urlpatterns = [
     path('api/v1/usuarios/', include(('usuarios.urls', 'usuarios'), namespace='usuarios')),
     path('api/v1/almacenes/', include(('almacenes.urls', 'almacenes'), namespace='almacenes')),
     path('api/v1/predicciones/', include(('predicciones.urls', 'predicciones'), namespace='predicciones')),
+    path('api/v1/compras/', include(('compras.urls', 'compras'), namespace='compras')),
 
 
 

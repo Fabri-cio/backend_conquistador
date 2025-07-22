@@ -57,12 +57,13 @@ class Movimiento(models.Model):
     id_movimiento = models.AutoField(primary_key=True)  # PK
     id_inventario = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)  # FK a Inventario
     id_tipo = models.ForeignKey('almacenes.TipoMovimiento', on_delete=models.CASCADE)  # FK al Tipo de Movimiento
-    cantidad = models.IntegerField()  # Cantidad (positiva para entrada, negativa para salida)
+    cantidad = models.IntegerField(help_text="Cantidad del movimiento. Siempre positiva. La naturaleza define si es entrada o salida.")  # Cantidad (positiva para entrada, negativa para salida)
     id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE, editable=False)  # FK a Usuario
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación del registro
 
     def __str__(self):
-        return f"{self.cantidad} {self.id_inventario.id_producto.nombre}"
+        return f"{self.id_tipo.nombre}: {self.cantidad} x {self.id_inventario.id_producto.nombre} en {self.id_inventario.id_almacen_tienda.nombre}"
+
 
 # Señal para actualizar el inventario al guardar un movimiento
 @receiver(post_save, sender=Movimiento)

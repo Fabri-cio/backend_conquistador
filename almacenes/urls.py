@@ -5,7 +5,7 @@ from .views import AlmacenViewSet, TipoMovimientoViewSet, InventarioViewSet, Mov
 router = DefaultRouter()
 router.register(r'almacenes', AlmacenViewSet)
 router.register(r'tipos-movimiento', TipoMovimientoViewSet)
-router.register(r'inventarios', InventarioViewSet, basename='inventario')
+router.register(r'inventarios', InventarioViewSet)
 router.register(r'movimientos', MovimientoViewSet)
 
 urlpatterns = [
