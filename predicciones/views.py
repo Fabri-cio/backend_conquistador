@@ -4,51 +4,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions
 from django.http import JsonResponse
-from .models import Prediccion
-from .serializers import PrediccionSerializer
+from .models import Prediccion, DetallePrediccion, ConfiguracionModelo
+from .serializers import PrediccionSerializer, DetallePrediccionSerializer, ConfiguracionModeloSerializer
 
-
+# PrediccionCSV hace un procesamiento especial (entrenar modelo, recibir archivo).
 class PrediccionCSV(APIView):
-    # """
-    # Vista para realizar la predicción a partir de un archivo CSV.
-    # """
-    # def post(self, request, *args, **kwargs):
-    #     file = request.FILES.get('file')  # Obtener el archivo CSV enviado desde el frontend
-
-    #     if not file:
-    #         return JsonResponse({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
-
-    #     # Leer el archivo CSV
-    #     df = pd.read_csv(file)
-        
-    #     # Asegúrate de que el DataFrame tenga las columnas correctas
-    #     if not set(['ds', 'y']).issubset(df.columns):
-    #         return JsonResponse({"error": "Invalid CSV format. Ensure columns 'ds' and 'y' are present."}, status=status.HTTP_400_BAD_REQUEST)
-        
-    #     # Configurar el modelo Prophet
-    #     m = Prophet()
-    #     m.fit(df)
-
-    #     # Crear el dataframe futuro para hacer la predicción
-    #     future = m.make_future_dataframe(df, periods=30)  # Aquí ajustas el periodo a predecir
-    #     forecast = m.predict(future)
-
-    #     # Guardar el resultado de la predicción en la base de datos
-    #     producto = Producto.objects.first()  # Puedes ajustar esto para obtener el producto específico
-    #     usuario = Usuario.objects.first()  # Ajustar para el usuario que realiza la predicción
-
-    #     prediccion = Prediccion(
-    #         producto=producto,
-    #         usuario_responsable=usuario,
-    #         resultado_prediccion=forecast['yhat'].iloc[-1],  # Se puede ajustar para obtener el valor deseado
-    #         model_used="Prophet"
-    #     )
-    #     prediccion.save()
-
-    #     return Response({
-    #         "forecast": forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail().to_dict(orient="records"),
-    #         "prediccion_id": prediccion.id_prediccion
-    #     }, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         file = request.FILES.get('file')
@@ -86,6 +46,7 @@ class PrediccionCSV(APIView):
         except Exception as e:
             return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+# PrediccionViewSet maneja las operaciones CRUD del modelo Prediccion.
 class PrediccionViewSet(viewsets.ModelViewSet):
     """
     ViewSet para manejar las operaciones CRUD del modelo Prediccion.
@@ -100,3 +61,21 @@ class PrediccionViewSet(viewsets.ModelViewSet):
         el usuario responsable basado en el usuario autenticado.
         """
         serializer.save(usuario_responsable=self.request.user)
+
+# DetallePrediccionViewSet maneja las operaciones CRUD del modelo DetallePrediccion.
+class DetallePrediccionViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para manejar las operaciones CRUD del modelo DetallePrediccion.
+    """
+    queryset = DetallePrediccion.objects.all().order_by('id')  # Ordenar por fecha descendente
+    serializer_class = DetallePrediccionSerializer
+    permission_classes = [permissions.AllowAny]  # Asegura que solo usuarios autenticados accedan a la API
+
+# ConfiguracionModeloViewSet maneja las operaciones CRUD del modelo ConfiguracionModelo.
+class ConfiguracionModeloViewSet(viewsets.ModelViewSet):
+    """
+    ViewSet para manejar las operaciones CRUD del modelo ConfiguracionModelo.
+    """
+    queryset = ConfiguracionModelo.objects.all().order_by('id')  # Ordenar por fecha descendente
+    serializer_class = ConfiguracionModeloSerializer
+    permission_classes = [permissions.AllowAny]  # Asegura que solo usuarios autenticados accedan a la API

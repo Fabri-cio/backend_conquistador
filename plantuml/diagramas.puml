@@ -1,0 +1,1440 @@
+@startuml
+
+skinparam style strictuml
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+class Almacen {
+  -ID: int
+  -nombre: string
+  -direccion: text
+  -telefono: string
+  -encargado: string
+  -es_principal: bool
+  -estado: bool
+  -fechaCreacion: datetime
+  -fechaModificacion: datetime
+  +activar()
+  +desactivar()
+  +esCentral(): bool
+  +actualizarEncargado(nombre: string)
+  +mostrarUbicacion(): string
+}
+
+class TipoMovimiento {
+  -ID: int
+  -nombre: string
+  -naturelaza: Entrada | Salida
+  -descripcion: text
+  +agregarTipos()
+  +definirNaturaleza()
+}
+
+class Inventario {
+  -ID: int
+  -cantidad: int
+  -stockMinimo: int
+  -stockMaximo: int
+  -fechaCreacion: datetime
+  -fechaModificacion: datetime
+  -comentarioModificacion: text
+  +aumentarStock(cantidad: int)
+  +disminuirStock(cantidad: int)
+  +verificarStock(cantidad: int)
+}
+
+class Movimiento {
+  -ID: int
+  +cantidad: int
+  +fechaCreacion: datetime
+  +aplicarEnInventario()
+  +revertirEnInventario()
+}
+
+class Usuario {
+  -ID: int
+  -nombre: string
+}
+
+class Producto {
+  -ID: int
+  -nombre: string
+}
+
+Almacen " 1 " --- "0..*" Inventario : contiene
+Producto " 1 " -- " 0.. * " Inventario : tiene
+Usuario " 1 " -- " 0..* " Inventario : registra
+Inventario " 1 " ---  " 0..* " Movimiento : genera
+TipoMovimiento " 1 " -- " 0..* " Movimiento : clasifica
+Usuario "  1   " -- "   0..*     " Movimiento : registra
+
+@enduml
+@startuml
+
+skinparam style strictuml
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+class Producto {
+  -ID: int
+  -nombre: string
+}
+
+class Usuario {
+  -ID: int
+  -nombre: string
+}
+
+class Almacen {
+  -ID: int
+  -nombre: string
+}
+
+class Proveedor {
+  -ID: int
+  -nombre: string
+}
+
+class Inventario {
+  -ID: int
+  -nombre: string
+
+}
+
+class Pedido {
+  -ID: int
+  -fechaPedido: dateTime
+  -observaciones: text
+  +generarCompra()
+  +agregarDetalle(detalle: DetallePedido)
+  +cancelar()
+}
+
+class DetallePedido {
+  -ID: int
+  -cantidadSolicitada: int
+  +actualizarCantidad(nuevaCantidad: int)
+}
+
+class Compra {
+  -ID: int
+  -fechaCompra: dateTime
+  -observaciones: text
+  -descuento: decimal
+  -totalCompra: decimal
+  +calcularTotal()
+  +aplicarDescuento(descuento: decimal)
+  +confirmarCompra()
+  +cancelarCompra()
+}
+
+class DetalleCompra {
+  -ID: int
+  -cantidad: int
+  -precioUnitario: decimal
+  -descuentoUnitario: decimal
+  -subTotal: decimal
+  +calcularSubtotal()
+  +aplicarDescuentoUnitario(descuento: decimal)
+}
+
+' Relaciones entre clases
+Pedido " 1 " -- " 0..* " DetallePedido : contiene
+Pedido " 1 " --- " 1 " Compra : genera 
+Compra " 1 " ---- "  0..*  " DetalleCompra : tiene 
+DetallePedido " 1 " -- " 1 " Producto : contiene
+DetalleCompra "1" -- " 1 " Inventario : pertenece
+Compra " 1 " -- " 1 " Usuario : realiza
+Compra " 1 " --- " 1 " Almacen : pertenece
+Pedido " 1 " -- " 1 " Proveedor : realiza
+Producto " 1 " -- " 1 " Inventario : tiene 
+
+@enduml
+@startuml
+
+' Estilo clásico y líneas ortogonales
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+class Rol {
+  +nombre: string
+  +permisos: string
+  +agregarPermiso()
+  +eliminarPermiso()
+}
+
+class Permission {
+  +nombre: string
+}
+
+class Usuario {
+  +email: string
+  +password: string
+  +nombres: string
+  +apellidos: string
+  +fechaNacimiento: date
+  +username: string
+  +esSuperUser: bool
+  +esPersonal: bool
+  +esActivo: bool
+  +fechaRegistro: datetime
+  +lugarTrabajo: Almacen
+  +rol: Rol
+  +cambiarPassword()
+  +activarCuenta()
+  +desactivarCuenta()
+  +asignarRol()
+  +verificarPermiso()
+  +tieneRol(): bool
+  +login(email: string, password: string): bool
+}
+
+note right of Usuario::password
+  La contraseña se almacena hasheada usando
+  PBKDF2 con SHA256, sal y múltiples iteraciones,
+  no es un hash simple como SHA256.
+end note
+
+class Almacen {
+  +nombre: string
+  +listarUsuarios()
+}
+
+class Inventario {
+  +cantidad: int
+  +stock_minimo: int
+  +fecha_creacion: datetime
+  +fecha_modificacion: datetime
+  +comentario_modificacion: text
+  +aumentar_stock(cantidad: int)
+  +disminuir_stock(cantidad: int)
+  +verificar_stock(cantidad: int): bool
+}
+
+class TipoMovimiento {
+  +nombre: string
+  +descripcion: text
+  +naturaleza: Entrada | Salida
+}
+
+class Movimiento {
+  +cantidad: int
+  +fecha_creacion: datetime
+  +aplicar_a_inventario()
+  +revertir_en_inventario()
+}
+
+class Pedido {
+  +fecha_pedido: DateField
+  +observaciones: TextField
+}
+
+class DetallePedido {
+  +producto
+  +cantidad_solicitada: int
+}
+
+class Compra {
+  +fecha_compra: DateField
+  +observaciones: TextField
+  +descuento: Decimal
+  +total_compra: Decimal
+}
+
+class DetalleCompra {
+  +cantidad: int
+  +precio_unitario: Decimal
+  +descuento_unitario: Decimal
+  +subtotal: Decimal
+}
+
+class Categoria {
+  +nombre: string
+  +descripcion: text
+  +estado: bool
+  +imagen: image
+}
+
+class Proveedor {
+  +nombre: string
+  +telefono: string
+  +estado: bool
+  +imagen: image
+}
+
+class Producto {
+  +nombre: string
+  +precio: decimal
+  +codigoBarras: string
+  +estado: bool
+  +imagen: image
+}
+
+class Cliente {
+  +nombre: string
+  +telefono: string
+  +correo: string
+  +direccion: text
+}
+
+class Venta {
+  +fechaVenta: datetime
+  +metodoPago: string
+  +descuento: Decimal
+  +totalVenta: Decimal
+  +quiereComprobante: bool
+}
+
+class DetalleVenta {
+  +cantidad: int
+  +precioUnitario: Decimal
+  +descuentoUnitario: Decimal
+  +subtotal: Decimal
+}
+
+class FacturaVenta {
+  +numeroFactura: string
+  +metodoPago: string
+  +montoTotal: Decimal
+  +fechaEmision: datetime
+}
+
+class ConfiguracionModelo {
+  +nombre_config: string
+  +modo_crecimiento: "linear" | "logistic"
+  +capacidad_maxima: float
+  +intervalo_confianza: float
+  +usar_est_anual: bool
+  +fourier_anual: int
+  +usar_est_semanal: bool
+  +fourier_semanal: int
+  +usar_est_diaria: bool
+  +fourier_diaria: int
+  +estacionalidad_modo: string
+  +usar_feriados: bool
+  +eventos_especiales: JSON
+  +estacionalidades_personalizadas: JSON
+  +regresores_adicionales: JSON
+}
+
+class Prediccion {
+  +fecha_prediccion: datetime
+  +fecha_inicio_predicha: date
+  +fecha_fin_predicha: date
+  +cantidad_total_predicha: int
+  +resultado_prediccion: decimal
+}
+
+class DetallePrediccion {
+  +cantidad: int
+  +fecha_predicha: date
+}
+
+Usuario "1" --> "*" Rol : tiene
+Rol "*" -- "*" Permission : contiene
+Usuario "1" --> "1" Almacen : trabaja
+Almacen "1" -- "0..*" Inventario : contiene
+Producto "1" -- "0..*" Inventario : tiene
+Usuario "1" -- "0..*" Inventario : crea/modifica
+Inventario "1" -- "0..*" Movimiento : genera
+TipoMovimiento "1" -- "0..*" Movimiento : clasifica
+Usuario "1" -- "0..*" Movimiento : registra
+Pedido "1" -- "*" DetallePedido : contiene
+Pedido "1" -- "1" Compra : genera
+Compra "1" -- "*" DetalleCompra : tiene
+DetallePedido "1" -- "1" Producto
+DetalleCompra "1" -- "1" Inventario
+Compra "1" -- "1" Usuario : realiza
+Compra "1" -- "1" Almacen : pertenece
+Pedido "1" -- "1" Proveedor : realiza
+Categoria "1" --> "*" Producto : tiene
+Proveedor "1" --> "*" Producto : tiene
+Cliente "1" -- "*" Venta : tiene
+Usuario "1" -- "*" Venta : registra
+Almacen "1" -- "*" Venta : tiene
+Venta "1" -- "*" DetalleVenta : tiene
+Venta "1" -- "0..1" FacturaVenta : puede
+DetalleVenta "1" -- "1" Inventario : tiene
+Inventario "1" -- "1" Producto : pertenece
+ConfiguracionModelo "1" -- "*" Prediccion : usada por
+Prediccion "1" -- "*" DetallePrediccion : genera
+Prediccion "1" -- "1" Inventario : predice
+Prediccion "1" -- "1" Usuario : genera
+
+@enduml
+@startuml
+
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+top to bottom direction
+
+class Usuario {
+  -ID: int
+  -nombre: string
+}
+
+class Inventario {
+  -ID: int
+  -nombre: string
+}
+
+class Producto {
+  -ID: int
+  -nombre: string
+}
+
+class ConfiguracionModelo {
+  -nombre: string
+  -modoCrecimiento: string
+  -capacidadMaxima: float
+  -intervaloConfianza: float
+  -usarEstAnual: bool
+  -fourierAnual: int
+  -usarEstSemanal: bool
+  -fourierSemanal: int
+  -usarEstDiaria: bool
+  -fourierDiaria: int
+  -estacionalidadModo: string
+  -usarFeriados: bool
+  -eventosEspeciales: JSON
+  -estacionalidadesPersonalizadas: JSON
+  -regresoresAdicionales: JSON
+  + validarParametros(): bool
+  + activarConfiguracion()
+  + desactivarConfiguracion()
+  + actualizarParametros(datos)
+}
+
+class Prediccion {
+  -fechaPrediccion: dateTime
+  -fechaInicio_predicha: date
+  -fechaFin_predicha: date
+  -cantidadTotal_predicha: int
+  + generarPrediccion()
+  + validarFechas() : bool
+  + calcularCantidadTotal()
+  + guardarResultado()
+  + actualizarPrediccion(datos)
+}
+
+class DetallePrediccion {
+  -fechaPredicha: date
+  -cantidad: int
+  + calcularSubtotal()
+  + validarCantidad()
+  + actualizarDetalle(datos)
+}
+
+' Ocultar líneas para mantener separación
+Usuario -[hidden]-> Prediccion
+ConfiguracionModelo -[hidden]-> Prediccion
+
+' Relaciones principales
+DetallePrediccion "1" --- "  1  " Prediccion : pertenece
+
+Prediccion " 1 " --- " 1 " Usuario : realizada
+Prediccion " 1 " -- " 1 " Inventario : para
+Inventario " 1 " -- " 1 " Producto : contiene
+Prediccion " 1 " --- " 1 " ConfiguracionModelo : usa
+
+@enduml
+@startuml
+
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+top to bottom direction
+
+' Espaciado mediante saltos de línea y agrupamiento
+
+class Usuario {
+  -ID: int
+  -nombre: string
+}
+
+' Espacio entre clases
+class Categoria {
+  -ID: int
+  -nombre: string
+  -descripcion: text
+  -estado: bool
+  -imagen: image
+  +activar()
+  +desactivar()
+}
+
+class Proveedor {
+  -ID: int
+  -nombre: string
+  -telefono: string
+  -estado: bool
+  -imagen: image
+  +activar()
+  +desactivar()
+}
+
+class Producto {
+  -ID: int
+  -nombre: string
+  -precio: decimal
+  -codigoBarras: string
+  -estado: bool
+  -imagen: image
+  +activar()
+  +desactivar()
+}
+
+
+' Relaciones con Usuario (creación/modificación)
+Producto  " 0..* " ---- " 1 " Usuario : registra
+Categoria " 0..* " ---- " 1 " Usuario : registra
+Proveedor " 0..* " ---- " 1 " Usuario : registra
+
+' Relaciones entre entidades
+Producto  "  0..*  " --- " 1 " Proveedor : suministrado
+Producto  " 0..* " --- " 1 " Categoria : pertenece
+
+@enduml
+@startuml
+actor Usuario
+participant "Vista Login" as Vista
+participant "Sistema" as LoginViewSet
+participant UsuarioModel as Usuario
+participant Knox as Token
+
+== Inicio de sesión ==
+
+Usuario -> Vista: ingresarCorreoYContraseña()
+Vista -> LoginViewSet: POST /login (email, password)
+activate LoginViewSet
+
+LoginViewSet -> UsuarioModel: autenticarUsuario(email, password)
+UsuarioModel --> LoginViewSet: usuarioValido?
+
+alt si credenciales válidas
+    LoginViewSet -> Knox: crearToken(usuario)
+    Knox --> LoginViewSet: tokenGenerado
+    LoginViewSet -> Vista: devolverUsuarioYToken()
+else credenciales inválidas
+    LoginViewSet -> Vista: error("credenciales inválidas")
+end
+
+deactivate LoginViewSet
+@enduml
+@startuml
+actor Usuario
+participant "Sistema"
+participant "Token de acceso"
+participant "Correo Electrónico"
+
+== Inicio de sesión ==
+
+Usuario -> Sistema: ingresar correo y contraseña
+activate Sistema
+
+Sistema -> Sistema: verificar si las credenciales son válidas
+
+alt Credenciales válidas
+    Sistema -> "Token de acceso": generar token para el usuario
+    "Token de acceso" --> Sistema: token generado
+    Sistema -> Usuario: acceso concedido con token
+else Credenciales inválidas
+    Sistema -> Usuario: mostrar mensaje de error
+end
+deactivate Sistema
+
+== Visualizar sistema ==
+
+Usuario -> Sistema: acceder al sistema con token
+Sistema -> Usuario: mostrar interfaz del sistema
+
+alt Usuario desea cerrar sesión
+    Usuario -> Sistema: solicitar cierre de sesión
+    Sistema -> "Token de acceso": invalidar token
+    "Token de acceso" --> Sistema: token invalidado
+    Sistema -> Usuario: sesión cerrada correctamente
+end
+
+== Recuperación de contraseña ==
+
+Usuario -> Sistema: solicitar recuperación de contraseña
+activate Sistema
+
+Sistema -> "Correo Electrónico": enviar enlace de restablecimiento
+"Correo Electrónico" --> Usuario: recibir enlace para restablecer contraseña
+
+Usuario -> Sistema: ingresar nueva contraseña mediante el enlace
+Sistema -> Usuario: confirmar cambio exitoso
+deactivate Sistema
+@enduml
+@startuml
+actor Usuario
+
+participant "Sistema" as S
+participant Pedido as P
+participant DetallePedido as DP
+participant Compra as C
+participant DetalleCompra as DC
+
+== Pedido ==
+Usuario -> S: crearPedido()
+activate S
+S -> P: crear()
+P --> S: pedidoGuardado
+loop productos
+  Usuario -> S: seleccionarProducto()
+  S -> DP: agregar(cant)
+  DP --> S: detalleCreado
+end
+S -> Usuario: pedidoConfirmado
+deactivate S
+
+== Compra ==
+Usuario -> S: crearCompra(pedidoId)
+activate S
+
+S -> P: verificarPedido(pedidoId)
+P --> S: pedidoValido
+
+S -> C: crear()
+C --> S: compraRegistrada
+
+loop detalles
+  Usuario -> S: seleccionarProducto()
+  S -> DC: agregar(cant, precio)
+  DC --> S: detalleAgregado
+  S -> S: registrarMovimiento + actualizarStock
+end
+
+S -> Usuario: compraConfirmada
+deactivate S
+@enduml
+@startuml
+actor Administrador
+
+participant "Sistema" as Sistema
+participant Producto
+participant Almacen
+participant Inventario
+
+== Registro de Almacen ==
+
+Administrador -> Sistema: crearAlmacen()
+activate Sistema
+
+Sistema -> Almacen: guardarAlmacen()
+activate Almacen
+Almacen --> Sistema: almacenCreada()
+deactivate Almacen
+
+Sistema -> Sistema: verificarDatos()
+
+Sistema -> Administrador: confirmarAlmacenCreado()
+deactivate Sistema
+
+== Registro de Inventario ==
+
+Administrador -> Sistema: crearInventario
+activate Sistema
+
+Sistema -> Producto: visualizarProductos
+activate Producto
+Producto --> Sistema: productosVisualizados
+deactivate Producto
+
+Sistema -> Inventario: asignarProducto
+activate Inventario
+Inventario --> Sistema: productoAsignado
+deactivate Inventario
+
+Sistema -> Almacen: visualizarAlmacenes
+activate Almacen
+Almacen --> Sistema: almacenesVisualizados
+deactivate Almacen
+
+Sistema -> Inventario: asignarAlmacen
+activate Inventario
+Inventario --> Sistema: almacenAsignado
+deactivate Inventario
+
+Sistema -> Inventario: definirStockInicial, stockMinimo y stockMaximo
+activate Inventario
+Inventario --> Sistema: configuracionInventarioRegistrada
+deactivate Inventario
+
+Sistema -> Sistema: verificarDatos
+Sistema -> Administrador: confirmarInventarioCreado
+deactivate Sistema
+
+== Visualización de Inventarios ==
+
+Administrador -> Sistema: listarInventarios
+activate Sistema
+
+Sistema -> Inventario: obtenerInventarios
+activate Inventario
+Inventario --> Sistema: inventariosObtenidos
+deactivate Inventario
+
+Sistema -> Administrador: mostrarListaInventarios
+deactivate Sistema
+
+== Detallar Inventario ==
+
+Administrador -> Sistema: verDetalleInventario
+activate Sistema
+
+Sistema -> Inventario: obtenerDetalle
+activate Inventario
+Inventario --> Sistema: detalleInventario
+deactivate Inventario
+
+Sistema -> Administrador: mostrarDetalleInventario
+deactivate Sistema
+@enduml
+@startuml
+actor Usuario
+
+participant "Sistema" as Sistema
+participant Inventario
+participant TipoMovimiento
+participant Movimiento
+
+== Registro de Movimiento ==
+
+Usuario -> Sistema: registrarMovimiento
+activate Sistema
+
+Sistema -> Inventario: seleccionarInventario
+activate Inventario
+Inventario --> Sistema: inventarioSeleccionado
+deactivate Inventario
+
+Sistema -> TipoMovimiento: seleccionarTipoMovimiento
+activate TipoMovimiento
+TipoMovimiento --> Sistema: tipoSeleccionado
+deactivate TipoMovimiento
+
+Sistema -> Movimiento: registrarCantidad
+activate Movimiento
+Movimiento --> Sistema: cantidadRegistrada
+deactivate Movimiento
+
+Sistema -> Movimiento: guardarMovimiento
+activate Movimiento
+Movimiento --> Sistema: movimientoRegistrado
+deactivate Movimiento
+
+Sistema -> Inventario: actualizarCantidad (según naturaleza)
+activate Inventario
+Inventario --> Sistema: cantidadActualizada
+deactivate Inventario
+
+Sistema -> Usuario: confirmarMovimientoRegistrado
+deactivate Sistema
+@enduml
+@startuml
+actor Administrador
+
+participant "Sistema" as Sistema
+participant Categoria
+participant Proveedor
+participant Producto
+
+== Creación de Categoria ==
+
+Administrador -> Sistema: crearCategoria
+activate Sistema
+
+Sistema -> Categoria: guardarCategoria
+activate Categoria
+Categoria --> Sistema: categoriaCreada
+deactivate Categoria
+
+Sistema -> Sistema: verificarDatos
+
+Sistema -> Administrador: confirmarCategoriaCreada
+deactivate Sistema
+
+== Creación de Proveedor ==
+
+Administrador -> Sistema: crearProveedor
+activate Sistema
+
+Sistema -> Proveedor: guardarProveedor
+activate Proveedor
+Proveedor --> Sistema: proveedorCreada
+deactivate Proveedor
+
+Sistema -> Sistema: verificarDatos
+
+Sistema -> Administrador: confirmarProveedorCreado
+deactivate Sistema
+
+== Creación de Producto ==
+
+Administrador -> Sistema: crearProducto
+activate Sistema
+
+Sistema -> Categoria: visualizarCategorias
+activate Categoria
+Categoria --> Sistema: CategoriasVisualizadas
+deactivate Categoria
+
+Sistema -> Producto: asignarCategoria
+activate Producto
+Producto -> Sistema: categoriaAsignada
+deactivate Producto
+
+Sistema -> Proveedor: visualizarProveedores
+activate Proveedor
+Proveedor --> Sistema: ProveedoresVisualizados
+deactivate Proveedor
+
+Sistema -> Producto: asignarProveedor
+activate Producto
+Producto -> Sistema: proveedorAsignado
+deactivate Producto
+
+Sistema -> Producto: guardarProducto
+activate Producto
+Producto --> Sistema: productoCreado
+deactivate Producto
+
+Sistema -> Sistema: verificarDatos
+
+Sistema -> Administrador: confirmarProductoCreado
+deactivate Sistema
+@enduml
+@startuml
+actor Administrador
+
+participant "Sistema" as Sistema
+participant Categoria
+participant Proveedor
+participant Producto
+
+== Creación de Categoria ==
+
+Administrador -> Sistema: crearCategoria
+activate Sistema
+
+Sistema -> Categoria: guardarCategoria
+activate Categoria
+Categoria --> Sistema: categoriaCreada
+deactivate Categoria
+
+Sistema -> Sistema: verificarDatos
+
+Sistema -> Administrador: confirmarCategoriaCreada
+deactivate Sistema
+
+== Creación de Proveedor ==
+
+Administrador -> Sistema: crearProveedor
+activate Sistema
+
+Sistema -> Proveedor: guardarProveedor
+activate Proveedor
+Proveedor --> Sistema: proveedorCreada
+deactivate Proveedor
+
+Sistema -> Sistema: verificarDatos
+
+Sistema -> Administrador: confirmarProveedorCreado
+deactivate Sistema
+
+== Creación de Producto ==
+
+Administrador -> Sistema: crearProducto
+activate Sistema
+
+Sistema -> Categoria: visualizarCategorias
+activate Categoria
+Categoria --> Sistema: CategoriasVisualizadas
+deactivate Categoria
+
+Sistema -> Producto: asignarCategoria
+activate Producto
+Producto -> Sistema: categoriaAsignada
+deactivate Producto
+
+Sistema -> Proveedor: visualizarProveedores
+activate Proveedor
+Proveedor --> Sistema: ProveedoresVisualizados
+deactivate Proveedor
+
+Sistema -> Producto: asignarProveedor
+activate Producto
+Producto -> Sistema: proveedorAsignado
+deactivate Producto
+
+Sistema -> Producto: guardarProducto
+activate Producto
+Producto --> Sistema: productoCreado
+deactivate Producto
+
+Sistema -> Sistema: verificarDatos
+
+Sistema -> Administrador: confirmarProductoCreado
+deactivate Sistema
+@enduml
+@startuml
+actor Usuario
+participant "Vista Recuperación" as Vista
+participant "Sistema" as TokenHandler
+participant EmailService as Correo
+
+== Solicitud de recuperación ==
+
+Usuario -> Vista: ingresarCorreo()
+Vista -> TokenHandler: POST /reset-password/ (email)
+activate TokenHandler
+
+TokenHandler -> Correo: generarYEnviarCorreoConToken()
+Correo --> TokenHandler: emailEnviado()
+
+TokenHandler -> Vista: mostrarMensaje("Revisa tu correo")
+deactivate TokenHandler
+@enduml
+@startuml
+actor Administrador
+
+participant "Sistema" as Sistema
+participant Almacen
+participant Rol
+participant Permiso
+participant Usuario
+
+
+== Creación de Almacen ==
+
+Administrador -> Sistema: crearAlmacen()
+activate Sistema
+
+Sistema -> Almacen: guardarAlmacen()
+activate Almacen
+Almacen --> Sistema: almacenCreada()
+deactivate Almacen
+
+Sistema -> Sistema: verificarDatos()
+
+Sistema -> Administrador: confirmarAlmacenCreado()
+deactivate Sistema
+
+== Creación de Rol ==
+
+Administrador -> Sistema: crearRol()
+activate Sistema
+
+loop asignar permisos al rol
+    Sistema -> Permiso: visualizarPermisos()
+    activate Permiso
+    Permiso --> Sistema: permisoVisualizados()
+    deactivate Permiso
+    Sistema -> Rol: asignarPermiso()
+    activate Rol
+    Rol -> Sistema: permisoAsignado()
+    deactivate Rol
+end
+
+Sistema -> Rol: guardarRol()
+activate Rol
+Rol --> Sistema: rolCreado()
+deactivate Rol
+
+Sistema -> Sistema: verificarDatos()
+
+Sistema -> Administrador: confirmarRolCreado()
+deactivate Sistema
+
+== Creación de Usuario ==
+
+Administrador -> Sistema: crearUsuario()
+activate Sistema
+
+loop asignar roles al usuario
+    Sistema -> Rol: visualizarRoles()
+    activate Rol
+    Rol --> Sistema: rolesVisualizados()
+    deactivate Rol
+
+    Sistema -> Usuario: asignarRol()
+    activate Usuario
+    Usuario -> Sistema: rolAsignado()
+    deactivate Usuario
+end
+
+Sistema -> Almacen: visualizarAlmacenes()
+activate Almacen
+Almacen --> Sistema: almacenesVisualizados()
+deactivate Almacen
+
+Sistema -> Usuario: asignarAlmacen()
+activate Usuario
+Usuario -> Sistema: almacenAsignado()
+deactivate Usuario
+
+Sistema -> Usuario: guardarUsuario()
+activate Usuario
+Usuario --> Sistema: usuarioCreado()
+deactivate Usuario
+
+Sistema -> Sistema: verificarDatos()
+
+Sistema -> Administrador: confirmarUsuarioCreado()
+deactivate Sistema
+@enduml
+@startuml
+actor Usuario
+
+participant "Sistema" as Sistema
+participant Cliente
+participant Venta
+participant DetalleVenta
+participant Inventario
+participant Movimiento
+participant ComprobanteVenta
+
+
+== Creación de Venta ==
+Usuario -> Sistema: crearVenta()
+activate Sistema
+Sistema -> Venta: guardarVenta()
+activate Venta
+Venta --> Sistema: ventaCreada()
+deactivate Venta
+
+== Registro de productos vendidos ==
+loop por cada producto vendido
+    Usuario -> Sistema: seleccionarProducto()
+
+    Sistema -> Inventario: validarStock()
+    Inventario --> Sistema: stockDisponible?
+
+    Sistema -> DetalleVenta: crearDetalleVenta()
+    activate DetalleVenta
+    DetalleVenta --> Sistema: detalleVentaCreado()
+    deactivate DetalleVenta
+
+    Sistema -> Movimiento: registrarMovimiento()
+    activate Movimiento
+    Movimiento --> Sistema: movimientoRegistrado()
+    deactivate Movimiento
+
+    Sistema -> Inventario: actualizarStock()
+    activate Inventario
+    Inventario --> Sistema: stockActualizado()
+    deactivate Inventario
+end
+
+== Generación de comprobante ==
+Sistema -> Venta: actualizarTotalVenta()
+
+opt si el cliente quiere Comprobante
+    opt si el cliente no esta registrado
+        Sistema -> Cliente: crearCliente()
+        activate Cliente
+        Cliente -> Sistema: clienteCreado()
+        deactivate Cliente
+    end
+    Sistema -> ComprobanteVenta: generarcomprobante()
+    activate ComprobanteVenta
+    ComprobanteVenta --> Sistema: ComprobanteGenerado()
+    deactivate ComprobanteVenta
+end
+
+Sistema -> Sistema: verificarDatosVenta()
+
+Sistema -> Usuario: confirmarVentaCreada()
+
+deactivate Sistema
+@enduml
+@startuml
+
+' ⚙️ Fuerza el estilo clásico (sin íconos redondos de tipo clase)
+skinparam style strictuml
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+' ==== Clases ====
+
+class Rol {
+  -ID: int
+  -nombre: string
+  -permisos: Permiso
+  +agregarPermiso()
+  +eliminarPermiso()
+}
+
+class Permiso {
+  -ID: int
+  -nombre: string
+  +listarPermisos()
+}
+
+class Almacen {
+  -ID: int
+  -nombre: string
+}
+
+class Usuario {
+  -ID: int
+  -email: string
+  -password: string
+  -nombres: string
+  -apellidos: string
+  -fechaNacimiento: date
+  -username: string
+  -esSuperUser: bool
+  -esPersonal: bool
+  -esActivo: bool
+  -fechaRegistro: datetime
+  +cambiarPassword()
+  +activarCuenta()
+  +desactivarCuenta()
+  +asignarRol()
+  +verificarPermiso()
+  +tieneRol()
+  +login(email:string, password:string)
+}
+
+
+' ==== Relaciones ====
+Usuario "1  " --- "  0..*  " Rol : tiene
+Usuario "1  " --- " 1  " Almacen : trabaja
+Rol " 0..* " -- " 0..* " Permiso : contiene
+
+@enduml
+@startuml
+actor Usuario
+
+participant "Sistema" as Sistema
+participant Cliente
+participant Venta
+participant DetalleVenta
+participant Inventario
+participant Movimiento
+participant ComprobanteVenta
+
+
+== Creación de Venta ==
+Usuario -> Sistema: crearVenta()
+activate Sistema
+Sistema -> Venta: guardarVenta()
+activate Venta
+Venta --> Sistema: ventaCreada()
+deactivate Venta
+
+== Registro de productos vendidos ==
+loop por cada producto vendido
+    Usuario -> Sistema: seleccionarProducto()
+
+    Sistema -> Inventario: validarStock()
+    Inventario --> Sistema: stockDisponible?
+
+    Sistema -> DetalleVenta: crearDetalleVenta()
+    activate DetalleVenta
+    DetalleVenta --> Sistema: detalleVentaCreado()
+    deactivate DetalleVenta
+
+    Sistema -> Movimiento: registrarMovimiento()
+    activate Movimiento
+    Movimiento --> Sistema: movimientoRegistrado()
+    deactivate Movimiento
+
+    Sistema -> Inventario: actualizarStock()
+    activate Inventario
+    Inventario --> Sistema: stockActualizado()
+    deactivate Inventario
+end
+
+== Generación de comprobante ==
+Sistema -> Venta: actualizarTotalVenta()
+
+opt si el cliente quiere Comprobante
+    opt si el cliente no esta registrado
+        Sistema -> Cliente: crearCliente()
+        activate Cliente
+        Cliente -> Sistema: clienteCreado()
+        deactivate Cliente
+    end
+    Sistema -> ComprobanteVenta: generarcomprobante()
+    activate ComprobanteVenta
+    ComprobanteVenta --> Sistema: ComprobanteGenerado()
+    deactivate ComprobanteVenta
+end
+
+Sistema -> Sistema: verificarDatosVenta()
+
+Sistema -> Usuario: confirmarVentaCreada()
+
+deactivate Sistema
+@enduml
+@startuml
+
+' ⚙️ Fuerza el estilo clásico (sin íconos redondos de tipo clase)
+skinparam style strictuml
+
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+' ==== Clases ====
+
+class Rol {
+  -ID: int
+  -nombre: string
+  -permisos: Permiso
+  +agregarPermiso()
+  +eliminarPermiso()
+}
+
+class Permiso {
+  -ID: int
+  -nombre: string
+  +listarPermisos()
+}
+
+class Almacen {
+  -ID: int
+  -nombre: string
+}
+
+class Usuario {
+  -ID: int
+  -email: string
+  -password: string
+  -nombres: string
+  -apellidos: string
+  -fechaNacimiento: date
+  -username: string
+  -esSuperUser: bool
+  -esPersonal: bool
+  -esActivo: bool
+  -fechaRegistro: datetime
+  +cambiarPassword()
+  +activarCuenta()
+  +desactivarCuenta()
+  +asignarRol()
+  +verificarPermiso()
+  +tieneRol()
+  +login(email:string, password:string)
+}
+
+
+' ==== Relaciones ====
+Usuario "1  " --- "  0..*  " Rol : tiene
+Usuario "1  " --- " 1  " Almacen : trabaja
+Rol " 0..* " -- " 0..* " Permiso : contiene
+
+@enduml
+@startuml
+
+' ⚙️ Fuerza el estilo clásico (sin íconos redondos de tipo clase)
+skinparam style strictuml
+
+' Líneas rectas (ortogonales)
+skinparam linetype ortho
+
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+' ==== Paquete de Seguridad (Usuarios y Roles) ====
+package Seguridad {
+  class Rol {
+    +nombre: string
+    +permisos: string
+    +agregarPermiso()
+    +eliminarPermiso()
+  }
+
+  class Permission {
+    +nombre: string
+  }
+
+  class Usuario {
+    +email: string
+    +password: string
+    +nombres: string
+    +apellidos: string
+    +fechaNacimiento: date
+    +username: string
+    +esSuperUser: bool
+    +esPersonal: bool
+    +esActivo: bool
+    +fechaRegistro: datetime
+    +lugarTrabajo: Movimientos.Almacen
+    +rol: Rol
+    +cambiarPassword(): void
+    +activarCuenta(): void
+    +desactivarCuenta(): void
+    +asignarRol(): void
+    +verificarPermiso(permiso: string): bool
+    +tieneRol(nombreRol: string): bool
+    +esAdministrador(): bool
+    +login(email: string, password: string): bool
+  }
+
+  Rol "*" -- "*" Permission : contiene
+  Usuario "1" --> "*" Rol : tiene
+}
+
+' ==== Paquete de Movimientos (Inventario, Almacén, etc.) ====
+package Movimientos {
+  class Almacen {
+    +nombre: string
+    +descripcion(): string
+    +listarUsuarios(): List<Seguridad.Usuario>
+  }
+  
+  ' Aquí podrías agregar Inventario, Movimiento, TipoMovimiento, etc.
+}
+
+Seguridad.Usuario "1" --> "1" Movimientos.Almacen : trabaja
+
+' ==== Nota de seguridad de password ====
+note right of Seguridad.Usuario::password
+  La contraseña se almacena hasheada usando
+  PBKDF2 con SHA256, sal y múltiples iteraciones,
+  no es un hash simple como SHA256.
+end note
+
+@enduml
+@startuml
+
+skinparam style strictuml
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+skinparam class {
+  BackgroundColor White
+  ArrowColor Black
+  BorderColor Black
+}
+
+top to bottom direction
+
+class Usuario {
+  -ID: int
+  -nombre: string
+}
+
+class Cliente {
+  -ID: int
+  -nombre: string
+  -telefono: string
+  -correo: string
+  -direccion: text
+  +registrar()
+  +actualizarDatos()
+  +eliminar()
+}
+
+class Almacen {
+  -ID: int
+  -nombre: string
+}
+
+class Inventario {
+  -ID: int
+  -nombre: string
+}
+
+class Producto {
+  -ID: int
+  -nombre: string
+}
+
+class Venta {
+  -ID: int
+  -fechaVenta: dateTime
+  -metodoPago: string
+  -descuento: decimal
+  -totalVenta: decimal
+  -quiereComprobante: bool
+  +calcularTotal()
+  +aplicarDescuento(descuento: decimal)
+  +generarFactura()
+}
+
+class DetalleVenta {
+  -ID: int
+  -cantidad: int
+  -precioUnitario: decimal
+  -descuentoUnitario: decimal
+  -subTotal: decimal
+  +calcularSubtotal()
+  +actualizarCantidad(cantidad: int)
+}
+
+class FacturaVenta {
+  -ID: int
+  -numeroFactura: string
+  -fechaEmision: dateTime
+  -metodoPago: string
+  -montoTotal: decimal
+  +emitirFactura()
+  +cancelarFactura()
+}
+
+' Ocultar líneas para forzar separación vertical
+Usuario -[hidden]-> Cliente
+Usuario -[hidden]-> Venta
+Usuario -[hidden]-> DetalleVenta
+
+' Relaciones principales
+Venta " 1 " --> " 0..* " DetalleVenta : incluye
+DetalleVenta " 1 " -- " 1 " Inventario : usa
+Inventario " 1 " -- " 1 " Producto : contiene
+
+Venta " 0..1 " --- " 1 " Usuario : registra
+Venta " 1 " -- " 1 " Almacen : registrado
+Venta " 0..1 " --- " 1 " Cliente : tiene
+
+Venta " 1  " -- "1" FacturaVenta : genera
+
+@enduml

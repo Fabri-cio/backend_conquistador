@@ -1,24 +1,25 @@
 from rest_framework import serializers
-from .models import Prediccion
+from predicciones.models import Prediccion
 from usuarios.models import Usuario
-from productos.models import Producto
+from almacenes.models import Inventario
+from predicciones.models import DetallePrediccion, ConfiguracionModelo
 
 class PrediccionSerializer(serializers.ModelSerializer):
     # Mostrar solo el ID para relaciones
-    usuario_responsable_id = serializers.PrimaryKeyRelatedField(
+    id_usuario_id = serializers.PrimaryKeyRelatedField(
         queryset=Usuario.objects.all(),
-        source='usuario_responsable',
+        source='id_usuario',
         write_only=True
     )
-    producto_id = serializers.PrimaryKeyRelatedField(
-        queryset=Producto.objects.all(),
-        source='producto',
+    inventario_id = serializers.PrimaryKeyRelatedField(
+        queryset=Inventario.objects.all(),
+        source='inventario',
         write_only=True
     )
     
     # Mostrar datos anidados para lectura
-    usuario_responsable = serializers.StringRelatedField(read_only=True)
-    producto = serializers.StringRelatedField(read_only=True)
+    id_usuario = serializers.StringRelatedField(read_only=True)
+    inventario = serializers.StringRelatedField(read_only=True)
 
     resultado_prediccion = serializers.DecimalField(max_digits=10, decimal_places=2)
     
@@ -31,3 +32,15 @@ class PrediccionSerializer(serializers.ModelSerializer):
         # Convertir resultado_prediccion a float para JSON más amigable
         representation['resultado_prediccion'] = float(representation['resultado_prediccion'])
         return representation
+
+
+class DetallePrediccionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DetallePrediccion
+        fields = '__all__'
+
+
+class ConfiguracionModeloSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConfiguracionModelo
+        fields = '__all__'

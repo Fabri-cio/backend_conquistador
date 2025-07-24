@@ -38,6 +38,7 @@ class Inventario(models.Model):
     id_almacen_tienda = models.ForeignKey(Almacen, on_delete=models.CASCADE)  # FK a Almacén
     cantidad = models.PositiveIntegerField(default=0)  # Cantidad de stock disponible
     stock_minimo = models.PositiveIntegerField(default=0)  # Stock mínimo
+    stock_maximo = models.PositiveIntegerField(default=0)  # Stock máximo
     fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación
     fecha_modificacion = models.DateTimeField(auto_now=True)  # Fecha de última modificación
     usuario_creacion = models.ForeignKey(
