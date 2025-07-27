@@ -11,6 +11,19 @@ from django.core.exceptions import ValidationError
 class Almacen(models.Model):
     id_almacen_tienda = models.AutoField(primary_key=True)  # PK
     nombre = models.CharField(max_length=255, unique=True)  # Nombre del almacén o tienda
+    direccion = models.CharField(max_length=255)  # Dirección del almacén o tienda
+    telefono = models.CharField(max_length=255)  # Teléfono del almacén o tienda
+    es_principal = models.BooleanField(default=False)  # Indica si es el almacén principal
+    estado = models.BooleanField(default=True)  # Indica si el almacén está activo
+    fecha_creacion = models.DateTimeField(auto_now_add=True)  # Fecha de creación
+    fecha_modificacion = models.DateTimeField(auto_now=True)  # Fecha de última modificación
+    usuario_creacion = models.ForeignKey(
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='almacen_creado'
+    )  # FK a Usuario que creó el registro
+    usuario_modificacion = models.ForeignKey(
+        'usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='almacen_modificado'
+    )  # FK a Usuario que modificó el registro
+    comentario_modificacion = models.TextField(blank=True, null=True)  # Comentarios opcionales
 
     def __str__(self):
         return self.nombre

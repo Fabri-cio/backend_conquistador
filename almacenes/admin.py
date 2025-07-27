@@ -13,7 +13,7 @@ class TipoMovimientoAdmin(admin.ModelAdmin):
 
 @admin.register(Inventario)
 class InventarioAdmin(admin.ModelAdmin):
-    list_display = ['id_inventario', 'id_almacen_tienda', 'id_producto', 'cantidad', 'stock_minimo', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion']
+    list_display = ['id_inventario', 'id_almacen_tienda', 'id_producto', 'cantidad', 'stock_minimo', 'stock_maximo', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion']
     search_fields = ['id_producto', 'id_almacen_tienda']
     list_filter = ['id_almacen_tienda', 'id_producto']
     
@@ -21,7 +21,7 @@ class InventarioAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('id_producto', 'id_almacen_tienda', 'cantidad', 'stock_minimo'),
+            'fields': ('id_producto', 'id_almacen_tienda', 'cantidad', 'stock_minimo', 'stock_maximo'),
         }),
         ('Información Adicional', {
             'fields': ('fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion'),
