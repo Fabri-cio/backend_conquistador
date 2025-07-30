@@ -11,7 +11,7 @@ from rest_framework import serializers
 
 # Proyecto local
 from almacenes.models import Almacen 
-from .models import Rol, Usuario
+from .models import Usuario
 
 User = get_user_model()
 
@@ -27,11 +27,6 @@ class GroupSerializer(serializers.ModelSerializer):
         model = Group
         fields = ['id', 'name', 'permissions']
 
-class RolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rol
-        fields = '__all__'
-
 class LoginSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     email = serializers.EmailField()
@@ -41,7 +36,12 @@ class LoginSerializer(serializers.Serializer):
         source='lugar_de_trabajo_id',
         required=False
     )
-    name_rol = serializers.CharField(source="rol.name", read_only=True)
+
+    rol = serializers.SerializerMethodField()
+
+    def get_rol(self, obj):
+        group = obj.groups.first()
+        return group.name if group else None
 
     def to_representation(self, instance):
         ret = super().to_representation(instance)
@@ -51,34 +51,42 @@ class LoginSerializer(serializers.Serializer):
 class UsuarioSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)
     new_password = serializers.CharField(write_only=True, required=False)
-    name_rol = serializers.CharField(source="rol.name", read_only=True)
+    rol = serializers.SerializerMethodField()
     name_work = serializers.CharField(source="lugar_de_trabajo.nombre", read_only=True)
-    group_names = serializers.SerializerMethodField()
-    permission_names = serializers.SerializerMethodField()
 
     class Meta:
         model = Usuario
         fields = [
             'id', 'email', 'password', 'new_password', 'first_name', 'last_name',
-            'is_superuser', 'is_staff', 'user_permissions', 'groups', 'is_active',
+            'is_superuser', 'is_staff', 'is_active',
             'date_joined', 'birthday', 'username', 'lugar_de_trabajo', 'name_work',
-            'rol', 'name_rol', 'group_names', 'permission_names'
+            'rol',
         ]
         extra_kwargs = {
             'password': {'write_only': True, 'required': False},
             'new_password': {'write_only': True, 'required': False},
         }
 
-    def get_group_names(self, obj):
-        return [group.name for group in obj.groups.all()]
-
-    def get_permission_names(self, obj):
-        return list(obj.get_all_permissions())
+    def get_rol(self, obj):
+        group = obj.groups.first()
+        return group.name if group else None
 
     def create(self, validated_data):
-        if not validated_data.get('password'):
-            raise serializers.ValidationError({'password': 'Este campo es requerido para crear un usuario.'})
-        return User.objects.create_user(**validated_data)
+        rol_id = self.initial_data.get("rol")  # <- ID del grupo que envía el frontend
+        password = validated_data.pop("password", None)
+        user = Usuario(**validated_data)
+        if password:
+            user.set_password(password)
+        user.save()
+
+        if rol_id:
+            try:
+                group = Group.objects.get(id=rol_id)
+                user.groups.set([group])  # Asignar el grupo
+            except Group.DoesNotExist:
+                raise serializers.ValidationError({"rol": "El grupo especificado no existe."})
+
+        return user
 
     def update(self, instance, validated_data):
         new_password = validated_data.pop('new_password', None)
@@ -87,4 +95,13 @@ class UsuarioSerializer(serializers.ModelSerializer):
         for attr, value in validated_data.items():
             setattr(instance, attr, value)  
         instance.save()
+
+        rol_id = self.initial_data.get("rol")
+        if rol_id:
+            try:
+                group = Group.objects.get(id=rol_id)
+                instance.groups.set([group])
+            except Group.DoesNotExist:
+                raise serializers.ValidationError({"rol": "El grupo especificado no existe."})
+
         return instance

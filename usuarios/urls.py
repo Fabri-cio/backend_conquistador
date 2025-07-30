@@ -6,7 +6,6 @@ from .views import (
     GroupViewSet,
     PermissionViewSet,
     UsuarioViewSet,
-    RolViewSet,
     LoginViewset,
 )
 
@@ -14,7 +13,6 @@ router = DefaultRouter()
 router.register('grupos', GroupViewSet, basename="grupo")
 router.register('permisos', PermissionViewSet, basename="permiso")
 router.register('usuarios', UsuarioViewSet, basename='usuario')
-router.register('roles', RolViewSet, basename="rol")
 
 login_view = LoginViewset.as_view({'post': 'create'})
 

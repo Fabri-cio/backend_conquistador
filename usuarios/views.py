@@ -13,11 +13,10 @@ from knox.models import AuthToken
 from .serializers import (
     UsuarioSerializer,
     LoginSerializer,
-    RolSerializer,
     GroupSerializer,
     PermissionSerializer,
 )
-from .models import Rol, Usuario
+from .models import Usuario
 from django_crud_api.mixins import PaginacionYAllDataMixin
 
 User = get_user_model()
@@ -61,14 +60,6 @@ class LoginViewset(viewsets.ViewSet):
                 return Response({"error": "Invalid credentials"}, status=401)
         else:
             return Response(serializer.errors, status=400)
-
-class RolViewSet(viewsets.ModelViewSet):
-    """
-    CRUD para roles personalizados (modelo Rol)
-    """
-    queryset = Rol.objects.all()
-    serializer_class = RolSerializer
-    # permission_classes = [permissions.IsAuthenticated]
 
 class UsuarioViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     """
