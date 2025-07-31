@@ -1,5 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from core.models import AuditoriaBase
+
 
 class Cliente(models.Model):
     id_cliente = models.AutoField(primary_key=True)
@@ -7,19 +9,13 @@ class Cliente(models.Model):
     telefono = models.CharField(max_length=20, blank=True, null=True)
     correo = models.EmailField(blank=True, null=True)
     direccion = models.TextField(blank=True, null=True)
-    usuario_creacion = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='cliente_creado')
-    usuario_modificacion = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True, related_name='cliente_modificado')
-    fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_modificacion = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.nombre
 
 # Definir la clase Venta
-class Venta(models.Model):
+class Venta(AuditoriaBase):
     id_venta = models.AutoField(primary_key=True)
-    fecha_venta = models.DateTimeField(auto_now_add=True)
-    id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE)
     id_tienda = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE)
     id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_pago = models.CharField(max_length=50, default="Efectivo",editable=False)
@@ -28,7 +24,7 @@ class Venta(models.Model):
     quiere_comprobante = models.BooleanField(default=False, help_text="Indica si el cliente quiere recibir factura por email")
 
     def __str__(self):
-        return f"Venta {self.id_venta} - {self.fecha_venta}"
+        return f"Venta {self.id_venta}  {self.fecha_creacion}"
 
     # --- 2. Validación para que descuento no supere el total ---
     def clean(self):
@@ -40,16 +36,16 @@ class Venta(models.Model):
         self.clean()  # Validamos antes de guardar
         super().save(*args, **kwargs)
 
-class FacturaVenta(models.Model):
-    id_factura = models.AutoField(primary_key=True)
-    id_venta = models.OneToOneField(Venta, on_delete=models.CASCADE, related_name='factura')
+class ComprobanteVenta(models.Model):
+    id_comprobante = models.AutoField(primary_key=True)
+    id_venta = models.OneToOneField(Venta, on_delete=models.CASCADE, related_name='comprobante')
     fecha_emision = models.DateTimeField(auto_now_add=True)
-    numero_factura = models.CharField(max_length=20, unique=True)
+    numero_comprobante = models.CharField(max_length=20, unique=True)
     metodo_pago = models.CharField(max_length=50, default="Efectivo")
     monto_total = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"Factura {self.numero_factura}"
+        return f"Comprobante {self.numero_comprobante}"
 
 # Definir los detalles de la venta
 class DetalleVenta(models.Model):

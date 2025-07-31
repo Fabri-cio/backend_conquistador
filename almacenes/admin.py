@@ -38,28 +38,28 @@ class InventarioAdmin(admin.ModelAdmin):
 
 @admin.register(Movimiento)
 class MovimientoAdmin(admin.ModelAdmin):
-    list_display = ['id_movimiento', 'id_inventario', 'id_tipo', 'cantidad', 'get_id_usuario', 'fecha_creacion']
+    list_display = ['id_movimiento', 'id_inventario', 'id_tipo', 'cantidad', 'get_usuario_creacion', 'fecha_creacion']
     search_fields = ['id_inventario', 'id_tipo']
     list_filter = ['id_tipo', 'id_inventario']
     
-    readonly_fields = ['id_usuario','fecha_creacion']
+    readonly_fields = ['usuario_creacion','fecha_creacion']
 
     fieldsets = (
         (None, {
             'fields': ('id_inventario', 'id_tipo', 'cantidad'),
         }),
         ('Información Adicional', {
-            'fields': ('id_usuario','fecha_creacion',),
+            'fields': ('usuario_creacion','fecha_creacion',),
             'classes': ('collapse',),
         }),
     )
 
-    def get_id_usuario(self, obj):
-        return obj.id_usuario.email if obj.id_usuario else "Sin usuario"
-    get_id_usuario.short_description = "Usuario"
+    def get_usuario_creacion(self, obj):
+        return obj.usuario_creacion.email if obj.usuario_creacion else "Sin usuario"
+    get_usuario_creacion.short_description = "Usuario"
 
     # Sobrescribe save_model para asignar automáticamente el usuario autenticado
     def save_model(self, request, obj, form, change):
-        if not change or not obj.id_usuario:
-            obj.id_usuario = request.user
+        if not change or not obj.usuario_creacion:
+            obj.usuario_creacion = request.user
         super().save_model(request, obj, form, change)

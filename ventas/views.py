@@ -1,7 +1,7 @@
 # views.py
 from rest_framework import viewsets
-from .serializers import VentaSerializer, DetalleVentaSerializer, ClienteSerializer, FacturaVentaSerializer
-from .models import Venta, DetalleVenta, Cliente, FacturaVenta
+from .serializers import VentaSerializer, DetalleVentaSerializer, ClienteSerializer, ComprobanteVentaSerializer
+from .models import Venta, DetalleVenta, Cliente, ComprobanteVenta
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import permissions
 
@@ -12,9 +12,9 @@ class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 # Vista para la factura de venta
-class FacturaVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = FacturaVenta.objects.all().order_by('id_factura')
-    serializer_class = FacturaVentaSerializer
+class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    queryset = ComprobanteVenta.objects.all().order_by('id_comprobante')
+    serializer_class = ComprobanteVentaSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 # Vista para la venta

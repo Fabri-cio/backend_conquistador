@@ -11,7 +11,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-from .models import FacturaVenta, DetalleVenta, Venta
+from .models import ComprobanteVenta, DetalleVenta, Venta
 from almacenes.models import Movimiento, TipoMovimiento, Inventario
 
 TIPO_MOVIMIENTO_VENTA = 'Venta'
@@ -59,7 +59,7 @@ def registrar_movimiento(sender, instance, **kwargs):
                 id_inventario=inventario,
                 id_tipo=tipo_movimiento,
                 cantidad=cantidad_vendida,
-                id_usuario=venta.id_usuario,
+                usuario_creacion=venta.usuario_creacion,
             )
     except Exception as e:
         logger.error(f"Error en registrar_movimiento signal: {e}")
@@ -70,7 +70,7 @@ def eliminar_movimiento(sender, instance, **kwargs):
     try:
         Movimiento.objects.filter(
             id_inventario=instance.id_inventario,
-            id_usuario=instance.id_venta.id_usuario,
+            usuario_creacion=instance.id_venta.usuario_creacion,
             cantidad=instance.cantidad
         ).delete()
     except Exception as e:
@@ -85,16 +85,16 @@ def crear_factura_automaticamente(sender, instance, created, **kwargs):
     """
     if created:
         if not hasattr(instance, 'factura'):
-            numero_factura = f"F-{instance.id_venta:06d}"
-            FacturaVenta.objects.create(
+            numero_comprobante = f"F-{instance.id_venta:06d}"
+            ComprobanteVenta.objects.create(
                 id_venta=instance,
-                numero_factura=numero_factura,
+                numero_comprobante=numero_comprobante,
                 metodo_pago=instance.metodo_pago,
                 monto_total=instance.total_venta
             )
 
 
-@receiver(post_save, sender=FacturaVenta)
+@receiver(post_save, sender=ComprobanteVenta)
 def enviar_factura_condicional(sender, instance, created, **kwargs):
     """
     Envía una factura por correo electrónico cuando se crea una factura.
@@ -105,7 +105,7 @@ def enviar_factura_condicional(sender, instance, created, **kwargs):
         cliente = venta.id_cliente
 
         if cliente and cliente.correo and venta.quiere_comprobante:
-            asunto = f"Factura {instance.numero_factura}"
+            asunto = f"Factura {instance.numero_comprobante}"
             cuerpo = render_to_string('factura_venta.html', {'factura': instance, 'venta': venta})
 
             pdf_content = generar_pdf_desde_html('factura_venta.html', {'factura': instance, 'venta': venta})
@@ -118,7 +118,7 @@ def enviar_factura_condicional(sender, instance, created, **kwargs):
             )
             email.content_subtype = "html"
             if pdf_content:
-                email.attach(f"Factura_{instance.numero_factura}.pdf", pdf_content, "application/pdf")
+                email.attach(f"Factura_{instance.numero_comprobante}.pdf", pdf_content, "application/pdf")
             
             try:
                 email.send(fail_silently=False)

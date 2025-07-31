@@ -1,12 +1,12 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from core.models import AuditoriaBase
 
 # Create your models here.
-class Pedido(models.Model):
+class Pedido(AuditoriaBase):
     id_pedido = models.AutoField(primary_key=True)
-    fecha_pedido = models.DateField(auto_now_add=True)
+    fecha_entrega = models.DateField(blank=True, null=True)
     proveedor = models.ForeignKey('productos.Proveedor', on_delete=models.CASCADE)
-    usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True, blank=True)
     observaciones = models.TextField(blank=True, null=True)
 
     def __str__(self):
@@ -21,12 +21,10 @@ class DetallePedido(models.Model):
     def __str__(self):
         return f"{self.producto.nombre} - {self.cantidad_solicitada}"
 
-class Compra(models.Model):
+class Compra(AuditoriaBase):
     id_compra = models.AutoField(primary_key=True)
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)
-    fecha_compra = models.DateField(auto_now_add=True)
     id_tienda = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE)
-    id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.SET_NULL, null=True)
     observaciones = models.TextField(blank=True, null=True)
     descuento = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0)     

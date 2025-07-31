@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import Venta, DetalleVenta, Cliente, FacturaVenta
+from .models import Venta, DetalleVenta, Cliente, ComprobanteVenta
 from almacenes.models import Inventario
 
 class ClienteSerializer(serializers.ModelSerializer):
@@ -30,14 +30,14 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
 class VentaSerializer(serializers.ModelSerializer):
     detalles = DetalleVentaSerializer(many=True)
     nombre_tienda = serializers.CharField(source='id_tienda.nombre', read_only=True)
-    nom_user = serializers.CharField(source='id_usuario.get_full_name', read_only=True)
+    nom_user = serializers.CharField(source='usuario_creacion.get_full_name', read_only=True)
 
     class Meta:
         model = Venta
         fields = [
             'id_venta',
-            'fecha_venta',
-            'id_usuario',
+            'fecha_creacion',
+            'usuario_creacion',
             'nom_user',
             'id_tienda',
             'nombre_tienda',
@@ -83,7 +83,7 @@ class VentaSerializer(serializers.ModelSerializer):
         # 9. Finalmente, devuelve el objeto venta creado con sus detalles
         return venta
 
-class FacturaVentaSerializer(serializers.ModelSerializer):
+class ComprobanteVentaSerializer(serializers.ModelSerializer):
     class Meta:
-        model = FacturaVenta
+        model = ComprobanteVenta
         fields = '__all__'

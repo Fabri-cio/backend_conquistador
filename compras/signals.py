@@ -38,7 +38,7 @@ def registrar_movimiento(sender, instance, **kwargs):
                 id_inventario=inventario,
                 id_tipo=tipo_movimiento,
                 cantidad=cantidad_comprada,
-                id_usuario=compra.id_usuario,
+                usuario_creacion=compra.usuario_creacion,
             )
     except Exception as e:
         logger.error(f"Error en registrar_movimiento signal: {e}")
@@ -48,7 +48,7 @@ def eliminar_movimiento(sender, instance, **kwargs):
     try:
         Movimiento.objects.filter(
             id_inventario=instance.id_inventario,
-            id_usuario=instance.id_compra.id_usuario,
+            usuario_creacion=instance.id_compra.usuario_creacion,
             cantidad=instance.cantidad
         ).delete()
     except Exception as e:

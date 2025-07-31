@@ -42,15 +42,15 @@ class DetalleCompraInline(admin.TabularInline):
 
 # --- Admin para Compra ---
 class CompraAdmin(admin.ModelAdmin):
-    list_display = ['id_compra', 'fecha_compra', 'id_usuario','id_tienda', 'pedido', 'total_compra']
-    list_filter = ['fecha_compra', 'id_tienda']
-    search_fields = ['id_compra', 'id_usuario__username', 'id_tienda__nombre']
+    list_display = ['id_compra', 'fecha_creacion', 'usuario_creacion','id_tienda', 'pedido', 'total_compra']
+    list_filter = ['fecha_creacion', 'id_tienda']
+    search_fields = ['id_compra', 'usuario_creacion__username', 'id_tienda__nombre']
     inlines = [DetalleCompraInline]
-    readonly_fields = ['id_usuario', 'id_tienda', 'fecha_compra', 'total_compra']
+    readonly_fields = ['usuario_creacion', 'id_tienda', 'fecha_creacion', 'fecha_modificacion', 'usuario_modificacion', 'total_compra']
 
     def save_model(self, request, obj, form, change):
         if not change:  # Asignar solo en la creación
-            obj.id_usuario = request.user
+            obj.usuario_creacion = request.user
             if request.user.lugar_de_trabajo:
                 obj.id_tienda = request.user.lugar_de_trabajo
             else:
@@ -71,15 +71,15 @@ class DetallePedidoInline(admin.TabularInline):
 
 # --- Admin para Pedido ---
 class PedidoAdmin(admin.ModelAdmin):
-    list_display = ['id_pedido', 'fecha_pedido', 'proveedor', 'usuario']
-    list_filter = ['fecha_pedido', 'proveedor']
-    search_fields = ['id_pedido', 'proveedor__nombre', 'usuario__username']
+    list_display = ['id_pedido', 'fecha_creacion', 'proveedor', 'usuario_creacion', 'usuario_modificacion', 'fecha_modificacion']
+    list_filter = ['fecha_creacion', 'proveedor']
+    search_fields = ['id_pedido', 'proveedor__nombre', 'usuario_creacion__username']
     inlines = [DetallePedidoInline]
-    readonly_fields = ['fecha_pedido', 'usuario']
+    readonly_fields = ['fecha_creacion', 'usuario_creacion', 'usuario_modificacion', 'fecha_modificacion']
 
     def save_model(self, request, obj, form, change):
         if not change:
-            obj.usuario = request.user
+            obj.usuario_creacion = request.user
         super().save_model(request, obj, form, change)
 
 

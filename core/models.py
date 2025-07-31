@@ -1,0 +1,22 @@
+# core/models.py
+from django.db import models
+
+class AuditoriaBase(models.Model):
+    usuario_creacion = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="%(class)s_creados"
+    )
+    usuario_modificacion = models.ForeignKey(
+        'usuarios.Usuario',
+        on_delete=models.SET_NULL,
+        null=True,
+        related_name="%(class)s_modificados"
+    )
+    fecha_creacion = models.DateTimeField(auto_now_add=True)
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+    comentario_modificacion = models.TextField(blank=True, null=True)
+
+    class Meta:
+        abstract = True

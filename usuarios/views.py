@@ -21,11 +21,11 @@ from django_crud_api.mixins import PaginacionYAllDataMixin
 
 User = get_user_model()
 
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     """
     CRUD completo para Grupos y asignación de permisos
     """
-    queryset = Group.objects.all()
+    queryset = Group.objects.all().order_by('id')
     serializer_class = GroupSerializer
     # permission_classes = [permissions.IsAuthenticated] # Así cualquiera puede ver
 

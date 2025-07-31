@@ -6,9 +6,9 @@ from predicciones.models import DetallePrediccion, ConfiguracionModelo
 
 class PrediccionSerializer(serializers.ModelSerializer):
     # Mostrar solo el ID para relaciones
-    id_usuario_id = serializers.PrimaryKeyRelatedField(
+    usuario_creacion_id = serializers.PrimaryKeyRelatedField(
         queryset=Usuario.objects.all(),
-        source='id_usuario',
+        source='usuario_creacion',
         write_only=True
     )
     inventario_id = serializers.PrimaryKeyRelatedField(
@@ -18,7 +18,7 @@ class PrediccionSerializer(serializers.ModelSerializer):
     )
     
     # Mostrar datos anidados para lectura
-    id_usuario = serializers.StringRelatedField(read_only=True)
+    usuario_creacion = serializers.StringRelatedField(read_only=True)
     inventario = serializers.StringRelatedField(read_only=True)
 
     resultado_prediccion = serializers.DecimalField(max_digits=10, decimal_places=2)

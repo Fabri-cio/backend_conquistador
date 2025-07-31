@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Venta, DetalleVenta, FacturaVenta, Cliente
+from .models import Venta, DetalleVenta, ComprobanteVenta, Cliente
 from almacenes.models import Inventario
 from django import forms
 
@@ -41,15 +41,15 @@ class DetalleVentaInline(admin.TabularInline):
 
 # Admin para Venta
 class VentaAdmin(admin.ModelAdmin):
-    list_display = ['id_venta', 'fecha_venta', 'id_usuario', 'id_tienda', 'total_venta']
-    list_filter = ['fecha_venta', 'id_tienda']
-    search_fields = ['id_venta', 'id_usuario__username', 'id_tienda__nombre']
+    list_display = ['id_venta', 'fecha_creacion', 'usuario_creacion', 'usuario_modificacion', 'id_tienda', 'total_venta']
+    list_filter = ['fecha_creacion', 'id_tienda']
+    search_fields = ['id_venta', 'usuario_creacion__username', 'id_tienda__nombre']
     inlines = [DetalleVentaInline]
-    readonly_fields = ['id_usuario', 'id_tienda', 'fecha_venta', 'total_venta']
+    readonly_fields = ['usuario_creacion', 'usuario_modificacion', 'fecha_creacion', 'fecha_modificacion', 'id_tienda', 'total_venta']
 
     def save_model(self, request, obj, form, change):
         if not change:  # Asignar solo en la creación
-            obj.id_usuario = request.user
+            obj.usuario_creacion = request.user
             if request.user.lugar_de_trabajo:
                 obj.id_tienda = request.user.lugar_de_trabajo
             else:
@@ -63,6 +63,6 @@ class VentaAdmin(admin.ModelAdmin):
 
 admin.site.register(Venta, VentaAdmin)
 admin.site.register(DetalleVenta)
-admin.site.register(FacturaVenta)
+admin.site.register(ComprobanteVenta)
 admin.site.register(Cliente)
 

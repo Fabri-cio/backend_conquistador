@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ValidationError
+from core.models import AuditoriaBase
 
 # 🔥 Configuracion de Prophet
 class ConfiguracionModelo(models.Model):
@@ -25,7 +26,7 @@ class ConfiguracionModelo(models.Model):
     def __str__(self):
         return f"Configuracion {self.nombre_config}"
 
-class Prediccion(models.Model):
+class Prediccion(AuditoriaBase):
     inventario = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)  # FK a Inventario
     fecha_prediccion = models.DateTimeField(auto_now_add=True)  # Fecha y hora de la predicción
     configuracion = models.ForeignKey(ConfiguracionModelo, on_delete=models.CASCADE)  # FK a ConfiguracionModelo
@@ -34,10 +35,7 @@ class Prediccion(models.Model):
     fecha_inicio_predicha = models.DateField()
     fecha_fin_predicha = models.DateField()
 
-    id_usuario = models.ForeignKey('usuarios.Usuario', on_delete=models.CASCADE)  # FK a Usuario responsable
-
     # 🔥 NUEVO: Cantidad predicha
-    cantidad_total_predicha = models.IntegerField()
     resultado_prediccion = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
