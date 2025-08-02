@@ -15,11 +15,11 @@ class Pedido(AuditoriaBase):
 class DetallePedido(models.Model):
     id_detalle = models.AutoField(primary_key=True)
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
-    producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)
+    producto = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)
     cantidad_solicitada = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"{self.producto.nombre} - {self.cantidad_solicitada}"
+        return f"{self.producto.id_producto.nombre} - {self.cantidad_solicitada}"
 
 class Compra(AuditoriaBase):
     id_compra = models.AutoField(primary_key=True)
@@ -39,7 +39,7 @@ class DetalleCompra(models.Model):
     descuento_unitario = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
-        return f"Detalle de Compra {self.id_detalle_compra} - Inventario {self.id_inventario}"
+        return f"Detalle de Compra {self.id_detalle_compra} - Inventario {self.id_inventario.id_producto.nombre}"
 
     def save(self, *args, **kwargs):
         # 1. Si precio_unitario es None, se asigna 0
