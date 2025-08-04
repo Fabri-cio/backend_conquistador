@@ -21,10 +21,10 @@ class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 class VentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Venta.objects.all().order_by('id_venta')
     serializer_class = VentaSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 # Vista para los detalles de la venta
 class DetalleVentaView(viewsets.ModelViewSet):
     queryset = DetalleVenta.objects.all()
     serializer_class = DetalleVentaSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]

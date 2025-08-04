@@ -11,7 +11,7 @@ class ClienteSerializer(serializers.ModelSerializer):
 
 class DetalleVentaSerializer(serializers.ModelSerializer):
     nombre_producto = serializers.CharField(source='id_inventario.id_producto.nombre', read_only=True)
-    fecha_venta = serializers.DateTimeField(source='id_venta.fecha_venta', read_only=True)
+    fecha_venta = serializers.DateTimeField(source='id_venta.fecha_creacion', read_only=True)
     nombre_tienda = serializers.CharField(source='id_venta.id_tienda.nombre', read_only=True)
 
     class Meta:
@@ -30,7 +30,7 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
 class VentaSerializer(serializers.ModelSerializer):
     detalles = DetalleVentaSerializer(many=True)
     nombre_tienda = serializers.CharField(source='id_tienda.nombre', read_only=True)
-    nom_user = serializers.CharField(source='usuario_creacion.get_full_name', read_only=True)
+    usuario_creacion = serializers.CharField(source='usuario_creacion.first_name', read_only=True)
 
     class Meta:
         model = Venta
@@ -38,7 +38,6 @@ class VentaSerializer(serializers.ModelSerializer):
             'id_venta',
             'fecha_creacion',
             'usuario_creacion',
-            'nom_user',
             'id_tienda',
             'nombre_tienda',
             'metodo_pago',
