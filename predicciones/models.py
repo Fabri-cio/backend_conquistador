@@ -27,7 +27,7 @@ class ConfiguracionModelo(models.Model):
         return f"Configuracion {self.nombre_config}"
 
 class Prediccion(AuditoriaBase):
-    inventario = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)  # FK a Inventario
+    inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE)  # FK a Inventario
     fecha_prediccion = models.DateTimeField(auto_now_add=True)  # Fecha y hora de la predicción
     configuracion = models.ForeignKey(ConfiguracionModelo, on_delete=models.CASCADE)  # FK a ConfiguracionModelo
     

@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from predicciones.models import Prediccion
 from usuarios.models import Usuario
-from almacenes.models import Inventario
+from inventarios.models import Inventario
 from predicciones.models import DetallePrediccion, ConfiguracionModelo
 
 class PrediccionSerializer(serializers.ModelSerializer):

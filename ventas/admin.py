@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import Venta, DetalleVenta, ComprobanteVenta, Cliente
-from almacenes.models import Inventario
+from inventarios.models import Inventario
 from django import forms
 
 

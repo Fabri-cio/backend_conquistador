@@ -62,4 +62,7 @@ class MovimientoSerializer(serializers.ModelSerializer):
             'nom_alm',
             'nom_tip',
             'nom_user',
+            'id_almacen',
+            'id_producto',
+            'id_tipo',
         ]

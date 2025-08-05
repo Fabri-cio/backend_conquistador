@@ -2,7 +2,7 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from .models import Venta, DetalleVenta, Cliente, ComprobanteVenta
-from almacenes.models import Inventario
+from inventarios.models import Inventario
 
 class ClienteSerializer(serializers.ModelSerializer):
     class Meta:

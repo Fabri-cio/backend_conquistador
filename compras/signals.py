@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from .models import DetalleCompra, Compra
-from almacenes.models import Inventario, Movimiento, TipoMovimiento
+from inventarios.models import Inventario, Movimiento, TipoMovimiento
 
 TIPO_MOVIMIENTO_COMPRA = 'Compra'
 

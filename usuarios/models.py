@@ -37,7 +37,7 @@ class Usuario(AbstractUser):
     email = models.EmailField(max_length=200, unique=True)
     birthday = models.DateField(null=True, blank=True)
     username = models.CharField(max_length=200, null=True, blank=True)
-    lugar_de_trabajo = models.ForeignKey('almacenes.Almacen', on_delete=models.SET_NULL, null=True, blank=True)
+    lugar_de_trabajo = models.ForeignKey('inventarios.Almacen', on_delete=models.SET_NULL, null=True, blank=True)
 
     objects = UsuarioManager()
 

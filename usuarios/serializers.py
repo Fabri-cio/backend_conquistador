@@ -10,7 +10,7 @@ from django.contrib.auth.models import Permission, Group
 from rest_framework import serializers
 
 # Proyecto local
-from almacenes.models import Almacen 
+from inventarios.models import Almacen 
 from .models import Usuario
 
 User = get_user_model()

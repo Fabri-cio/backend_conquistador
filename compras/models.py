@@ -15,7 +15,7 @@ class Pedido(AuditoriaBase):
 class DetallePedido(models.Model):
     id_detalle = models.AutoField(primary_key=True)
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
-    producto = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)
+    producto = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE)
     cantidad_solicitada = models.PositiveIntegerField()
 
     def __str__(self):
@@ -24,7 +24,7 @@ class DetallePedido(models.Model):
 class Compra(AuditoriaBase):
     id_compra = models.AutoField(primary_key=True)
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)
-    id_tienda = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE)
+    id_tienda = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
     observaciones = models.TextField(blank=True, null=True)
     descuento = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     total_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0)     
@@ -32,7 +32,7 @@ class Compra(AuditoriaBase):
 class DetalleCompra(models.Model):
     id_detalle_compra = models.AutoField(primary_key=True)
     id_compra = models.ForeignKey(Compra, on_delete=models.CASCADE, related_name="detalles")
-    id_inventario = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE)
+    id_inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)                

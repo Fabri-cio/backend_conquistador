@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django import forms
 from .models import Pedido, DetallePedido, Compra, DetalleCompra
-from almacenes.models import Inventario
+from inventarios.models import Inventario
 
 
 # --- Formulario personalizado para DetalleCompra ---

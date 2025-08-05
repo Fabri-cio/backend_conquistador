@@ -16,7 +16,7 @@ class Cliente(models.Model):
 # Definir la clase Venta
 class Venta(AuditoriaBase):
     id_venta = models.AutoField(primary_key=True)
-    id_tienda = models.ForeignKey('almacenes.Almacen', on_delete=models.CASCADE)
+    id_tienda = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
     id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True)
     metodo_pago = models.CharField(max_length=50, default="Efectivo",editable=False)
     descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Descuento global de la venta
@@ -51,7 +51,7 @@ class ComprobanteVenta(models.Model):
 class DetalleVenta(models.Model):
     id_detalle_venta = models.AutoField(primary_key=True)
     id_venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
-    id_inventario = models.ForeignKey('almacenes.Inventario', on_delete=models.CASCADE, related_name='ventas')  # <-- cambio aquí
+    id_inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE, related_name='ventas')  # <-- cambio aquí
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)

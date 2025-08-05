@@ -12,7 +12,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 from .models import ComprobanteVenta, DetalleVenta, Venta
-from almacenes.models import Movimiento, TipoMovimiento, Inventario
+from inventarios.models import Movimiento, TipoMovimiento, Inventario
 
 TIPO_MOVIMIENTO_VENTA = 'Venta'
 
