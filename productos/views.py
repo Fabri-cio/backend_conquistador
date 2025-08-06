@@ -11,7 +11,7 @@ from django.shortcuts import get_object_or_404
 
 class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
-    queryset = Categoria.objects.all().order_by('id_categoria')
+    queryset = Categoria.objects.all().order_by('id')
 
     def perform_create(self, serializer):
         serializer.save(usuario_creacion=self.request.user)
@@ -21,7 +21,7 @@ class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
 class ProveedorView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
-    queryset = Proveedor.objects.all().order_by('id_proveedor')
+    queryset = Proveedor.objects.all().order_by('id')
 
 class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     """
@@ -38,7 +38,7 @@ class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     - ?all_data=true → Devuelve todos los productos sin paginar (útil para exportar)
     """
     
-    queryset = Producto.objects.all().order_by('id_producto')
+    queryset = Producto.objects.all().order_by('id')
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -48,8 +48,8 @@ class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     search_fields = [
         'nombre',
         'codigo_barras',
-        'id_proveedor__nombre_proveedor',
-        'categoria__nombre_categoria'
+        'proveedor__nombre',
+        'categoria__nombre'
     ]
     ordering_fields = ['precio','fecha_creacion','nombre']
 

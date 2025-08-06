@@ -4,7 +4,6 @@ from core.models import AuditoriaBase
 
 
 class Cliente(models.Model):
-    id_cliente = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
     telefono = models.CharField(max_length=20, blank=True, null=True)
     correo = models.EmailField(blank=True, null=True)
@@ -15,16 +14,15 @@ class Cliente(models.Model):
 
 # Definir la clase Venta
 class Venta(AuditoriaBase):
-    id_venta = models.AutoField(primary_key=True)
-    id_tienda = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
-    id_cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True)
-    metodo_pago = models.CharField(max_length=50, default="Efectivo",editable=False)
+    tienda = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
+    cliente = models.ForeignKey(Cliente, on_delete=models.SET_NULL, null=True, blank=True)
+    metodo_pago = models.CharField(max_length=50, default="Efectivo")
     descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Descuento global de la venta
     total_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     quiere_comprobante = models.BooleanField(default=False, help_text="Indica si el cliente quiere recibir factura por email")
 
     def __str__(self):
-        return f"Venta {self.id_venta}  {self.fecha_creacion}"
+        return f"Venta {self.id}  {self.fecha_creacion}"
 
     # --- 2. Validación para que descuento no supere el total ---
     def clean(self):
@@ -37,40 +35,36 @@ class Venta(AuditoriaBase):
         super().save(*args, **kwargs)
 
 class ComprobanteVenta(models.Model):
-    id_comprobante = models.AutoField(primary_key=True)
-    id_venta = models.OneToOneField(Venta, on_delete=models.CASCADE, related_name='comprobante')
+    venta = models.OneToOneField(Venta, on_delete=models.CASCADE, related_name='comprobante')
     fecha_emision = models.DateTimeField(auto_now_add=True)
     numero_comprobante = models.CharField(max_length=20, unique=True)
-    metodo_pago = models.CharField(max_length=50, default="Efectivo")
-    monto_total = models.DecimalField(max_digits=10, decimal_places=2)
 
     def __str__(self):
         return f"Comprobante {self.numero_comprobante}"
 
 # Definir los detalles de la venta
 class DetalleVenta(models.Model):
-    id_detalle_venta = models.AutoField(primary_key=True)
-    id_venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
-    id_inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE, related_name='ventas')  # <-- cambio aquí
+    venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
+    inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE, related_name='ventas')  # <-- cambio aquí
     cantidad = models.IntegerField()
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     descuento_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
-        return f"Detalle de Venta {self.id_detalle_venta} - Inventario {self.id_inventario}"
+        return f"Detalle de Venta {self.id} - Inventario {self.inventario.producto.nombre}"
 
     # # Método para calcular el subtotal de este detalle
     def save(self, *args, **kwargs):
         if self.precio_unitario is None:
             raise ValidationError("El precio unitario no puede ser nulo.")
 
-        inventario = self.id_inventario
+        inventario = self.inventario
         if not inventario:
             raise ValidationError("No se ha especificado inventario válido.")
     
         if inventario.cantidad < self.cantidad:
-            raise ValidationError(f"No hay suficiente stock para el producto {inventario.id_producto.nombre}. Disponible: {inventario.cantidad}.")
+            raise ValidationError(f"No hay suficiente stock para el producto {inventario.producto.nombre}. Disponible: {inventario.cantidad}.")
 
         self.subtotal = (self.cantidad * self.precio_unitario) - self.descuento_unitario
         if self.subtotal < 0:

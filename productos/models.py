@@ -4,35 +4,31 @@ from simple_history.models import HistoricalRecords
 
 # Modelo de Categoría
 class Categoria(AuditoriaBase):
-    id_categoria = models.AutoField(primary_key=True)
-    nombre_categoria = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100)
     descripcion = models.TextField(null=True, blank=True)
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
 
     def __str__(self):
-        return self.nombre_categoria
+        return self.nombre
     
 class Proveedor(AuditoriaBase):
-    id_proveedor = models.AutoField(primary_key=True)
-    nombre_proveedor = models.CharField(max_length=100)
+    marca = models.CharField("Marca",max_length=100,blank=True,null=True)
+    nombre_contacto = models.CharField("Nombre de Contacto",max_length=100,blank=True,null=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)
 
     def __str__(self):
-        return self.nombre_proveedor
+        return self.marca
 
 # Modelo de Producto
 class Producto(AuditoriaBase):
-    id_producto = models.AutoField(primary_key=True)
     nombre = models.CharField(max_length=100)
-    id_proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
-    # marca = models.CharField(max_length=100)  # Si lo necesitas
+    proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     precio = models.DecimalField(max_digits=10, decimal_places=2)
-    # stock = models.IntegerField()
     categoria = models.ForeignKey(Categoria, on_delete=models.CASCADE)
-    codigo_barras = models.CharField(max_length=50, unique=True)  # Asegura que el código de barras sea único
+    codigo_barras = models.CharField(max_length=50, unique=True)#unique unico barcode
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
     documento = models.FileField(upload_to='productos/documentos/', null=True, blank=True)

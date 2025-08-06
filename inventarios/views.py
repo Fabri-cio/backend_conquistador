@@ -5,15 +5,15 @@ from django_crud_api.mixins import PaginacionYAllDataMixin
 
 class AlmacenViewSet( PaginacionYAllDataMixin,viewsets.ModelViewSet):
     serializer_class = AlmacenSerializer
-    queryset = Almacen.objects.all().order_by('id_almacen_tienda')
+    queryset = Almacen.objects.all().order_by('id')
 
 class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = TipoMovimientoSerializer
-    queryset = TipoMovimiento.objects.all().order_by('id_tipo')
+    queryset = TipoMovimiento.objects.all().order_by('id')
 
 class InventarioViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = InventarioSerializer
-    queryset = Inventario.objects.all().order_by('id_inventario')
+    queryset = Inventario.objects.all().order_by('id')
 
     # def get_queryset(self):
     #     user = self.request.user
@@ -25,4 +25,4 @@ class InventarioViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
 class MovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = MovimientoSerializer 
-    queryset = Movimiento.objects.all().order_by('id_movimiento')
+    queryset = Movimiento.objects.all().order_by('id')

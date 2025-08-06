@@ -16,7 +16,7 @@ def actualizar_total_compra(sender, instance, **kwargs):
     Actualiza el total de la compra cada vez que se crea, actualiza o elimina un detalle de compra.
     Resta el descuento global de la compra y guarda el total ajustado.
     """
-    compra = instance.id_compra
+    compra = instance.compra
     total = sum(detalle.subtotal for detalle in compra.detalles.all())
     total = max(total - compra.descuento, 0)
     Compra.objects.filter(pk=compra.pk).update(total_compra=total)
@@ -28,15 +28,15 @@ def registrar_movimiento(sender, instance, **kwargs):
     """
     try:
         with transaction.atomic():
-            compra = instance.id_compra
-            inventario = Inventario.objects.select_for_update().get(pk=instance.id_inventario.pk)
+            compra = instance.compra
+            inventario = Inventario.objects.select_for_update().get(pk=instance.inventario.pk)
             cantidad_comprada = instance.cantidad
 
             tipo_movimiento = TipoMovimiento.objects.get(nombre=TIPO_MOVIMIENTO_COMPRA)
             
             Movimiento.objects.create(
-                id_inventario=inventario,
-                id_tipo=tipo_movimiento,
+                inventario=inventario,
+                tipo=tipo_movimiento,
                 cantidad=cantidad_comprada,
                 usuario_creacion=compra.usuario_creacion,
             )
@@ -47,8 +47,8 @@ def registrar_movimiento(sender, instance, **kwargs):
 def eliminar_movimiento(sender, instance, **kwargs):
     try:
         Movimiento.objects.filter(
-            id_inventario=instance.id_inventario,
-            usuario_creacion=instance.id_compra.usuario_creacion,
+            inventario=instance.inventario,
+            usuario_creacion=instance.compra.usuario_creacion,
             cantidad=instance.cantidad
         ).delete()
     except Exception as e:

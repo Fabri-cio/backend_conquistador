@@ -13,12 +13,12 @@ class ProveedorSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ProductoListSerializer(serializers.ModelSerializer):
-    nombre_categoria = serializers.CharField(source="categoria.nombre_categoria", read_only=True)
-    nombre_proveedor = serializers.CharField(source="id_proveedor.nombre_proveedor", read_only=True)
+    nombre_categoria = serializers.CharField(source="categoria.nombre", read_only=True)
+    nombre_proveedor = serializers.CharField(source="proveedor.nombre", read_only=True)
     class Meta:
         model = Producto
         fields = [
-            "id_producto",        
+            "id",        
             "estado",             
             "nombre",             
             "precio",                     
@@ -33,12 +33,12 @@ class ProductoDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
         fields = [
-            "id_producto",        
+            "id",        
             "estado",             
             "nombre",             
             "precio",             
             "codigo_barras",      
-            "id_proveedor",
+            "proveedor",
             "categoria",
             "imagen",
             "documento",
@@ -52,7 +52,7 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
             "nombre",             
             "precio",             
             "codigo_barras",      
-            "id_proveedor",
+            "proveedor",
             "categoria",
             "usuario_creacion",
             "usuario_modificacion",
@@ -69,7 +69,7 @@ class ProductoHistorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto.history.model
         fields = [
-            'id_producto',
+            'id',
             'nombre',
             'precio',
             'history_type',

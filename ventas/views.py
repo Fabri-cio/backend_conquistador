@@ -7,24 +7,24 @@ from rest_framework import permissions
 
 # Vista para el cliente
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = Cliente.objects.all().order_by('id_cliente')
+    queryset = Cliente.objects.all().order_by('id')
     serializer_class = ClienteSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 # Vista para la factura de venta
 class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = ComprobanteVenta.objects.all().order_by('id_comprobante')
+    queryset = ComprobanteVenta.objects.all().order_by('id')
     serializer_class = ComprobanteVentaSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 # Vista para la venta
 class VentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = Venta.objects.all().order_by('id_venta')
+    queryset = Venta.objects.all().order_by('id')
     serializer_class = VentaSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 # Vista para los detalles de la venta
 class DetalleVentaView(viewsets.ModelViewSet):
-    queryset = DetalleVenta.objects.all()
+    queryset = DetalleVenta.objects.all().order_by('id')
     serializer_class = DetalleVentaSerializer
     # permission_classes = [permissions.IsAuthenticated]

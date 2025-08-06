@@ -10,14 +10,14 @@ class ClienteSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class DetalleVentaSerializer(serializers.ModelSerializer):
-    nombre_producto = serializers.CharField(source='id_inventario.id_producto.nombre', read_only=True)
-    fecha_venta = serializers.DateTimeField(source='id_venta.fecha_creacion', read_only=True)
-    nombre_tienda = serializers.CharField(source='id_venta.id_tienda.nombre', read_only=True)
+    nombre_producto = serializers.CharField(source='inventario.producto.nombre', read_only=True)
+    fecha_venta = serializers.DateTimeField(source='venta.fecha_creacion', read_only=True)
+    nombre_tienda = serializers.CharField(source='venta.tienda.nombre', read_only=True)
 
     class Meta:
         model = DetalleVenta
         fields = [
-            'id_inventario',
+            'inventario',
             'nombre_producto',
             'nombre_tienda',
             'cantidad',
@@ -29,16 +29,16 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
 
 class VentaSerializer(serializers.ModelSerializer):
     detalles = DetalleVentaSerializer(many=True)
-    nombre_tienda = serializers.CharField(source='id_tienda.nombre', read_only=True)
+    nombre_tienda = serializers.CharField(source='tienda.nombre', read_only=True)
     usuario_creacion = serializers.CharField(source='usuario_creacion.first_name', read_only=True)
 
     class Meta:
         model = Venta
         fields = [
-            'id_venta',
+            'venta',
             'fecha_creacion',
             'usuario_creacion',
-            'id_tienda',
+            'tienda',
             'nombre_tienda',
             'metodo_pago',
             'descuento',
@@ -52,7 +52,7 @@ class VentaSerializer(serializers.ModelSerializer):
         detalles_data = validated_data.pop('detalles')
 
         # 2. Se obtiene la tienda origen desde los datos validados (donde se realiza la venta)
-        tienda_origen = validated_data.get('id_tienda')
+        tienda_origen = validated_data.get('tienda')
 
         # 3. Se abre una transacción atómica para asegurar que todos los pasos se completen o ninguno
         with transaction.atomic():
@@ -62,22 +62,22 @@ class VentaSerializer(serializers.ModelSerializer):
 
             # 5. Por cada detalle en la lista
             for detalle_data in detalles_data:
-                inventario = detalle_data.get('id_inventario')
+                inventario = detalle_data.get('inventario')
                 cantidad_vendida = detalle_data.get('cantidad')
 
                 # 6. Validar que el inventario pertenece a la tienda origen
-                if inventario.id_almacen_tienda != tienda_origen:
+                if inventario.almacen != tienda_origen:
                     raise ValidationError(f"El inventario seleccionado no pertenece a la tienda {tienda_origen.nombre}.")
 
                 # 7. Validar que el stock disponible sea suficiente para la cantidad vendida
                 if inventario.cantidad < cantidad_vendida:
                     raise ValidationError(
-                        f"No hay suficiente stock para el producto {inventario.id_producto.nombre}. "
+                        f"No hay suficiente stock para el producto {inventario.producto.nombre}. "
                         f"Disponible: {inventario.cantidad}."
                     )
 
                 # 8. Crear el detalle de venta asociado a la venta recién creada
-                DetalleVenta.objects.create(id_venta=venta, **detalle_data)
+                DetalleVenta.objects.create(venta=venta, **detalle_data)
 
         # 9. Finalmente, devuelve el objeto venta creado con sus detalles
         return venta

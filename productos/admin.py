@@ -3,13 +3,13 @@ from .models import Categoria, Proveedor, Producto
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ['nombre_categoria', 'descripcion']
-    search_fields = ['nombre_categoria']
+    list_display = ['nombre', 'descripcion']
+    search_fields = ['nombre']
 
 @admin.register(Proveedor)
 class ProveedorAdmin(admin.ModelAdmin):
-    list_display = ['nombre_proveedor']
-    search_fields = ['nombre_proveedor']
+    list_display = ['marca', 'nombre_contacto', 'telefono', 'estado', 'imagen']
+    search_fields = ['marca']
 
 @admin.register(Producto)
 class ProductoAdmin(admin.ModelAdmin):
@@ -23,7 +23,7 @@ class ProductoAdmin(admin.ModelAdmin):
 
     fieldsets = (
         (None, {
-            'fields': ('nombre', 'precio', 'codigo_barras', 'categoria', 'id_proveedor', 'estado', 'imagen', 'documento'),
+            'fields': ('nombre', 'precio', 'codigo_barras', 'categoria', 'proveedor', 'estado', 'imagen', 'documento'),
         }),
         ('Información Adicional', {
             'fields': ('usuario_creacion', 'usuario_modificacion', 'fecha_creacion', 'fecha_modificacion'),

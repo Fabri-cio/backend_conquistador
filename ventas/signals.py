@@ -32,7 +32,7 @@ def actualizar_total_venta(sender, instance, **kwargs):
     Actualiza el total de la venta cada vez que se crea, actualiza o elimina un detalle de venta.
     Resta el descuento global de la venta y guarda el total ajustado.
     """
-    venta = instance.id_venta
+    venta = instance.venta
     total = sum(detalle.subtotal for detalle in venta.detalles.all())
     total = max(total - venta.descuento, 0)
     Venta.objects.filter(pk=venta.pk).update(total_venta=total)
@@ -45,19 +45,19 @@ def registrar_movimiento(sender, instance, **kwargs):
     """
     try:
         with transaction.atomic():
-            venta = instance.id_venta
-            inventario = Inventario.objects.select_for_update().get(pk=instance.id_inventario.pk)
+            venta = instance.venta
+            inventario = Inventario.objects.select_for_update().get(pk=instance.inventario.pk)
             cantidad_vendida = instance.cantidad
 
             tipo_movimiento = TipoMovimiento.objects.get(nombre=TIPO_MOVIMIENTO_VENTA)
 
             if inventario.cantidad < cantidad_vendida:
-                logger.error(f"Stock insuficiente para {inventario.id_producto.nombre}. Movimiento no registrado.")
+                logger.error(f"Stock insuficiente para {inventario.producto.nombre}. Movimiento no registrado.")
                 return
 
             Movimiento.objects.create(
-                id_inventario=inventario,
-                id_tipo=tipo_movimiento,
+                inventario=inventario,
+                tipo=tipo_movimiento,
                 cantidad=cantidad_vendida,
                 usuario_creacion=venta.usuario_creacion,
             )
@@ -69,8 +69,8 @@ def registrar_movimiento(sender, instance, **kwargs):
 def eliminar_movimiento(sender, instance, **kwargs):
     try:
         Movimiento.objects.filter(
-            id_inventario=instance.id_inventario,
-            usuario_creacion=instance.id_venta.usuario_creacion,
+            inventario=instance.inventario,
+            usuario_creacion=instance.venta.usuario_creacion,
             cantidad=instance.cantidad
         ).delete()
     except Exception as e:
@@ -85,12 +85,10 @@ def crear_factura_automaticamente(sender, instance, created, **kwargs):
     """
     if created:
         if not hasattr(instance, 'factura'):
-            numero_comprobante = f"F-{instance.id_venta:06d}"
+            numero_comprobante = f"F-{instance.id:06d}"
             ComprobanteVenta.objects.create(
-                id_venta=instance,
+                venta=instance,
                 numero_comprobante=numero_comprobante,
-                metodo_pago=instance.metodo_pago,
-                monto_total=instance.total_venta
             )
 
 
@@ -101,8 +99,8 @@ def enviar_factura_condicional(sender, instance, created, **kwargs):
     Verifica que el cliente tenga correo y que el cliente quiera un comprobante.
     """
     if created:
-        venta = instance.id_venta
-        cliente = venta.id_cliente
+        venta = instance.venta
+        cliente = venta.cliente
 
         if cliente and cliente.correo and venta.quiere_comprobante:
             asunto = f"Factura {instance.numero_comprobante}"

@@ -13,15 +13,15 @@ class TipoMovimientoAdmin(admin.ModelAdmin):
 
 @admin.register(Inventario)
 class InventarioAdmin(admin.ModelAdmin):
-    list_display = ['id_inventario', 'id_almacen_tienda', 'id_producto', 'cantidad', 'stock_minimo', 'stock_maximo', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion']
-    search_fields = ['id_producto', 'id_almacen_tienda']
-    list_filter = ['id_almacen_tienda', 'id_producto']
+    list_display = ['id', 'almacen', 'producto', 'cantidad', 'stock_minimo', 'stock_maximo', 'fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion']
+    search_fields = ['producto', 'almacen']
+    list_filter = ['almacen', 'producto']
     
     readonly_fields = ['fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion']
 
     fieldsets = (
         (None, {
-            'fields': ('id_producto', 'id_almacen_tienda', 'cantidad', 'stock_minimo', 'stock_maximo'),
+            'fields': ('producto', 'almacen', 'cantidad', 'stock_minimo', 'stock_maximo'),
         }),
         ('Información Adicional', {
             'fields': ('fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion', 'comentario_modificacion'),
@@ -38,15 +38,15 @@ class InventarioAdmin(admin.ModelAdmin):
 
 @admin.register(Movimiento)
 class MovimientoAdmin(admin.ModelAdmin):
-    list_display = ['id_movimiento', 'id_inventario', 'id_tipo', 'cantidad', 'get_usuario_creacion', 'fecha_creacion']
-    search_fields = ['id_inventario', 'id_tipo']
-    list_filter = ['id_tipo', 'id_inventario']
+    list_display = ['id', 'inventario', 'tipo', 'cantidad', 'get_usuario_creacion', 'fecha_creacion']
+    search_fields = ['inventario', 'tipo']
+    list_filter = ['tipo', 'inventario']
     
     readonly_fields = ['usuario_creacion','fecha_creacion']
 
     fieldsets = (
         (None, {
-            'fields': ('id_inventario', 'id_tipo', 'cantidad'),
+            'fields': ('inventario', 'tipo', 'cantidad'),
         }),
         ('Información Adicional', {
             'fields': ('usuario_creacion','fecha_creacion',),

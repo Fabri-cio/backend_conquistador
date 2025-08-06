@@ -19,7 +19,7 @@ class DetallePedidoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
 
 class CompraViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = Compra.objects.all()
+    queryset = Compra.objects.all() 
     serializer_class = CompraSerializer
     permission_classes = [permissions.IsAuthenticated]
 
