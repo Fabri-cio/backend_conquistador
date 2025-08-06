@@ -17,8 +17,7 @@ class InventarioSerializer(serializers.ModelSerializer):
     producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
     precio = serializers.DecimalField(source="producto.precio", read_only=True, max_digits=10, decimal_places=2)
     almacen_nombre = serializers.CharField(source="almacen.nombre", read_only=True)
-    usuario_creacion = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), required=False)
-    usuario_modificacion = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all(), required=False)
+
 
     class Meta:
         model = Inventario
@@ -28,6 +27,7 @@ class InventarioSerializer(serializers.ModelSerializer):
             'almacen',
             'cantidad',
             'stock_minimo',
+            'stock_maximo',
             'fecha_creacion',
             'fecha_modificacion',
             'usuario_creacion',

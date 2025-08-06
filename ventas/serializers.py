@@ -35,7 +35,7 @@ class VentaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Venta
         fields = [
-            'venta',
+            'id',
             'fecha_creacion',
             'usuario_creacion',
             'tienda',
