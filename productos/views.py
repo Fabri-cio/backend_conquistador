@@ -19,21 +19,29 @@ class ProveedorView(PaginacionYAllDataMixin, AuditableModelViewSet):
     queryset = Proveedor.objects.all()
 
 class ProductoView(PaginacionYAllDataMixin, AuditableModelViewSet):
+
     """
     Vista para gestionar productos con capacidades de búsqueda, filtrado, ordenamiento y paginación.
 
-    Filtros disponibles:
-    - ?search=leche → Busca por nombre, código de barras, proveedor o categoría
+    Filtros personalizados (DjangoFilterBackend):
     - ?precio_min=10&precio_max=50 → Filtra productos dentro de un rango de precio
-    - ?fecha_creacion_min=2024-01-01&fecha_creacion_max=2025-01-01 → Filtra por fecha de creación
+    - ?fecha_creacion_min=2024-01-01&fecha_creacion_max=2025-01-01 → Filtra por rango de fechas de creación
     - ?codigo_barras=1234567890123 → Búsqueda exacta por código de barras
     - ?categoria=2&proveedor=3 → Filtra por categoría y proveedor
-    - ?ordering=precio o ?ordering=-fecha_creacion → Ordena resultados
+
+    Búsqueda general (SearchFilter):
+    - ?search=leche → Busca en campos texto relacionados (nombre, código barras, proveedor.marca, categoría.nombre)
+
+    Ordenamiento (OrderingFilter):
+    - ?ordering=precio → Ordena ascendente por precio
+    - ?ordering=-fecha_creacion → Ordena descendente por fecha de creación
+
+    Paginación:
     - ?page=1&per_page=10 → Control de paginación
     - ?all_data=true → Devuelve todos los productos sin paginar (útil para exportar)
     """
+    queryset = Producto.objects.all()
     
-    queryset = Producto.objects.all().order_by('-fecha_creacion')
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -43,10 +51,11 @@ class ProductoView(PaginacionYAllDataMixin, AuditableModelViewSet):
     search_fields = [
         'nombre',
         'codigo_barras',
-        'proveedor__nombre',
+        'proveedor__marca',
         'categoria__nombre'
     ]
     ordering_fields = ['precio','fecha_creacion','nombre']
+    ordering = ['-fecha_creacion']  # ✅ orden por defecto
 
     def get_serializer_class(self):
         if self.action == 'list':

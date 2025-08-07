@@ -7,8 +7,8 @@ class ProductoFilter(django_filters.FilterSet):
     fecha_creacion_min = django_filters.DateFilter(field_name="fecha_creacion", lookup_expr="gte")
     fecha_creacion_max = django_filters.DateFilter(field_name="fecha_creacion", lookup_expr="lte")
     codigo_barras = django_filters.CharFilter(field_name="codigo_barras", lookup_expr="exact")
-    categoria = django_filters.NumberFilter(field_name="categoria__id_categoria")
-    proveedor = django_filters.NumberFilter(field_name="id_proveedor__id_proveedor")
+    categoria = django_filters.CharFilter(field_name="categoria", lookup_expr="exact")
+    proveedor = django_filters.CharFilter(field_name="proveedor", lookup_expr="exact")
 
     class Meta:
         model = Producto
