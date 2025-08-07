@@ -8,23 +8,17 @@ from .filters import ProductoFilter
 from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
-from django.utils import timezone
+from core.views import AuditableModelViewSet
 
-class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = CategoriaSerializer
-    queryset = Categoria.objects.all().order_by('id')
+    queryset = Categoria.objects.all()
 
-    def perform_create(self, serializer):
-        serializer.save(usuario_creacion=self.request.user)
-
-    def perform_update(self, serializer):
-        serializer.save(usuario_modificacion=self.request.user, fecha_modificacion=timezone.now())
-
-class ProveedorView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+class ProveedorView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = ProveedorSerializer
-    queryset = Proveedor.objects.all().order_by('id')
+    queryset = Proveedor.objects.all()
 
-class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+class ProductoView(PaginacionYAllDataMixin, AuditableModelViewSet):
     """
     Vista para gestionar productos con capacidades de búsqueda, filtrado, ordenamiento y paginación.
 
@@ -39,7 +33,7 @@ class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     - ?all_data=true → Devuelve todos los productos sin paginar (útil para exportar)
     """
     
-    queryset = Producto.objects.all().order_by('id')
+    queryset = Producto.objects.all().order_by('-fecha_creacion')
     filter_backends = [
         DjangoFilterBackend,
         filters.SearchFilter,
@@ -60,13 +54,7 @@ class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         elif self.action in ['create', 'update', 'partial_update']:
             return ProductoCreateSerializer
         return ProductoDetailSerializer
-
-    def perform_create(self, serializer):
-        serializer.save(usuario_creacion=self.request.user)
-
-    def perform_update(self, serializer):
-        serializer.save(usuario_modificacion=self.request.user, fecha_modificacion=timezone.now())
-
+        
 class ProductoHistoryView(generics.ListAPIView):
     serializer_class = ProductoHistorySerializer
     permission_classes = [permissions.AllowAny]

@@ -2,10 +2,13 @@ from rest_framework import serializers
 from .models import Categoria, Proveedor, Producto
 from django.utils.translation import gettext_lazy as _
 
+# ---------------------
+# Categoria & Proveedor
+# ---------------------
+
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Categoria
-        # fields = ('id_categoria', 'nombre_categoria', 'descripcion')
         fields = '__all__'
 
 class ProveedorSerializer(serializers.ModelSerializer):
@@ -13,46 +16,18 @@ class ProveedorSerializer(serializers.ModelSerializer):
         model = Proveedor
         fields = '__all__'
 
-class ProductoListSerializer(serializers.ModelSerializer):
-    nombre_categoria = serializers.CharField(source="categoria.nombre", read_only=True)
-    nombre_proveedor = serializers.CharField(source="proveedor.nombre", read_only=True)
-    class Meta:
-        model = Producto
-        fields = [
-            "id",        
-            "estado",             
-            "nombre",             
-            "precio",                     
-            "nombre_proveedor",   
-            "nombre_categoria",
-            "imagen",  
-            "documento",
-        ]
-    
-class ProductoDetailSerializer(serializers.ModelSerializer):
-    precio = serializers.DecimalField(max_digits=10, decimal_places=2)
-    class Meta:
-        model = Producto
-        fields = [
-            "id",        
-            "estado",             
-            "nombre",             
-            "precio",             
-            "codigo_barras",      
-            "proveedor",
-            "categoria",
-            "imagen",
-            "documento",
-        ]
+# ---------------------
+# Base Serializer común
+# ---------------------
 
-class ProductoCreateSerializer(serializers.ModelSerializer):
+class BaseProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
-        fields = [        
-            "estado",             
-            "nombre",             
-            "precio",             
-            "codigo_barras",      
+        fields = [
+            "estado",
+            "nombre",
+            "precio",
+            "codigo_barras",
             "proveedor",
             "categoria",
             "imagen",
@@ -60,11 +35,66 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
         ]
 
     def validate_codigo_barras(self, value):
-        if Producto.objects.filter(codigo_barras=value).exists():
+        instance = getattr(self, 'instance', None)
+        qs = Producto.objects.exclude(pk=instance.pk) if instance else Producto.objects.all()
+        if qs.filter(codigo_barras=value).exists():
             raise serializers.ValidationError(
                 _("Ya existe un producto con este código de barras.")
             )
         return value
+
+# ---------------------
+# Create / Update
+# ---------------------
+
+class ProductoCreateSerializer(BaseProductoSerializer):
+    pass  # Hereda validación y campos del base
+
+# ---------------------
+# List
+# ---------------------
+
+class ProductoListSerializer(serializers.ModelSerializer):
+    categoria = serializers.CharField(source="categoria.nombre", read_only=True)
+    marca = serializers.CharField(source="proveedor.marca", read_only=True)
+
+    class Meta:
+        model = Producto
+        fields = [
+            "id",
+            "estado",
+            "nombre",
+            "precio",
+            "marca",
+            "categoria",
+            "imagen",
+            "documento",
+        ]
+
+# ---------------------
+# Detail
+# ---------------------
+
+class ProductoDetailSerializer(serializers.ModelSerializer):
+    precio = serializers.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = Producto
+        fields = [
+            "id",
+            "estado",
+            "nombre",
+            "precio",
+            "codigo_barras",
+            "proveedor",
+            "categoria",
+            "imagen",
+            "documento",
+        ]
+
+# ---------------------
+# Historial
+# ---------------------
 
 class ProductoHistorySerializer(serializers.ModelSerializer):
     history_type = serializers.CharField()
@@ -81,7 +111,7 @@ class ProductoHistorySerializer(serializers.ModelSerializer):
             'history_type',
             'history_date',
             'history_user',
-            'cambios',  # <- campo extra para mostrar qué cambió
+            'cambios',
         ]
 
     def get_history_user(self, obj):
@@ -99,5 +129,3 @@ class ProductoHistorySerializer(serializers.ModelSerializer):
                 "a": change.new,
             }
         return cambios
-
-
