@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Categoria, Proveedor, Producto
+from django.utils.translation import gettext_lazy as _
 
 class CategoriaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -54,11 +55,16 @@ class ProductoCreateSerializer(serializers.ModelSerializer):
             "codigo_barras",      
             "proveedor",
             "categoria",
-            "usuario_creacion",
-            "usuario_modificacion",
             "imagen",
             "documento",
         ]
+
+    def validate_codigo_barras(self, value):
+        if Producto.objects.filter(codigo_barras=value).exists():
+            raise serializers.ValidationError(
+                _("Ya existe un producto con este código de barras.")
+            )
+        return value
 
 class ProductoHistorySerializer(serializers.ModelSerializer):
     history_type = serializers.CharField()

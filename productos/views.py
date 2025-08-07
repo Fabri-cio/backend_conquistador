@@ -8,6 +8,7 @@ from .filters import ProductoFilter
 from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
+from django.utils import timezone
 
 class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = CategoriaSerializer
@@ -17,7 +18,7 @@ class CategoriaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         serializer.save(usuario_creacion=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(usuario_modificacion=self.request.user)
+        serializer.save(usuario_modificacion=self.request.user, fecha_modificacion=timezone.now())
 
 class ProveedorView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = ProveedorSerializer
@@ -59,6 +60,12 @@ class ProductoView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
         elif self.action in ['create', 'update', 'partial_update']:
             return ProductoCreateSerializer
         return ProductoDetailSerializer
+
+    def perform_create(self, serializer):
+        serializer.save(usuario_creacion=self.request.user)
+
+    def perform_update(self, serializer):
+        serializer.save(usuario_modificacion=self.request.user, fecha_modificacion=timezone.now())
 
 class ProductoHistoryView(generics.ListAPIView):
     serializer_class = ProductoHistorySerializer

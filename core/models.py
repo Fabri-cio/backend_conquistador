@@ -15,7 +15,7 @@ class AuditoriaBase(models.Model):
         related_name="%(class)s_modificados"
     )
     fecha_creacion = models.DateTimeField(auto_now_add=True)
-    fecha_modificacion = models.DateTimeField(auto_now=True)
+    fecha_modificacion = models.DateTimeField(blank=True, null=True)
     comentario_modificacion = models.TextField(blank=True, null=True)
 
     class Meta:

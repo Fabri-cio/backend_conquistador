@@ -67,6 +67,8 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",#desplliegue
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
+    'core.middleware.IdiomaPorHeaderMiddleware',  # 👈 Aquí va el tuyo
     "corsheaders.middleware.CorsMiddleware",
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -181,6 +183,19 @@ DEFAULT_FROM_EMAIL = 'CBI ANALYTICS'
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
+# Activar el sistema de traducciones
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+# Idiomas disponibles en la aplicación
+LANGUAGES = [
+    ('es', 'Español'),
+    ('en', 'English'),
+]
+# Ruta donde Django buscará las traducciones
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',  # Asegúrate de que esta carpeta exista
+]
 
 TIME_ZONE = 'America/La_Paz'
 
