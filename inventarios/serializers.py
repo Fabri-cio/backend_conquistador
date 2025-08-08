@@ -39,29 +39,25 @@ class InventarioSerializer(serializers.ModelSerializer):
         ]
 
 class MovimientoSerializer(serializers.ModelSerializer):
-    # Similar a los anteriores, definimos las relaciones a otras tablas
-    producto = serializers.PrimaryKeyRelatedField(queryset=Producto.objects.all())
-    almacen = serializers.PrimaryKeyRelatedField(queryset=Almacen.objects.all())
-    tipo = serializers.PrimaryKeyRelatedField(queryset=TipoMovimiento.objects.all())
-    usuario_creacion = serializers.PrimaryKeyRelatedField(queryset=Usuario.objects.all())
-
-    nom_produc = serializers.CharField(source="producto.nombre", read_only=True)
-    nom_alm = serializers.CharField(source="almacen.nombre", read_only=True)
-    nom_tip = serializers.CharField(source="tipo.nombre", read_only=True)
-    nom_user = serializers.CharField(source="usuario_creacion.email", read_only=True)
+    tipo_nombre = serializers.CharField(source="tipo.nombre", read_only=True)
+    producto_nombre = serializers.CharField(source="inventario.producto.nombre", read_only=True)
+    almacen_nombre = serializers.CharField(source="inventario.almacen.nombre", read_only=True)
+    usuario_creacion = serializers.CharField(source="usuario_creacion.username", read_only=True)
 
     class Meta:
         model = Movimiento
         fields = [
             'id',
+            'inventario',
+            'tipo_nombre',
+            'tipo',
             'cantidad',
             'fecha_creacion',
+            'fecha_modificacion',
             'usuario_creacion',
-            'nom_produc',
-            'nom_alm',
-            'nom_tip',
-            'nom_user',
-            'almacen',
-            'producto',
-            'tipo',
+            'usuario_modificacion',
+            'comentario_modificacion',
+            'producto_nombre',
+            'almacen_nombre',
+            'usuario_creacion',
         ]
