@@ -23,14 +23,14 @@ class Almacen(AuditoriaBase):
 class TipoMovimiento(models.Model):
     nombre = models.CharField(max_length=255, unique=True)  # Nombre del tipo de movimiento
     descripcion = models.TextField(blank=True, null=True)  # Descripción opcional
-    naturelaza = models.CharField(
+    naturaleza = models.CharField(
         max_length=10, 
         choices=(('Entrada', 'Entrada'), ('Salida', 'Salida')),
         default='Entrada'
     )
 
     def __str__(self):
-        return f"{self.nombre} ({self.naturelaza})"  
+        return f"{self.nombre} ({self.naturaleza})"  
 
 
 # Inventario
@@ -62,9 +62,9 @@ def actualizar_inventario_guardar(sender, instance, **kwargs):
         with transaction.atomic():
             inventario = instance.inventario  # YA NO HACE FALTA HACER UN GET
 
-            if instance.tipo.naturelaza == 'Entrada':
+            if instance.tipo.naturaleza == 'Entrada':
                 inventario.cantidad += abs(instance.cantidad)
-            elif instance.tipo.naturelaza == 'Salida':
+            elif instance.tipo.naturaleza == 'Salida':
                 if abs(instance.cantidad) > inventario.cantidad:
                     raise ValidationError(
                         f"Stock insuficiente para {inventario.producto.nombre} en el almacén {inventario.almacen.nombre}."
@@ -84,9 +84,9 @@ def revertir_inventario_eliminar(sender, instance, **kwargs):
         with transaction.atomic():
             inventario = instance.inventario
 
-            if instance.tipo.naturelaza == 'Entrada':
+            if instance.tipo.naturaleza == 'Entrada':
                 inventario.cantidad -= abs(instance.cantidad)
-            elif instance.tipo.naturelaza == 'Salida':
+            elif instance.tipo.naturaleza == 'Salida':
                 inventario.cantidad += abs(instance.cantidad)
             if inventario.cantidad < 0:
                 raise ValidationError("El inventario no puede ser negativo.")
