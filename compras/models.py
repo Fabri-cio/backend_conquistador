@@ -19,11 +19,11 @@ class Pedido(AuditoriaBase):
 
 class DetallePedido(models.Model):
     pedido = models.ForeignKey(Pedido, on_delete=models.CASCADE, related_name="detalles")
-    inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE)
+    producto = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE)
     cantidad_solicitada = models.PositiveIntegerField()
 
     def __str__(self):
-        return f"{self.inventario.producto.nombre} - {self.cantidad_solicitada}"
+        return f"{self.producto.producto.nombre} - {self.cantidad_solicitada}"
 
 class Compra(AuditoriaBase):
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)

@@ -17,9 +17,12 @@ def actualizar_total_compra(sender, instance, **kwargs):
     Resta el descuento global de la compra y guarda el total ajustado.
     """
     compra = instance.compra
-    total = sum(detalle.subtotal for detalle in compra.detalles.all())
-    total = max(total - compra.descuento, 0)
-    Compra.objects.filter(pk=compra.pk).update(total_compra=total)
+    subtotal = sum(detalle.subtotal for detalle in compra.detalles.all())  # suma sin descuento aplicado
+    total = max(subtotal - compra.descuento, 0)
+    Compra.objects.filter(pk=compra.pk).update(
+        subtotal_compra=subtotal,
+        total_compra=total,
+    )
 
 @receiver(post_save, sender=DetalleCompra)
 def registrar_movimiento(sender, instance, **kwargs):

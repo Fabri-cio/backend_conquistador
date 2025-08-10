@@ -21,11 +21,11 @@ class PedidoSerializer(serializers.ModelSerializer):
             raise ValidationError("Debe incluir al menos un detalle de pedido.")
 
         for idx, detalle in enumerate(detalles, start=1):
-            inventario = detalle.get('inventario')
+            producto = detalle.get('producto')
             cantidad = detalle.get('cantidad_solicitada')
 
-            if inventario is None:
-                raise ValidationError({f"detalle_{idx}": "El inventario es obligatorio."})
+            if producto is None:
+                raise ValidationError({f"detalle_{idx}": "El producto es obligatorio."})
 
             if cantidad is None or cantidad <= 0:
                 raise ValidationError({f"detalle_{idx}": "La cantidad solicitada debe ser mayor que cero."})
@@ -39,10 +39,10 @@ class PedidoSerializer(serializers.ModelSerializer):
             pedido = Pedido.objects.create(**validated_data)
 
             for idx, detalle_data in enumerate(detalles_data, start=1):
-                inventario = detalle_data.get('inventario')
+                producto = detalle_data.get('producto')
 
                 # Validación extra opcional: si quieres verificar que el inventario está activo
-                if not inventario.estado:
+                if not producto.estado:
                     raise ValidationError({f"detalle_{idx}": "El inventario no está disponible para pedidos."})
 
             detalles_objs = [
@@ -72,8 +72,8 @@ class PedidoSerializer(serializers.ModelSerializer):
                     detalle_id = detalle_data.get('id', None)
 
                     # Validar inventario activo
-                    inventario = detalle_data.get('inventario')
-                    if not inventario.estado:
+                    producto = detalle_data.get('producto')
+                    if not producto.estado:
                         raise ValidationError("El inventario no está disponible para pedidos.")
 
                     if detalle_id and detalle_id in detalles_actuales:
