@@ -36,6 +36,7 @@ class InventarioSerializer(serializers.ModelSerializer):
             'producto_nombre',
             'precio',
             'almacen_nombre',
+            'estado',
         ]
 
 class MovimientoSerializer(serializers.ModelSerializer):

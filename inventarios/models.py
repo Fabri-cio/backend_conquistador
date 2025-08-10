@@ -40,6 +40,7 @@ class Inventario(AuditoriaBase):
     cantidad = models.PositiveIntegerField(default=0)  # Cantidad de stock disponible
     stock_minimo = models.PositiveIntegerField(default=0)  # Stock mínimo
     stock_maximo = models.PositiveIntegerField(default=0)  # Stock máximo
+    estado = models.BooleanField(default=True)  # Indica si el inventario está activo
 
     def __str__(self):
         return f"{self.producto.nombre} - {self.almacen.nombre}"

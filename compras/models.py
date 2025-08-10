@@ -4,6 +4,12 @@ from core.models import AuditoriaBase
 
 # Create your models here.
 class Pedido(AuditoriaBase):
+    ESTADOS = [
+        ('Pendiente', 'Pendiente'),
+        ('Cancelado', 'Cancelado'),
+        ('Completado', 'Completado'),
+    ]
+    estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
     fecha_entrega = models.DateField(blank=True, null=True)
     proveedor = models.ForeignKey('productos.Proveedor', on_delete=models.CASCADE)
     observaciones = models.TextField(blank=True, null=True)
@@ -21,10 +27,20 @@ class DetallePedido(models.Model):
 
 class Compra(AuditoriaBase):
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)
-    almacen = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
+    nro_factura = models.CharField(max_length=20)
+    razon_social = models.CharField(max_length=100)
     observaciones = models.TextField(blank=True, null=True)
+    subtotal_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0)
     descuento = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    total_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0)     
+    total_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+
+    def calcular_totales(self):
+        """Calcula subtotal, descuento y total automáticamente."""
+        detalles = self.detalles.all()  # related_name="detalles" en DetalleCompra
+        self.subtotal_compra = sum(d.subtotal for d in detalles)
+        self.total_compra = self.subtotal_compra - self.descuento
+        if self.total_compra < 0:
+            self.total_compra = 0    
 
 class DetalleCompra(models.Model):
     compra = models.ForeignKey(Compra, on_delete=models.CASCADE, related_name="detalles")

@@ -42,19 +42,15 @@ class DetalleCompraInline(admin.TabularInline):
 
 # --- Admin para Compra ---
 class CompraAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fecha_creacion', 'usuario_creacion','almacen', 'pedido', 'total_compra']
-    list_filter = ['fecha_creacion', 'almacen']
-    search_fields = ['id', 'usuario_creacion__username', 'almacen__nombre']
+    list_display = ['id', 'fecha_creacion', 'usuario_creacion','pedido', 'total_compra']
+    list_filter = ['fecha_creacion']
+    search_fields = ['id', 'usuario_creacion__username']
     inlines = [DetalleCompraInline]
-    readonly_fields = ['usuario_creacion', 'almacen', 'fecha_creacion', 'fecha_modificacion', 'usuario_modificacion', 'total_compra']
+    readonly_fields = ['usuario_creacion', 'fecha_creacion', 'fecha_modificacion', 'usuario_modificacion', 'total_compra']
 
     def save_model(self, request, obj, form, change):
         if not change:  # Asignar solo en la creación
             obj.usuario_creacion = request.user
-            if request.user.lugar_de_trabajo:
-                obj.almacen = request.user.lugar_de_trabajo
-            else:
-                raise forms.ValidationError("El usuario no tiene un almacén asignado en 'lugar_de_trabajo'.")
         super().save_model(request, obj, form, change)
 
         # Calcular el total de la venta
