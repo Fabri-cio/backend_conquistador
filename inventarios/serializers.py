@@ -17,6 +17,7 @@ class InventarioSerializer(serializers.ModelSerializer):
     producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
     precio = serializers.DecimalField(source="producto.precio", read_only=True, max_digits=10, decimal_places=2)
     almacen_nombre = serializers.CharField(source="almacen.nombre", read_only=True)
+    producto_barcode = serializers.CharField(source="producto.codigo_barras", read_only=True)
 
 
     class Meta:
@@ -37,6 +38,7 @@ class InventarioSerializer(serializers.ModelSerializer):
             'precio',
             'almacen_nombre',
             'estado',
+            'producto_barcode',
         ]
 
 class MovimientoSerializer(serializers.ModelSerializer):

@@ -4,7 +4,7 @@ from simple_history.models import HistoricalRecords
 
 # Modelo de Categoría
 class Categoria(AuditoriaBase):
-    nombre = models.CharField(max_length=100)
+    nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(null=True, blank=True)
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
@@ -13,7 +13,7 @@ class Categoria(AuditoriaBase):
         return self.nombre
     
 class Proveedor(AuditoriaBase):
-    marca = models.CharField("Marca",max_length=100,blank=True,null=True)
+    marca = models.CharField("Marca",max_length=100,blank=True,null=True,unique=True)
     nombre_contacto = models.CharField("Nombre de Contacto",max_length=100,blank=True,null=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
     estado = models.BooleanField(default=True)
