@@ -36,8 +36,11 @@ class LoginSerializer(serializers.Serializer):
         source='lugar_de_trabajo_id',
         required=False
     )
-
+    full_name = serializers.SerializerMethodField()
     rol = serializers.SerializerMethodField()
+
+    def get_full_name(self, obj):
+        return obj.first_name + " " + obj.last_name
 
     def get_rol(self, obj):
         group = obj.groups.first()

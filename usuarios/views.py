@@ -67,12 +67,4 @@ class UsuarioViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     """
     serializer_class = UsuarioSerializer
     # permission_classes = [permissions.IsAuthenticated]
-    queryset = Usuario.objects.all().order_by('id')
-
-    def list(self, request, *args, **kwargs):
-        all_data = request.query_params.get('all_data', 'false').lower() == 'true'
-        if all_data:
-            queryset = self.get_queryset()
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return super().list(request, *args, **kwargs)
+    queryset = Usuario.objects.all()

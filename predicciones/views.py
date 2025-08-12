@@ -6,6 +6,7 @@ from rest_framework import status, viewsets, permissions
 from django.http import JsonResponse
 from .models import Prediccion, DetallePrediccion, ConfiguracionModelo
 from .serializers import PrediccionSerializer, DetallePrediccionSerializer, ConfiguracionModeloSerializer
+from django_crud_api.mixins import PaginacionYAllDataMixin
 
 # PrediccionCSV hace un procesamiento especial (entrenar modelo, recibir archivo).
 class PrediccionCSV(APIView):
@@ -72,7 +73,7 @@ class DetallePrediccionViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.AllowAny]  # Asegura que solo usuarios autenticados accedan a la API
 
 # ConfiguracionModeloViewSet maneja las operaciones CRUD del modelo ConfiguracionModelo.
-class ConfiguracionModeloViewSet(viewsets.ModelViewSet):
+class ConfiguracionModeloViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     """
     ViewSet para manejar las operaciones CRUD del modelo ConfiguracionModelo.
     """

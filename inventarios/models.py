@@ -42,6 +42,14 @@ class Inventario(AuditoriaBase):
     stock_maximo = models.PositiveIntegerField(default=0)  # Stock máximo
     estado = models.BooleanField(default=True)  # Indica si el inventario está activo
 
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['producto', 'almacen'],
+                name='unique_inventario'
+            )
+        ]
+
     def __str__(self):
         return f"{self.producto.nombre} - {self.almacen.nombre}"
 

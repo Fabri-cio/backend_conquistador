@@ -16,12 +16,14 @@ class InventarioViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = InventarioSerializer
     queryset = Inventario.objects.all()
 
-    # def get_queryset(self):
-    #     user = self.request.user
-    #     # Filtrar por lugar de trabajo solo si el usuario está autenticado y tiene un lugar de trabajo
-    #     if user.is_authenticated and user.lugar_de_trabajo:
-    #         return Inventario.objects.filter(id_almacen_tienda=user.lugar_de_trabajo).order_by('id_inventario')
-    #     return Inventario.objects.none()  # Si no tiene lugar de trabajo, no devuelve nada. O puedes devolver todo.
+    def get_queryset(self):
+        user = self.request.user
+        if user.is_authenticated and user.is_superuser:
+            return Inventario.objects.all().order_by('id')
+        # Filtrar por lugar de trabajo solo si el usuario está autenticado y tiene un lugar de trabajo
+        elif user.is_authenticated and user.lugar_de_trabajo:
+            return Inventario.objects.filter(almacen=user.lugar_de_trabajo).order_by('id')
+        return Inventario.objects.none()  # Si no tiene lugar de trabajo, no devuelve nada. O puedes devolver todo.
 
 
 class MovimientoViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
