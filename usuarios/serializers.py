@@ -28,14 +28,14 @@ class GroupSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'permissions']
 
 class LoginSerializer(serializers.Serializer):
-    id = serializers.IntegerField(read_only=True)
+    # id = serializers.IntegerField(read_only=True)
     email = serializers.EmailField()
     password = serializers.CharField()
-    lugar_de_trabajo = serializers.PrimaryKeyRelatedField(
-        queryset=Almacen.objects.all(),
-        source='lugar_de_trabajo_id',
-        required=False
-    )
+    # lugar_de_trabajo = serializers.PrimaryKeyRelatedField(
+    #     queryset=Almacen.objects.all(),
+    #     source='lugar_de_trabajo_id',
+    #     required=False
+    # )
     full_name = serializers.SerializerMethodField()
     rol = serializers.SerializerMethodField()
 
