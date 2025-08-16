@@ -1,7 +1,6 @@
 from rest_framework import serializers
 from .models import Almacen, TipoMovimiento, Inventario, Movimiento
-from productos.models import Producto
-from usuarios.models import Usuario
+from ventas.models import DetalleVenta, Venta
 
 class AlmacenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -41,6 +40,46 @@ class InventarioSerializer(serializers.ModelSerializer):
             'producto_barcode',
             'imagen',
         ]
+
+class InventarioVentasSerializer(serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source='producto.nombre', read_only=True)
+    almacen_nombre = serializers.CharField(source='almacen.nombre', read_only=True)
+    ventas = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Inventario
+        fields = [
+            'id',
+            'producto_nombre',
+            'almacen_nombre',
+            'cantidad',
+            'stock_minimo',
+            'stock_maximo',
+            'ventas'
+        ]
+
+    def get_ventas(self, obj):
+        # Detalles ya prefetch relacionados (solo 2 queries)
+        detalles = getattr(obj, 'prefetched_ventas', obj.ventas.all())
+        
+        ventas_dict = {}
+        for detalle in detalles:
+            venta = detalle.venta
+            if venta.id not in ventas_dict:
+                ventas_dict[venta.id] = {
+                    'id': venta.id,
+                    'fecha_creacion': venta.fecha_creacion,
+                    'cliente_nombre': venta.cliente.nombre if venta.cliente else None,
+                    'total_venta': venta.total_venta,
+                    'detalles': []
+                }
+            ventas_dict[venta.id]['detalles'].append({
+                'cantidad': detalle.cantidad,
+                'precio_unitario': detalle.precio_unitario,
+                'subtotal': detalle.subtotal,
+                'descuento_unitario': detalle.descuento_unitario
+            })
+        return list(ventas_dict.values())
 
 class MovimientoSerializer(serializers.ModelSerializer):
     tipo_nombre = serializers.CharField(source="tipo.nombre", read_only=True)
