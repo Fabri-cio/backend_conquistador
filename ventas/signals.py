@@ -33,7 +33,7 @@ def actualizar_total_venta(sender, instance, **kwargs):
     Resta el descuento global de la venta y guarda el total ajustado.
     """
     venta = instance.venta
-    total = sum(detalle.subtotal for detalle in venta.detalles.all())
+    total = sum(detalle.sub_total for detalle in venta.detalles.all())
     total = max(total - venta.descuento, 0)
     Venta.objects.filter(pk=venta.pk).update(total_venta=total)
 

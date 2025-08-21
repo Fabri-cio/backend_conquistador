@@ -8,7 +8,7 @@ from django import forms
 class DetalleVentaForm(forms.ModelForm):
     class Meta:
         model = DetalleVenta
-        fields = ['inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
+        fields = ['inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'sub_total']
 
     def clean(self):
         cleaned_data = super().clean()
@@ -32,11 +32,11 @@ class DetalleVentaInline(admin.TabularInline):
     model = DetalleVenta
     form = DetalleVentaForm  # Usar el formulario personalizado
     extra = 1
-    fields = ['inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'subtotal']
-    readonly_fields = ['subtotal']
+    fields = ['inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'sub_total']
+    readonly_fields = ['sub_total']
 
     def save_model(self, request, obj, form, change):
-        obj.subtotal = (obj.cantidad * obj.precio_unitario) - obj.descuento_unitario
+        obj.sub_total = (obj.cantidad * obj.precio_unitario) - obj.descuento_unitario
         super().save_model(request, obj, form, change)
 
 # Admin para Venta
@@ -57,7 +57,7 @@ class VentaAdmin(admin.ModelAdmin):
         super().save_model(request, obj, form, change)
 
         # Calcular el total de la venta
-        total = sum(detalle.subtotal for detalle in obj.detalles.all())
+        total = sum(detalle.sub_total for detalle in obj.detalles.all())
         obj.total_venta = total
         obj.save()
 

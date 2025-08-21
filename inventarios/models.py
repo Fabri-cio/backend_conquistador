@@ -37,9 +37,9 @@ class TipoMovimiento(models.Model):
 class Inventario(AuditoriaBase):
     producto = models.ForeignKey('productos.Producto', on_delete=models.CASCADE)  # FK a Producto
     almacen = models.ForeignKey(Almacen, on_delete=models.CASCADE)  # FK a Almacén
-    cantidad = models.PositiveIntegerField(default=0)  # Cantidad de stock disponible
-    stock_minimo = models.PositiveIntegerField(default=0)  # Stock mínimo
-    stock_maximo = models.PositiveIntegerField(default=0)  # Stock máximo
+    cantidad = models.DecimalField(max_digits=10, decimal_places=3, default=0, help_text="Cantidad de stock disponible")
+    stock_minimo = models.DecimalField(max_digits=10, decimal_places=3, default=0, help_text="Stock mínimo")  # Stock mínimo
+    stock_maximo = models.DecimalField(max_digits=10, decimal_places=3, default=0, help_text="Stock máximo")  # Stock máximo
     estado = models.BooleanField(default=True)  # Indica si el inventario está activo
 
     class Meta:

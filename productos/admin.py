@@ -9,7 +9,7 @@ class CategoriaAdmin(admin.ModelAdmin):
 
 @admin.register(Proveedor)
 class ProveedorAdmin(admin.ModelAdmin):
-    list_display = ['marca', 'nombre_contacto', 'telefono', 'estado', 'imagen']
+    list_display = ['marca', 'contacto', 'telefono', 'estado', 'imagen']
     search_fields = ['marca']
 
 @admin.register(Producto)

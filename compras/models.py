@@ -9,6 +9,7 @@ class Pedido(AuditoriaBase):
         ('Cancelado', 'Cancelado'),
         ('Completado', 'Completado'),
     ]
+    almacen = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
     fecha_entrega = models.DateField(blank=True, null=True)
     proveedor = models.ForeignKey('productos.Proveedor', on_delete=models.CASCADE)
@@ -26,6 +27,7 @@ class DetallePedido(models.Model):
         return f"{self.producto.producto.nombre} - {self.cantidad_solicitada}"
 
 class Compra(AuditoriaBase):
+    almacen = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)
     nro_factura = models.CharField(max_length=20)
     razon_social = models.CharField(max_length=100)

@@ -14,7 +14,7 @@ class Categoria(AuditoriaBase):
     
 class Proveedor(AuditoriaBase):
     marca = models.CharField("Marca",max_length=100,blank=True,null=True,unique=True)
-    nombre_contacto = models.CharField("Nombre de Contacto",max_length=100,blank=True,null=True)
+    contacto = models.CharField("Nombre de Contacto",max_length=100,blank=True,null=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='proveedores/', null=True, blank=True)

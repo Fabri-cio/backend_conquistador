@@ -5,9 +5,8 @@ from core.models import AuditoriaBase
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
-    telefono = models.CharField(max_length=20, blank=True, null=True)
     correo = models.EmailField(blank=True, null=True)
-    direccion = models.TextField(blank=True, null=True)
+    nit_ci = models.CharField(max_length=20, blank=True, null=True)
 
     def __str__(self):
         return self.nombre
@@ -19,7 +18,7 @@ class Venta(AuditoriaBase):
     metodo_pago = models.CharField(max_length=50, default="Efectivo")
     descuento = models.DecimalField(max_digits=10, decimal_places=2, default=0)  # Descuento global de la venta
     total_venta = models.DecimalField(max_digits=10, decimal_places=2, default=0)
-    quiere_comprobante = models.BooleanField(default=False, help_text="Indica si el cliente quiere recibir factura por email")
+    quiere_comprobante = models.BooleanField(default=False, help_text="Indica si el cliente quiere recibir comprobante por email")
 
     def __str__(self):
         return f"Venta {self.id}  {self.fecha_creacion}"
@@ -35,8 +34,7 @@ class Venta(AuditoriaBase):
         super().save(*args, **kwargs)
 
 class ComprobanteVenta(models.Model):
-    venta = models.OneToOneField(Venta, on_delete=models.CASCADE, related_name='comprobante')
-    fecha_emision = models.DateTimeField(auto_now_add=True)
+    venta = models.OneToOneField(Venta, on_delete=models.CASCADE, related_name='detalle_comprobante')
     numero_comprobante = models.CharField(max_length=20, unique=True)
 
     def __str__(self):
@@ -46,9 +44,9 @@ class ComprobanteVenta(models.Model):
 class DetalleVenta(models.Model):
     venta = models.ForeignKey(Venta, on_delete=models.CASCADE, related_name='detalles')
     inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE, related_name='ventas')  # <-- cambio aquí
-    cantidad = models.IntegerField()
+    cantidad = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    subtotal = models.DecimalField(max_digits=10, decimal_places=2)
+    sub_total = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     descuento_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
@@ -66,8 +64,8 @@ class DetalleVenta(models.Model):
         if inventario.cantidad < self.cantidad:
             raise ValidationError(f"No hay suficiente stock para el producto {inventario.producto.nombre}. Disponible: {inventario.cantidad}.")
 
-        self.subtotal = (self.cantidad * self.precio_unitario) - self.descuento_unitario
-        if self.subtotal < 0:
+        self.sub_total = (self.cantidad * self.precio_unitario) - self.descuento_unitario
+        if self.sub_total < 0:
             raise ValidationError("El subtotal no puede ser negativo.")
 
         super().save(*args, **kwargs)

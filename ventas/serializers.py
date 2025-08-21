@@ -23,7 +23,7 @@ class DetalleVentaSerializer(serializers.ModelSerializer):
             'cantidad',
             'precio_unitario',
             'descuento_unitario',
-            'subtotal',
+            'sub_total',
             'fecha_venta',
         ]
 
