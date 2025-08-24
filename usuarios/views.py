@@ -29,7 +29,7 @@ class GroupViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = GroupSerializer
     # permission_classes = [permissions.IsAuthenticated] # Así cualquiera puede ver
 
-class PermissionViewSet(viewsets.ReadOnlyModelViewSet):
+class PermissionViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     """
     Listar y detallar permisos disponibles
     """
