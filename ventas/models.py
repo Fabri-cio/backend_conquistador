@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from core.models import AuditoriaBase
-
+from django.db.models import Sum, F
 
 class Cliente(models.Model):
     nombre = models.CharField(max_length=100)
@@ -23,15 +23,14 @@ class Venta(AuditoriaBase):
     def __str__(self):
         return f"Venta {self.id}  {self.fecha_creacion}"
 
-    # --- 2. Validación para que descuento no supere el total ---
+    # Validaciones de comprobante y descuento
     def clean(self):
         super().clean()
-        if self.descuento > self.total_venta:
-            raise ValidationError("El descuento no puede ser mayor al total de la venta.")
-
-    def save(self, *args, **kwargs):
-        self.clean()  # Validamos antes de guardar
-        super().save(*args, **kwargs)
+        # Validación de comprobante
+        if self.quiere_comprobante and not self.cliente:
+            raise ValidationError("Debe seleccionar un cliente si se requiere comprobante.")
+        if self.cliente and not self.quiere_comprobante:
+            raise ValidationError("No puede asignar cliente si no se requiere comprobante.")
 
 class ComprobanteVenta(models.Model):
     venta = models.OneToOneField(Venta, on_delete=models.CASCADE, related_name='detalle_comprobante')
@@ -46,13 +45,13 @@ class DetalleVenta(models.Model):
     inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE, related_name='ventas')  # <-- cambio aquí
     cantidad = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    sub_total = models.DecimalField(max_digits=10, decimal_places=3, default=0)
+    sub_total = models.DecimalField(max_digits=10, decimal_places=2, default=0)
     descuento_unitario = models.DecimalField(max_digits=10, decimal_places=2, default=0)
 
     def __str__(self):
         return f"Detalle de Venta {self.id} - Inventario {self.inventario.producto.nombre}"
 
-    # # Método para calcular el subtotal de este detalle
+    # Calcula el subtotal y valida stock antes de guardar
     def save(self, *args, **kwargs):
         if self.precio_unitario is None:
             raise ValidationError("El precio unitario no puede ser nulo.")

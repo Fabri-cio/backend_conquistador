@@ -1,68 +1,38 @@
+# admin.py
 from django.contrib import admin
 from .models import Venta, DetalleVenta, ComprobanteVenta, Cliente
-from inventarios.models import Inventario
 from django import forms
 
-
-# Formulario personalizado para DetalleVenta
 class DetalleVentaForm(forms.ModelForm):
     class Meta:
         model = DetalleVenta
         fields = ['inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'sub_total']
 
     def clean(self):
-        cleaned_data = super().clean()
-        inventario = cleaned_data.get('inventario')
-        precio_unitario = cleaned_data.get('precio_unitario')
+        data = super().clean()
+        inventario = data.get('inventario')
+        if inventario and not data.get('precio_unitario'):
+            data['precio_unitario'] = inventario.producto.precio
+        return data
 
-        # Si no se proporciona el precio unitario, autocompletarlo desde el producto relacionado
-        if inventario and not precio_unitario:
-            try:
-                inventario = Inventario.objects.get(pk=inventario.pk)
-                cleaned_data['precio_unitario'] = inventario.producto.precio  # Aquí el cambio
-            except Inventario.DoesNotExist:
-                raise forms.ValidationError("El inventario seleccionado no existe.")
-        
-        return cleaned_data
-
-
-
-# Inline personalizado para DetalleVenta
 class DetalleVentaInline(admin.TabularInline):
     model = DetalleVenta
-    form = DetalleVentaForm  # Usar el formulario personalizado
+    form = DetalleVentaForm
     extra = 1
-    fields = ['inventario', 'cantidad', 'precio_unitario', 'descuento_unitario', 'sub_total']
     readonly_fields = ['sub_total']
 
-    def save_model(self, request, obj, form, change):
-        obj.sub_total = (obj.cantidad * obj.precio_unitario) - obj.descuento_unitario
-        super().save_model(request, obj, form, change)
-
-# Admin para Venta
 class VentaAdmin(admin.ModelAdmin):
-    list_display = ['id', 'fecha_creacion', 'usuario_creacion', 'usuario_modificacion', 'tienda', 'total_venta']
-    list_filter = ['fecha_creacion', 'tienda']
-    search_fields = ['id', 'usuario_creacion__username', 'tienda__nombre']
+    list_display = ['id', 'fecha_creacion', 'usuario_creacion', 'tienda', 'total_venta']
     inlines = [DetalleVentaInline]
-    readonly_fields = ['usuario_creacion', 'usuario_modificacion', 'fecha_creacion', 'fecha_modificacion', 'tienda', 'total_venta']
+    readonly_fields = ['usuario_creacion', 'fecha_creacion', 'total_venta', 'tienda']
 
     def save_model(self, request, obj, form, change):
-        if not change:  # Asignar solo en la creación
+        if not change:
             obj.usuario_creacion = request.user
-            if request.user.lugar_de_trabajo:
-                obj.tienda = request.user.lugar_de_trabajo
-            else:
-                raise forms.ValidationError("El usuario no tiene un almacén asignado en 'lugar_de_trabajo'.")
+            obj.tienda = request.user.lugar_de_trabajo
         super().save_model(request, obj, form, change)
-
-        # Calcular el total de la venta
-        total = sum(detalle.sub_total for detalle in obj.detalles.all())
-        obj.total_venta = total
-        obj.save()
 
 admin.site.register(Venta, VentaAdmin)
 admin.site.register(DetalleVenta)
 admin.site.register(ComprobanteVenta)
 admin.site.register(Cliente)
-
