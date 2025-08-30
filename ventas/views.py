@@ -9,7 +9,7 @@ from rest_framework import permissions
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Cliente.objects.all().order_by('id')
     serializer_class = ClienteSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 # Vista para la factura de venta
 class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
