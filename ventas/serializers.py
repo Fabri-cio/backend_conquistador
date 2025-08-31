@@ -11,18 +11,20 @@ class ClienteSerializer(serializers.ModelSerializer):
 
 # Serializer para DetalleVenta
 class DetalleVentaSerializer(serializers.ModelSerializer):
+    sub_total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+
     class Meta:
         model = DetalleVenta
-        fields = ["inventario", "cantidad", "sub_total"]
+        fields = ["inventario", "cantidad", "precio_unitario", "descuento_unitario", "sub_total"]
 
 # Serializer para Venta
 class VentaSerializer(serializers.ModelSerializer):
+    total_venta = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     detalles = DetalleVentaSerializer(many=True)
 
     class Meta:
         model = Venta
-        fields = ["id", "cliente", "usuario_creacion", "descuento", "total_venta", "quiere_comprobante", "detalles"]
-        read_only_fields = ["total_venta"]
+        fields = ["id", "cliente", "usuario_creacion", "descuento", "quiere_comprobante", "total_venta", "detalles"]
 
     # Validaciones a nivel de serializer
     def validate(self, attrs):
@@ -35,6 +37,11 @@ class VentaSerializer(serializers.ModelSerializer):
     # Sobrescribimos create para manejar detalles dentro de transacción
     def create(self, validated_data):
         detalles_data = validated_data.pop("detalles")
+
+        # Setear la tienda desde el usuario logueado
+        usuario = self.context['request'].user
+        validated_data['tienda'] = usuario.lugar_de_trabajo
+
         with transaction.atomic():
             venta = Venta.objects.create(**validated_data)
             for detalle_data in detalles_data:
