@@ -12,19 +12,45 @@ class ClienteSerializer(serializers.ModelSerializer):
 # Serializer para DetalleVenta
 class DetalleVentaSerializer(serializers.ModelSerializer):
     sub_total = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
+    nombre_producto = serializers.CharField(source="inventario.producto.nombre", read_only=True)
 
     class Meta:
         model = DetalleVenta
-        fields = ["inventario", "cantidad", "precio_unitario", "descuento_unitario", "sub_total"]
+        fields = ["inventario", "cantidad", "precio_unitario", "descuento_unitario", "sub_total", "nombre_producto"]
 
 # Serializer para Venta
 class VentaSerializer(serializers.ModelSerializer):
+    fecha_creacion = serializers.DateTimeField(read_only=True)
+    usuario_creacion = serializers.CharField(source="usuario_creacion.username", read_only=True)
+    nombre_tienda = serializers.CharField(source="tienda.nombre", read_only=True)
     total_venta = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
     detalles = DetalleVentaSerializer(many=True)
 
+    # NUEVOS CAMPOS DE TOTALES
+    total_cantidad = serializers.SerializerMethodField()
+    total_precio = serializers.SerializerMethodField()
+    total_descuento = serializers.SerializerMethodField()
+    total_subtotal = serializers.SerializerMethodField()
+
     class Meta:
         model = Venta
-        fields = ["id", "cliente", "usuario_creacion", "descuento", "quiere_comprobante", "total_venta", "detalles"]
+        fields = [
+            "id", "cliente", "usuario_creacion", "descuento", "quiere_comprobante", 
+            "total_venta", "detalles", "fecha_creacion", "nombre_tienda", "metodo_pago",
+            "total_cantidad", "total_precio", "total_descuento", "total_subtotal"]
+
+    # mandamos a react totales ya calculados
+    def get_total_cantidad(self, obj):
+        return sum([d.cantidad for d in obj.detalles.all()])
+
+    def get_total_precio(self, obj):
+        return sum([d.precio_unitario for d in obj.detalles.all()])
+
+    def get_total_descuento(self, obj):
+        return sum([d.descuento_unitario for d in obj.detalles.all()])
+
+    def get_total_subtotal(self, obj):
+        return sum([d.sub_total for d in obj.detalles.all()])
 
     # Validaciones a nivel de serializer
     def validate(self, attrs):
