@@ -56,20 +56,50 @@ class VentaService:
 
     @staticmethod
     def enviar_comprobante_async(comprobante: ComprobanteVenta):
+        """
+        Genera el PDF de la factura y lo envía por correo al cliente de forma asíncrona.
+        """
+
         def enviar():
             venta = comprobante.venta
             cliente = venta.cliente
+
+            # Validar que exista cliente y correo
             if not (cliente and cliente.correo):
+                logger.warning(f"No se puede enviar factura {comprobante.numero_comprobante}: cliente o correo no disponible")
                 return
+
+            # Renderizar plantilla con datos correctos
+            contexto = {
+                "factura": comprobante,
+                "venta": venta,
+                "detalles": venta.detalles.all(),
+            }
+            html = render_to_string("factura_venta.html", contexto)
+
+            # Generar PDF en memoria
+            pdf_file = BytesIO()
+            pisa_status = pisa.CreatePDF(BytesIO(html.encode("UTF-8")), dest=pdf_file)
+            if pisa_status.err:
+                logger.error(f"Error generando PDF de factura {comprobante.numero_comprobante}")
+                return
+
+            # Preparar y enviar correo
             asunto = f"Factura {comprobante.numero_comprobante}"
-            cuerpo = render_to_string("factura_venta.html", {"factura": comprobante, "venta": venta})
-            pdf = BytesIO()
-            pisa.pisaDocument(BytesIO(cuerpo.encode("UTF-8")), pdf)
-            email = EmailMessage(asunto, cuerpo, "ventas@tusistema.com", [cliente.correo])
+            email = EmailMessage(
+                subject=asunto,
+                body="Adjuntamos su factura en PDF.",
+                from_email="ventas@tusistema.com",
+                to=[cliente.correo]
+            )
             email.content_subtype = "html"
-            email.attach(f"Factura_{comprobante.numero_comprobante}.pdf", pdf.getvalue(), "application/pdf")
+            email.attach(f"Factura_{comprobante.numero_comprobante}.pdf", pdf_file.getvalue(), "application/pdf")
+
             try:
                 email.send(fail_silently=False)
+                logger.info(f"Factura {comprobante.numero_comprobante} enviada a {cliente.correo}")
             except Exception as e:
-                logger.error(f"Error enviando factura: {e}")
-        threading.Thread(target=enviar).start()
+                logger.error(f"Error enviando factura {comprobante.numero_comprobante}: {e}")
+
+        # Ejecutar en un hilo para no bloquear la petición
+        threading.Thread(target=enviar, daemon=True).start()

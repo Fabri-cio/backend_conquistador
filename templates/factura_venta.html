@@ -2,7 +2,7 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Factura {{ factura.numero_factura }}</title>
+    <title>Factura {{ factura.numero_comprobante }}</title>
     <style>
       body {
         font-family: Arial, sans-serif;
@@ -30,10 +30,10 @@
     </style>
   </head>
   <body>
-    <h1>Factura {{ factura.numero_factura }}</h1>
-    <p>Fecha: {{ factura.fecha_emision|date:"d/m/Y H:i" }}</p>
+    <h1>Factura {{ factura.numero_comprobante }}</h1>
+    <p>Fecha: {{ venta.fecha_creacion|date:"d/m/Y H:i" }}</p>
     <p>
-      Cliente: {{ venta.id_cliente.nombre if venta.id_cliente else "Cliente no
+      Cliente: {{ venta.cliente.nombre if venta.cliente else "Cliente no
       registrado" }}
     </p>
 
@@ -47,19 +47,18 @@
         </tr>
       </thead>
       <tbody>
-        {% for detalle in venta.detalles.all %}
+        {% for detalle in detalles %}
         <tr>
-          <td>{{ detalle.id_producto.nombre }}</td>
+          <td>{{ detalle.inventario.producto.nombre }}</td>
           <td>{{ detalle.cantidad }}</td>
           <td>{{ detalle.precio_unitario }}</td>
-          <td>{{ detalle.subtotal }}</td>
+          <td>{{ detalle.sub_total }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
 
-    <p class="total">Total: {{ factura.monto_total }}</p>
-
+    <p class="total">Total: {{ venta.total_venta }}</p>
     <p>Gracias por su compra.</p>
   </body>
 </html>
