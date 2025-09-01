@@ -11,7 +11,10 @@ class DetallePedidoSerializer(serializers.ModelSerializer):
 
 class PedidoSerializer(serializers.ModelSerializer):
     nombre_proveedor = serializers.CharField(source='proveedor.marca', read_only=True)
+    almacen = serializers.PrimaryKeyRelatedField(read_only=True) #aqui el almacen es solo de lectura y no manda react
+    nombre_almacen = serializers.CharField(source='almacen.nombre', read_only=True)
     detalles = DetallePedidoSerializer(many=True)
+
     class Meta:
         model = Pedido
         fields = '__all__'
@@ -34,6 +37,9 @@ class PedidoSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         detalles_data = validated_data.pop('detalles')
+
+        usuario = self.context['request'].user
+        validated_data['almacen'] = usuario.lugar_de_trabajo
 
         with transaction.atomic():
             pedido = Pedido.objects.create(**validated_data)
