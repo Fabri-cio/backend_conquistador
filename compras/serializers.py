@@ -3,6 +3,38 @@ from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from .models import Pedido, DetallePedido, Compra, DetalleCompra
 
+class DetallePedidoRecepcionSerializer(serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source='producto.producto.nombre', read_only=True)
+    producto_imagen = serializers.ImageField(source='producto.producto.imagen', read_only=True)
+    cantidad_solicitada = serializers.DecimalField(max_digits=10, decimal_places=3, read_only=True)
+
+    class Meta:
+        model = DetallePedido
+        fields = [
+            'id',
+            'producto',
+            'cantidad_solicitada',
+            'producto_nombre',
+            'producto_imagen'
+        ]
+
+class PedidoRecepcionSerializer(serializers.ModelSerializer):
+    nombre_proveedor = serializers.CharField(source='proveedor.marca', read_only=True)
+    imagen_proveedor = serializers.ImageField(source='proveedor.imagen', read_only=True)
+    detalles = DetallePedidoRecepcionSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Pedido
+        fields = [
+            'id',
+            'proveedor', 
+            'fecha_entrega', 
+            'observaciones', 
+            'detalles', 
+            'nombre_proveedor',
+            'imagen_proveedor'
+        ]
+
 class DetallePedidoSerializer(serializers.ModelSerializer):
     pedido = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:

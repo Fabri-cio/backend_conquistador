@@ -12,7 +12,7 @@ class Pedido(AuditoriaBase):
     almacen = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
     fecha_entrega = models.DateField(blank=True, null=True)
-    proveedor = models.ForeignKey('productos.Proveedor', on_delete=models.CASCADE)
+    proveedor = models.ForeignKey('productos.Proveedor', on_delete=models.CASCADE, blank=True, null=True)
     observaciones = models.TextField(blank=True, null=True)
 
     def __str__(self):

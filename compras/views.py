@@ -1,16 +1,20 @@
 # views.py
 from rest_framework import viewsets
-from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer
+from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer, PedidoRecepcionSerializer
 from .models import Pedido, DetallePedido, Compra, DetalleCompra
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import permissions
 from core.views import AuditableModelViewSet
 
+class PedidoRecepcionViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
+    queryset = Pedido.objects.all()
+    serializer_class = PedidoRecepcionSerializer
+    # permission_classes = [permissions.IsAuthenticated]
 
 class PedidoViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 
 class DetallePedidoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
