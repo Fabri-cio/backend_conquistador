@@ -47,7 +47,7 @@ class Compra(AuditoriaBase):
 class DetalleCompra(models.Model):
     compra = models.ForeignKey(Compra, on_delete=models.CASCADE, related_name="detalles")
     inventario = models.ForeignKey('inventarios.Inventario', on_delete=models.CASCADE)
-    cantidad = models.PositiveIntegerField()
+    cantidad = models.DecimalField(max_digits=10, decimal_places=3, default=0)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)                
     descuento_unitario = models.DecimalField(max_digits=10, decimal_places=2)

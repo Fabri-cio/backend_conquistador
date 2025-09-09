@@ -139,11 +139,14 @@ class PedidoSerializer(serializers.ModelSerializer):
 
 class DetalleCompraSerializer(serializers.ModelSerializer):
     compra = serializers.PrimaryKeyRelatedField(read_only=True)
+
     class Meta:
         model = DetalleCompra
         fields = '__all__'
+        read_only_fields = ('subtotal',)
 
 class CompraSerializer(serializers.ModelSerializer):
+    almacen = serializers.PrimaryKeyRelatedField(read_only=True)
     detalles = DetalleCompraSerializer(many=True)
 
     nombre_proveedor = serializers.CharField(source='pedido.proveedor.marca', read_only=True)
@@ -189,6 +192,10 @@ class CompraSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         detalles_data = validated_data.pop('detalles')
+
+        usuario = self.context['request'].user
+        validated_data['almacen'] = usuario.lugar_de_trabajo
+
         with transaction.atomic():
             compra = Compra.objects.create(**validated_data)
             detalles_objs = [DetalleCompra(compra=compra, **detalle) for detalle in detalles_data]
