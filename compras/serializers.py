@@ -138,98 +138,69 @@ class PedidoSerializer(serializers.ModelSerializer):
         return instance
 
 class DetalleCompraSerializer(serializers.ModelSerializer):
-    compra = serializers.PrimaryKeyRelatedField(read_only=True)
+    nombre_producto = serializers.CharField(source="inventario.producto.nombre", read_only=True)
+    subtotal = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = DetalleCompra
-        fields = '__all__'
-        read_only_fields = ('subtotal',)
+        fields = ["id", "inventario", "cantidad", "precio_unitario", "descuento_unitario", "subtotal", "nombre_producto"]
+
 
 class CompraSerializer(serializers.ModelSerializer):
-    almacen = serializers.PrimaryKeyRelatedField(read_only=True)
     detalles = DetalleCompraSerializer(many=True)
+    almacen = serializers.PrimaryKeyRelatedField(read_only=True)
+    nombre_proveedor = serializers.CharField(source="pedido.proveedor.marca", read_only=True)
+    total_compra = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
 
-    nombre_proveedor = serializers.CharField(source='pedido.proveedor.marca', read_only=True)
+    # Totales calculados
+    total_cantidad = serializers.SerializerMethodField()
+    total_precio = serializers.SerializerMethodField()
+    total_descuento = serializers.SerializerMethodField()
+    total_subtotal = serializers.SerializerMethodField()
 
     class Meta:
         model = Compra
-        fields = '__all__'
+        fields = [
+            "id", "pedido", "almacen", "nro_factura", "razon_social", "observaciones",
+            "subtotal_compra", "descuento", "total_compra",
+            "detalles", "nombre_proveedor",
+            "total_cantidad", "total_precio", "total_descuento", "total_subtotal"
+        ]
 
-    def validate_detalles(self, detalles):
-        if not detalles:
-            raise ValidationError("Debe incluir al menos un detalle de compra.")
-        return detalles
+    def get_total_cantidad(self, obj):
+        return sum([d.cantidad for d in obj.detalles.all()])
+
+    def get_total_precio(self, obj):
+        return sum([d.precio_unitario for d in obj.detalles.all()])
+
+    def get_total_descuento(self, obj):
+        return sum([d.descuento_unitario for d in obj.detalles.all()])
+
+    def get_total_subtotal(self, obj):
+        return sum([d.subtotal for d in obj.detalles.all()])
 
     def validate(self, data):
-        detalles = data.get('detalles', [])
-
-        for idx, detalle in enumerate(detalles, start=1):
-            inventario = detalle.get('inventario')
-            cantidad = detalle.get('cantidad')
-            precio_unitario = detalle.get('precio_unitario')
-            descuento_unitario = detalle.get('descuento_unitario')
-
-            if inventario is None:
-                raise ValidationError({f"detalle_{idx}": "El inventario es obligatorio."})
-
-            if cantidad is None or cantidad <= 0:
-                raise ValidationError({f"detalle_{idx}": "La cantidad debe ser mayor que cero."})
-
-            if precio_unitario is None or precio_unitario < 0:
-                raise ValidationError({f"detalle_{idx}": "El precio unitario debe ser mayor o igual a cero."})
-
-            if descuento_unitario is None or descuento_unitario < 0:
-                raise ValidationError({f"detalle_{idx}": "El descuento unitario no puede ser negativo."})
-
-            subtotal = (cantidad * precio_unitario) - descuento_unitario
-            if subtotal < 0:
-                raise ValidationError({f"detalle_{idx}": "El subtotal no puede ser negativo."})
-
-            if descuento_unitario > (cantidad * precio_unitario):
-                raise ValidationError({f"detalle_{idx}": "El descuento unitario no puede ser mayor que el subtotal parcial."})
-
+        pedido = data.get("pedido")
+        if pedido and pedido.estado != "Pendiente":
+            raise ValidationError("Solo se puede registrar compras de pedidos pendientes.")
         return data
 
     def create(self, validated_data):
-        detalles_data = validated_data.pop('detalles')
-
-        usuario = self.context['request'].user
-        validated_data['almacen'] = usuario.lugar_de_trabajo
+        detalles_data = validated_data.pop("detalles")
+        usuario = self.context["request"].user
+        validated_data["almacen"] = usuario.lugar_de_trabajo
 
         with transaction.atomic():
             compra = Compra.objects.create(**validated_data)
-            detalles_objs = [DetalleCompra(compra=compra, **detalle) for detalle in detalles_data]
-            DetalleCompra.objects.bulk_create(detalles_objs)
+
+            # Cambiar es estado de pedido de pendiente a recepcionado
+            compra.pedido.estado = "Recepcionado"
+            compra.pedido.save(update_fields=["estado"])
+
+            for detalle_data in detalles_data:
+                DetalleCompra.objects.create(compra=compra, **detalle_data)
+
         return compra
-
-    def update(self, instance, validated_data):
-        detalles_data = validated_data.pop('detalles', None)
-        with transaction.atomic():
-            for attr, value in validated_data.items():
-                setattr(instance, attr, value)
-            instance.save()
-
-            if detalles_data is not None:
-                detalles_actuales = {d.id: d for d in instance.detalles.all()}
-                nuevos_detalles = []
-
-                for detalle_data in detalles_data:
-                    detalle_id = detalle_data.get('id')
-                    if detalle_id and detalle_id in detalles_actuales:
-                        detalle_obj = detalles_actuales.pop(detalle_id)
-                        for attr, value in detalle_data.items():
-                            setattr(detalle_obj, attr, value)
-                        detalle_obj.save()
-                    else:
-                        nuevos_detalles.append(detalle_data)
-
-                for detalle_obj in detalles_actuales.values():
-                    detalle_obj.delete()
-
-                detalles_objs = [DetalleCompra(compra=instance, **d) for d in nuevos_detalles]
-                DetalleCompra.objects.bulk_create(detalles_objs)
-
-        return instance
 
 
 

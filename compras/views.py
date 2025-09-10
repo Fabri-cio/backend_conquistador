@@ -26,7 +26,7 @@ class DetallePedidoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 class CompraViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     queryset = Compra.objects.all() 
     serializer_class = CompraSerializer
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
 
 class DetalleCompraViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):

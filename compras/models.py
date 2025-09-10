@@ -7,7 +7,7 @@ class Pedido(AuditoriaBase):
     ESTADOS = [
         ('Pendiente', 'Pendiente'),
         ('Cancelado', 'Cancelado'),
-        ('Completado', 'Completado'),
+        ('Recepcionado', 'Recepcionado'),
     ]
     almacen = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
     estado = models.CharField(max_length=20, choices=ESTADOS, default='Pendiente')
