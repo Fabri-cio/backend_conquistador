@@ -3,9 +3,11 @@ from .models import Almacen, TipoMovimiento, Inventario, Movimiento
 from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
+from core.mixins import FiltradoPorUsuarioInteligenteMixin
 from django.db.models import Prefetch
 from ventas.models import DetalleVenta
 from .serializers import InventarioVentasSerializer
+from rest_framework import permissions
 
 class AlmacenViewSet( PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = AlmacenSerializer
@@ -15,18 +17,10 @@ class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = TipoMovimientoSerializer
     queryset = TipoMovimiento.objects.all()
 
-class InventarioViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
+class InventarioViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = InventarioSerializer
     queryset = Inventario.objects.all()
-
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_authenticated and user.is_superuser:
-            return Inventario.objects.all().order_by('id')
-        # Filtrar por lugar de trabajo solo si el usuario está autenticado y tiene un lugar de trabajo
-        elif user.is_authenticated and user.lugar_de_trabajo:
-            return Inventario.objects.filter(almacen=user.lugar_de_trabajo).order_by('id')
-        return Inventario.objects.none()  # Si no tiene lugar de trabajo, no devuelve nada. O puedes devolver todo.
+    permission_classes = [permissions.IsAuthenticated]
 
 class InventarioVentasViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = InventarioVentasSerializer

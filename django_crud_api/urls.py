@@ -27,7 +27,7 @@ urlpatterns = [
     path('api/v1/inventarios/', include(('inventarios.urls', 'inventarios'), namespace='inventarios')),
     path('api/v1/predicciones/', include(('predicciones.urls', 'predicciones'), namespace='predicciones')),
     path('api/v1/compras/', include(('compras.urls', 'compras'), namespace='compras')),
-
+    path('api/v1/reportes/', include(('reportes.urls', 'reportes'), namespace='reportes')),
 
 
     # Password Reset (en su propia app opcionalmente)

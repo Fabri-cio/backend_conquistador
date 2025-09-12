@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'usuarios',
     'compras',
     'core',
+    'reportes',
     'knox',
     'django_rest_passwordreset',
     'django_filters',
