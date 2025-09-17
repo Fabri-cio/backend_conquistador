@@ -76,7 +76,7 @@ class InventarioVentasSerializer(serializers.ModelSerializer):
             ventas_dict[venta.id]['detalles'].append({
                 'cantidad': detalle.cantidad,
                 'precio_unitario': detalle.precio_unitario,
-                'subtotal': detalle.subtotal,
+                'sub_total': detalle.sub_total,
                 'descuento_unitario': detalle.descuento_unitario
             })
         return list(ventas_dict.values())
