@@ -28,113 +28,64 @@ class ConfiguracionModelo(models.Model):
         help_text="Tipo de dataset con el que trabajará el modelo."
     )
 
+    # Crecimiento
     crecimiento = models.CharField(
         max_length=10, 
-        choices=[("linear", "Linear"), ("logistic", "Logístico")],
+        choices=[("linear", "Lineal"), ("logistic", "Logístico")],
         default="linear",
         help_text="Tipo de crecimiento de la tendencia."
     )
-
     cap_max = models.FloatField(
         null=True, 
-        blank=True, 
+        blank=True,
         help_text="Capacidad máxima (obligatorio si crecimiento = logístico)."
     )
-
     cap_min = models.FloatField(
         null=True, 
         blank=True,
         help_text="Capacidad mínima opcional en crecimiento logístico."
     )
 
+    # Intervalo de confianza
     int_confianza = models.FloatField(
         default=0.80,
         help_text="Intervalo de confianza (0 a 1)."
     )
 
     # Estacionalidades
-    est_anual = models.BooleanField(
-        default=True,
-        help_text="Indica si se usará estacionalidad anual."
-    )
-    fourier_anual = models.IntegerField(
-        default=10,
-        help_text="Número de complejidad de Fourier para la estacionalidad anual."
-    )
-    est_semanal = models.BooleanField(
-        default=True,
-        help_text="Indica si se usará estacionalidad semanal."
-    )
-    fourier_semanal = models.IntegerField(
-        default=3,
-        help_text="Número de complejidad de Fourier para la estacionalidad semanal."
-    )
-    est_diaria = models.BooleanField(
-        default=False,
-        help_text="Indica si se usará estacionalidad diaria."
-    )
-    fourier_diaria = models.IntegerField(
-        null=True, 
-        blank=True,
-        help_text="Número de complejidad de Fourier para la estacionalidad diaria."
-    )
+    est_anual = models.BooleanField(default=True, help_text="Usar estacionalidad anual")
+    fourier_anual = models.PositiveIntegerField(default=10, help_text="Complejidad Fourier anual")
+
+    est_semanal = models.BooleanField(default=True, help_text="Usar estacionalidad semanal")
+    fourier_semanal = models.PositiveIntegerField(default=3, help_text="Complejidad Fourier semanal")
+
+    est_diaria = models.BooleanField(default=False, help_text="Usar estacionalidad diaria")
+    fourier_diaria = models.PositiveIntegerField(null=True, blank=True, help_text="Complejidad Fourier diaria")
 
     modo_est = models.CharField(
         max_length=15,
         choices=[("additive", "Aditiva"), ("multiplicative", "Multiplicativa")],
         default="additive",
-        help_text="Tipo de estacionalidad (aditiva o multiplicativa)."
+        help_text="Tipo de estacionalidad"
     )
 
     # Parámetros de Prophet
-    scale_est = models.FloatField(
-        default=10.0, 
-        help_text="Peso de la estacionalidad."
-    )
-    scale_feriados = models.FloatField(
-        default=10.0, 
-        help_text="Peso de los feriados/eventos especiales."
-    )
-    scale_cambio = models.FloatField(
-        default=0.05, 
-        help_text="Flexibilidad en cambio de tendencia"
-    )
-    n_cambios = models.IntegerField(
-        default=25, 
-        help_text="Número de posibles puntos de cambio"
-    )
-    cambios = models.JSONField(
-        default=list, 
-        help_text="Lista personalizada de puntos de cambio"
-    )
+    scale_est = models.FloatField(default=10.0, help_text="Peso de la estacionalidad")
+    scale_feriados = models.FloatField(default=10.0, help_text="Peso de feriados/eventos")
+    scale_cambio = models.FloatField(default=0.05, help_text="Flexibilidad en cambio de tendencia")
+    n_cambios = models.PositiveIntegerField(default=25, help_text="Número de posibles puntos de cambio")
+    cambios = models.JSONField(default=list, help_text="Lista personalizada de puntos de cambio")
 
     # Eventos / regresores
-    usar_feriados = models.BooleanField(
-        default=False, 
-        help_text="Indica si se usará feriados/eventos especiales."
-    )
-    eventos = models.JSONField(
-        default=list,
-        help_text="Lista de eventos especiales definidos"
-    )
-    estacionalidades_extra = models.JSONField(
-        default=list,
-        help_text="Definición de estacionalidades adicionales."
-    )
-    regresores = models.JSONField(
-        default=list,
-        help_text="Regresores externos adicionales."
-    )
+    usar_feriados = models.BooleanField(default=False, help_text="Usar feriados/eventos")
+    eventos = models.JSONField(default=list, help_text="Lista de eventos especiales")
+    estacionalidades_extra = models.JSONField(default=list, help_text="Estacionalidades adicionales")
+    regresores = models.JSONField(default=list, help_text="Regresores externos")
 
     # Incertidumbre
-    inc_tendencia = models.BooleanField(
-        default=True, 
-        help_text="Indica si se incluirá incertidumbre en la tendencia."
-    )
-    inc_estacionalidad = models.BooleanField(
-        default=True, 
-        help_text="Indica si se incluirá incertidumbre en la estacionalidad."
-    )
+    inc_tendencia = models.BooleanField(default=True, help_text="Incluir incertidumbre en tendencia")
+    inc_estacionalidad = models.BooleanField(default=True, help_text="Incluir incertidumbre en estacionalidad")
+    incertidumbre_muestras = models.PositiveIntegerField(default=1000, help_text="Número de muestras de incertidumbre")
 
     # Frecuencia de datos
     frecuencia = models.CharField(
@@ -144,32 +95,47 @@ class ConfiguracionModelo(models.Model):
         help_text="Frecuencia de los datos de entrada"
     )
 
-    descripcion = models.TextField(
-        null=True, 
-        blank=True, 
-        help_text="Descripción de la configuración."
-    )
-    estado = models.BooleanField(
-        default=True,
-        help_text="Indica si la configuración está activa."
-    )
+    # Información adicional
+    descripcion = models.TextField(null=True, blank=True, help_text="Descripción de la configuración")
+    estado = models.BooleanField(default=True, help_text="Indica si la configuración está activa")
 
     def clean(self):
-        # Intervalo de confianza entre 0 y 1
+        # Intervalo de confianza
         if not (0 < self.int_confianza <= 1):
             raise ValidationError("El intervalo de confianza debe estar entre 0 y 1.")
 
-        # Crecimiento logístico requiere capacidad máxima
-        if self.crecimiento == "logistic" and self.cap_max is None:
-            raise ValidationError("Para crecimiento logístico, se debe definir capacidad máxima.")
+        # Crecimiento logístico
+        if self.crecimiento == "logistic":
+            if self.cap_max is None:
+                raise ValidationError("Para crecimiento logístico se debe definir cap_max.")
+            if self.cap_min is not None and self.cap_min >= self.cap_max:
+                raise ValidationError("cap_min debe ser menor que cap_max.")
 
-        # Fourier positivo si se usan
-        if self.est_anual and (self.fourier_anual is None or self.fourier_anual <= 0):
+        # Fourier
+        if self.est_anual and self.fourier_anual <= 0:
             raise ValidationError("Fourier anual debe ser positivo si se usa.")
-        if self.est_semanal and (self.fourier_semanal is None or self.fourier_semanal <= 0):
+        if self.est_semanal and self.fourier_semanal <= 0:
             raise ValidationError("Fourier semanal debe ser positivo si se usa.")
-        if self.est_diaria and (self.fourier_diaria is None or self.fourier_diaria <= 0):
-            raise ValidationError("Fourier diaria debe ser positivo si se usa.")
+        if self.est_diaria:
+            if self.fourier_diaria is None or self.fourier_diaria <= 0:
+                raise ValidationError("Fourier diaria debe ser positivo si se usa.")
+        else:
+            self.fourier_diaria = None  # coherencia
+
+        # Escalas y puntos de cambio
+        if self.scale_est <= 0:
+            raise ValidationError("scale_est debe ser positivo.")
+        if self.scale_feriados < 0:
+            raise ValidationError("scale_feriados no puede ser negativo.")
+        if self.scale_cambio <= 0:
+            raise ValidationError("scale_cambio debe ser positivo.")
+        if self.n_cambios <= 0:
+            raise ValidationError("n_cambios debe ser positivo.")
+
+        # Multiplicativa requiere datos positivos
+        if self.modo_est == "multiplicative":
+            # Aquí no podemos validar los datos, solo advertir
+            pass
 
     def save(self, *args, **kwargs):
         self.clean()

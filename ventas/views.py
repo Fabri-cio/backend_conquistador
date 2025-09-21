@@ -7,11 +7,20 @@ from rest_framework import permissions
 from rest_framework.response import Response
 from rest_framework import status
 from core.views import AuditableModelViewSet
+from rest_framework import filters
 
 # Vista para el cliente
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Cliente.objects.all().order_by('id')
     serializer_class = ClienteSerializer
+
+    # activar busqueda
+    filter_backends = [filters.SearchFilter]
+    search_fields = [
+        'nombre',
+        'correo',
+        'nit_ci'
+    ]
     # permission_classes = [permissions.IsAuthenticated]
 
 # Vista para la factura de venta

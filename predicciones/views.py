@@ -55,7 +55,7 @@ class PrediccionCSV(APIView):
                 "holidays_prior_scale": 10.0,
             }
 
-            periodos_prediccion = 30  # Valor por defecto
+            periodos_prediccion = 7  # Valor por defecto
 
             # Manejo seguro de configuración
             config_data = {}
