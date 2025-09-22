@@ -12,19 +12,13 @@ from django_crud_api.mixins import PaginacionYAllDataMixin
 # PrediccionCSV hace un procesamiento especial (entrenar modelo, recibir archivo).
 class PrediccionCSV(APIView):
     """
-    API para recibir un CSV y una configuración opcional de Prophet,
-    entrenar y devolver la predicción.
+    API para recibir un CSV y un modelo_id opcional,
+    entrenar Prophet usando la configuración guardada y devolver la predicción.
     """
 
     def post(self, request, *args, **kwargs):
         file = request.FILES.get('file')
-        config = request.data.get('config', None)
-
-         # === DEBUG: mostrar en consola la configuración recibida ===
-        print("===== CONFIG RECIBIDA =====")
-        print(config)
-        print("Tipo:", type(config))
-        print("============================")
+        config_data = request.data.get('config', None)
 
         if not file:
             return JsonResponse({"error": "No file provided"}, status=status.HTTP_400_BAD_REQUEST)
@@ -32,75 +26,72 @@ class PrediccionCSV(APIView):
         try:
             # Leer CSV
             df = pd.read_csv(file)
-            
-            # Validar columnas
             if not set(['ds', 'y']).issubset(df.columns):
-                return JsonResponse({"error": "Invalid CSV format. Ensure columns 'ds' and 'y' are present."}, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse({"error": "CSV inválido. Debe contener columnas 'ds' y 'y'."}, status=status.HTTP_400_BAD_REQUEST)
 
             df['ds'] = pd.to_datetime(df['ds'])
             df['y'] = pd.to_numeric(df['y'], errors='coerce')
             if df['y'].isnull().any():
-                return JsonResponse({"error": "Invalid data in 'y' column"}, status=status.HTTP_400_BAD_REQUEST)
+                return JsonResponse({"error": "Columna 'y' contiene datos inválidos."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Configuración por defecto de Prophet
+            # Manejo seguro de config
+            modelo_id = None
+            periodos_prediccion = 7
+            if config_data:
+                if isinstance(config_data, str):
+                    config_data = json.loads(config_data)
+                modelo_id = config_data.get("modelo_id", None)
+                periodos_prediccion = config_data.get("periodos_prediccion", periodos_prediccion)
+
+            if not modelo_id:
+                return JsonResponse({"error": "Se requiere modelo_id"}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Obtener configuración de la DB
+            try:
+                config_modelo = ConfiguracionModelo.objects.get(id=modelo_id)
+            except ConfiguracionModelo.DoesNotExist:
+                return JsonResponse({"error": "Configuración de modelo no encontrada"}, status=status.HTTP_404_NOT_FOUND)
+
+            # Si el crecimiento es logístico, agregar columnas 'cap' y 'floor'
+            if config_modelo.crecimiento == "logistic":
+                if config_modelo.cap_max is None:
+                    return JsonResponse({"error": "cap_max es obligatorio para crecimiento logístico."}, status=status.HTTP_400_BAD_REQUEST)
+                
+                df['cap'] = config_modelo.cap_max
+                df['floor'] = config_modelo.cap_min if config_modelo.cap_min is not None else 0
+
+            # Configuración de Prophet usando el modelo guardado
             prophet_params = {
-                "growth": "linear",
-                "seasonality_mode": "additive",
-                "yearly_seasonality": "auto",
-                "weekly_seasonality": "auto",
-                "daily_seasonality": "auto",
-                "holidays": None,
-                "changepoint_prior_scale": 0.05,
-                "seasonality_prior_scale": 10.0,
-                "holidays_prior_scale": 10.0,
+                "growth": config_modelo.crecimiento,
+                "seasonality_mode": config_modelo.modo_est,
+                "changepoint_prior_scale": config_modelo.scale_cambio,
+                "seasonality_prior_scale": config_modelo.scale_est,
+                "holidays_prior_scale": config_modelo.scale_feriados,
+                "yearly_seasonality": config_modelo.fourier_anual if config_modelo.est_anual else False,
+                "weekly_seasonality": config_modelo.fourier_semanal if config_modelo.est_semanal else False,
+                "daily_seasonality": config_modelo.fourier_diaria if config_modelo.est_diaria else False,
+                "holidays": None  # opcional, puedes incluir config_modelo.eventos
             }
 
-            periodos_prediccion = 7  # Valor por defecto
-
-            # Manejo seguro de configuración
-            config_data = {}
-            if config:
-                try:
-                    if isinstance(config, str):
-                        config_data = json.loads(config)
-                    elif isinstance(config, dict):
-                        config_data = config
-                except Exception:
-                    config_data = {}
-
-            # Sobrescribir valores por defecto si existen
-            prophet_params["growth"] = config_data.get("modo_crecimiento", prophet_params["growth"])
-            prophet_params["seasonality_mode"] = config_data.get("estacionalidad_modo", prophet_params["seasonality_mode"])
-            prophet_params["changepoint_prior_scale"] = config_data.get("changepoint_prior_scale", prophet_params["changepoint_prior_scale"])
-            prophet_params["seasonality_prior_scale"] = config_data.get("seasonality_prior_scale", prophet_params["seasonality_prior_scale"])
-            prophet_params["holidays_prior_scale"] = config_data.get("holidays_prior_scale", prophet_params["holidays_prior_scale"])
-
-            # Fourier personalizado
-            yearly = config_data.get("fourier_anual", 0) if config_data.get("usar_est_anual", False) else 0
-            weekly = config_data.get("fourier_semanal", 0) if config_data.get("usar_est_semanal", False) else 0
-            daily = config_data.get("fourier_diaria", 0) if config_data.get("usar_est_diaria", False) else 0
-
-            prophet_params["yearly_seasonality"] = yearly if yearly > 0 else False
-            prophet_params["weekly_seasonality"] = weekly if weekly > 0 else False
-            prophet_params["daily_seasonality"] = daily if daily > 0 else False
-
-            # Periodos de predicción
-            periodos_prediccion = config_data.get("periodos_prediccion", periodos_prediccion)
-
-            # Crear y entrenar modelo
+            # Crear y entrenar modelo Prophet
             m = Prophet(**prophet_params)
             m.fit(df)
 
             # Crear dataframe futuro y predecir
             future = m.make_future_dataframe(periods=periodos_prediccion)
+            if config_modelo.crecimiento == "logistic":
+                future['cap'] = config_modelo.cap_max
+                future['floor'] = config_modelo.cap_min if config_modelo.cap_min is not None else 0
+
             forecast = m.predict(future)
 
-            return Response({
-                "forecast": forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(periodos_prediccion).to_dict(orient="records"),
-            }, status=status.HTTP_200_OK)
+            # Devolver los últimos n días
+            forecast_result = forecast[['ds', 'yhat', 'yhat_lower', 'yhat_upper']].tail(periodos_prediccion).to_dict(orient="records")
+            return Response({"forecast": forecast_result}, status=status.HTTP_200_OK)
 
         except Exception as e:
-            return JsonResponse({"error": f"Unexpected error: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return JsonResponse({"error": f"Error inesperado: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 
 # PrediccionViewSet maneja las operaciones CRUD del modelo Prediccion.
 class PrediccionViewSet(viewsets.ModelViewSet):
