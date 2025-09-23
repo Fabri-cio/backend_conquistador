@@ -1,6 +1,6 @@
 # views.py
 from rest_framework import viewsets
-from .serializers import VentaSerializer, DetalleVentaSerializer, ClienteSerializer, ComprobanteVentaSerializer
+from .serializers import VentaSerializer, DetalleVentaSerializer, ClienteSerializer, ComprobanteVentaSerializer, VentaReporteSerializer
 from .models import Venta, DetalleVenta, Cliente, ComprobanteVenta
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import permissions
@@ -8,6 +8,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.views import AuditableModelViewSet
 from rest_framework import filters
+from .filters import VentaReporteFilter
+from django_filters.rest_framework import DjangoFilterBackend
 
 # Vista para el cliente
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -42,6 +44,13 @@ class VentaView(PaginacionYAllDataMixin, AuditableModelViewSet):
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+# Vista para reporte de ventas
+class VentaReporteView(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = Venta.objects.all()
+    serializer_class = VentaReporteSerializer
+    filter_backends = [DjangoFilterBackend]
+    filterset_class = VentaReporteFilter
 
 # Vista para los detalles de la venta
 class DetalleVentaView(viewsets.ModelViewSet):
