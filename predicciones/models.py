@@ -159,11 +159,11 @@ class Prediccion(AuditoriaBase):
         if self.fecha_inicio > self.fecha_fin:
             raise ValidationError("La fecha de inicio no puede ser posterior a la fecha de fin.")
 
-        if self.fecha_inicio < hoy or self.fecha_fin < hoy:
-            raise ValidationError("Las fechas de predicción no pueden ser anteriores a hoy.")
+        # if self.fecha_inicio < hoy or self.fecha_fin < hoy:
+        #     raise ValidationError("Las fechas de predicción no pueden ser anteriores a hoy.")
 
-        if self.resultado < 0:
-            raise ValidationError("El resultado de la predicción no puede ser negativo.")
+        # if self.resultado < 0:
+        #     raise ValidationError("El resultado de la predicción no puede ser negativo.")
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -183,8 +183,8 @@ class DetallePrediccion(models.Model):
         if self.cantidad < 0:
             raise ValidationError("La cantidad predicha no puede ser negativa.")
 
-        # Comprueba que la fecha del detalle está dentro del rango de la predicción.
-        if not (self.prediccion.fecha_inicio <= self.fecha <= self.prediccion.fecha_fin):
+        # # Comprueba que la fecha del detalle está dentro del rango de la predicción.
+        # if not (self.prediccion.fecha_inicio <= self.fecha <= self.prediccion.fecha_fin):
             raise ValidationError("La fecha del detalle debe estar dentro del rango de la predicción.")
 
     # Guarda el detalle de la predicción después de haber comprobado su validez.

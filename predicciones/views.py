@@ -8,6 +8,11 @@ from django.http import JsonResponse
 from .models import Prediccion, DetallePrediccion, ConfiguracionModelo
 from .serializers import PrediccionSerializer, DetallePrediccionSerializer, ConfiguracionModeloSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
+from rest_framework import viewsets
+from rest_framework.response import Response
+from rest_framework import status
+from core.views import AuditableModelViewSet
+
 
 # PrediccionCSV hace un procesamiento especial (entrenar modelo, recibir archivo).
 class PrediccionCSV(APIView):
@@ -94,20 +99,13 @@ class PrediccionCSV(APIView):
 
 
 # PrediccionViewSet maneja las operaciones CRUD del modelo Prediccion.
-class PrediccionViewSet(viewsets.ModelViewSet):
+class PrediccionViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     """
     ViewSet para manejar las operaciones CRUD del modelo Prediccion.
     """
     queryset = Prediccion.objects.all()
     serializer_class = PrediccionSerializer
     permission_classes = [permissions.AllowAny]  # Asegura que solo usuarios autenticados accedan a la API
-
-    def perform_create(self, serializer):
-        """
-        Personaliza la creación de la predicción para asignar automáticamente
-        el usuario responsable basado en el usuario autenticado.
-        """
-        serializer.save(usuario_responsable=self.request.user)
 
 # DetallePrediccionViewSet maneja las operaciones CRUD del modelo DetallePrediccion.
 class DetallePrediccionViewSet(viewsets.ModelViewSet):
