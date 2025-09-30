@@ -31,7 +31,6 @@ class BaseProductoSerializer(serializers.ModelSerializer):
             "proveedor",
             "categoria",
             "imagen",
-            "documento",
         ]
 
     def validate_codigo_barras(self, value):
@@ -68,7 +67,6 @@ class ProductoListSerializer(serializers.ModelSerializer):
             "marca",
             "categoria",
             "imagen",
-            "documento",
         ]
 
 # ---------------------
@@ -89,7 +87,6 @@ class ProductoDetailSerializer(serializers.ModelSerializer):
             "proveedor",
             "categoria",
             "imagen",
-            "documento",
         ]
 
 # ---------------------
@@ -129,3 +126,72 @@ class ProductoHistorySerializer(serializers.ModelSerializer):
                 "a": change.new,
             }
         return cambios
+
+# ---------------------
+# Productos por Categoria
+# ---------------------
+class ProductosParaCategoriaSerializer(serializers.ModelSerializer):
+    marca = serializers.CharField(source="proveedor.marca", read_only=True)
+    class Meta:
+        model = Producto
+        fields = [
+            "id",
+            "estado",
+            "nombre",
+            "precio",
+            "imagen",
+            "marca",
+        ]
+
+
+class ProductosPorCategoriaSerializer(serializers.ModelSerializer):
+    productos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Categoria
+        fields = [
+            "id",
+            "nombre",
+            "productos",
+        ]
+    
+    def get_productos(self, obj):
+        productos = Producto.objects.filter(categoria=obj.id)
+        # Asegúrate de pasar el request explícitamente
+        request = self.context.get('request')
+        serializer = ProductosParaCategoriaSerializer(productos, many=True, context={'request': request})
+        return serializer.data
+
+# ---------------------
+# Productos por Proveedor
+# ---------------------
+class ProductosParaProveedorSerializer(serializers.ModelSerializer):
+    categoria = serializers.CharField(source="categoria.nombre", read_only=True)
+    class Meta:
+        model = Producto
+        fields = [
+            "id",
+            "estado",
+            "nombre",
+            "precio",
+            "imagen",
+            "categoria",
+        ]
+
+class ProductosPorProveedorSerializer(serializers.ModelSerializer):
+    productos = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Proveedor
+        fields = [
+            "id",
+            "marca",
+            "productos",
+        ]
+    
+    def get_productos(self, obj):
+        productos = Producto.objects.filter(proveedor=obj.id)
+        # Asegúrate de pasar el request explícitamente
+        request = self.context.get('request')
+        serializer = ProductosParaProveedorSerializer(productos, many=True, context={'request': request})
+        return serializer.data

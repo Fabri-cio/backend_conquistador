@@ -31,7 +31,6 @@ class Producto(AuditoriaBase):
     codigo_barras = models.CharField(max_length=50, unique=True)#unique unico barcode
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='productos/', null=True, blank=True)
-    documento = models.FileField(upload_to='productos/documentos/', null=True, blank=True)
     history = HistoricalRecords() #añade el historial
 
     def __str__(self):
