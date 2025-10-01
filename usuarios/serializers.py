@@ -1,3 +1,4 @@
+import re
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import Permission, Group
 
@@ -63,6 +64,7 @@ class UsuarioSerializer(serializers.ModelSerializer):
             'new_password': {'write_only': True, 'required': False},
         }
 
+    # validaciones
     def validate_email(self, value):
         # Verifica si otro usuario ya tiene ese email
         user = self.instance  # None si es creación
@@ -70,6 +72,38 @@ class UsuarioSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Este correo electrónico ya está en uso.")
         return value
 
+    def validate_username(self, value):
+        if value is None:
+            return value
+        v = value.strip()
+        # Permitir letras, números, punto, guion, guion bajo; 3-30 chars
+        if not re.match(r'^[A-Za-z0-9._-]{3,30}$', v):
+            raise serializers.ValidationError(
+                "El nombre de usuario sólo puede contener letras, números, ., _ y -, entre 3 y 30 caracteres."
+            )
+        # Opcional: comprobar unicidad si tu modelo lo requiere
+        user = self.instance
+        if User.objects.filter(username=v).exclude(id=getattr(user, 'id', None)).exists():
+            raise serializers.ValidationError("El nombre de usuario ya está en uso.")
+        return v
+
+    def validate_password(self, value):
+        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$'
+        if not re.match(regex, value):
+            raise serializers.ValidationError(
+                "La contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial."
+            )
+        return value
+
+    def validate_new_password(self, value):
+        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$'
+        if not re.match(regex, value):
+            raise serializers.ValidationError(
+                "La nueva contraseña debe tener mínimo 8 caracteres, una mayúscula, una minúscula, un número y un carácter especial."
+            )
+        return value
+
+    # obtener roles
     def get_roles(self, obj):
         return [{"id": g.id, "name": g.name} for g in obj.groups.all()]
 
