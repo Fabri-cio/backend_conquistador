@@ -1,10 +1,11 @@
+from re import search
 from rest_framework import viewsets
 from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer, ProductosPorCategoriaSerializer, ProductosPorProveedorSerializer, ProductoHistorySerializer
 from .models import Categoria, Proveedor, Producto
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ProductoFilter
+from .filters import ProductoFilter, CategoriaFilter
 from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
@@ -14,9 +15,19 @@ class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = CategoriaSerializer
     queryset = Categoria.objects.all()
 
+    search_fields = [
+        'nombre',
+    ]
+
 class ProveedorView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = ProveedorSerializer
     queryset = Proveedor.objects.all()
+
+    search_fields = [
+        'marca',
+        'contacto',
+        'telefono',
+    ]
 
 class ProductoView(PaginacionYAllDataMixin, AuditableModelViewSet):
 
