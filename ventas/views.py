@@ -10,6 +10,7 @@ from core.views import AuditableModelViewSet
 from rest_framework import filters
 from .filters import VentaReporteFilter
 from django_filters.rest_framework import DjangoFilterBackend
+from core.mixins import FiltradoPorUsuarioInteligenteMixin
 
 # Vista para el cliente
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -32,7 +33,7 @@ class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 # Vista para la venta
-class VentaView(PaginacionYAllDataMixin, AuditableModelViewSet):
+class VentaView(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     queryset = Venta.objects.all().order_by('id')
     serializer_class = VentaSerializer
     # permission_classes = [permissions.IsAuthenticated]

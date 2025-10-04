@@ -81,6 +81,20 @@ class InventarioVentasSerializer(serializers.ModelSerializer):
             })
         return list(ventas_dict.values())
 
+# invetarioABC
+class InventarioABCSerializer(serializers.Serializer):
+    producto_id = serializers.IntegerField()
+    producto_nombre = serializers.CharField()
+    total_unidades = serializers.DecimalField(max_digits=12, decimal_places=2)
+    porcentaje_unidades = serializers.DecimalField(max_digits=5, decimal_places=2)
+    acumulado_unidades = serializers.DecimalField(max_digits=5, decimal_places=2)
+    categoria_unidades = serializers.CharField()
+    
+    total_valor = serializers.DecimalField(max_digits=12, decimal_places=2)
+    porcentaje_valor = serializers.DecimalField(max_digits=5, decimal_places=2)
+    acumulado_valor = serializers.DecimalField(max_digits=5, decimal_places=2)
+    categoria_valor = serializers.CharField()
+
 class MovimientoSerializer(serializers.ModelSerializer):
     tipo_nombre = serializers.CharField(source="tipo.nombre", read_only=True)
     producto_nombre = serializers.CharField(source="inventario.producto.nombre", read_only=True)

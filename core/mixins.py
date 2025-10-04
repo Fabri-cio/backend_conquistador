@@ -4,9 +4,14 @@ class FiltradoPorUsuarioInteligenteMixin:
     - Superusuario ve todo.
     - Usuario autenticado con lugar_de_trabajo ve solo objetos relacionados.
     - Usuario sin lugar_de_trabajo no ve nada.
-    
-    Detecta automáticamente si el modelo tiene campo 'almacen' o 'lugar_de_trabajo'.
+
+    Funciona para:
+    - Campos directos: 'almacen', 'lugar_de_trabajo'
+    - Relaciones FK: por ejemplo 'inventario__almacen'
     """
+    # Lista de campos a buscar en el modelo o en relaciones FK
+    FILTROS_POR_DEFECTO = ['almacen', 'lugar_de_trabajo']
+
     def get_queryset(self):
         user = self.request.user
         queryset = super().get_queryset()
@@ -21,15 +26,31 @@ class FiltradoPorUsuarioInteligenteMixin:
         if not lugar:
             return queryset.none()
 
-        # Detecta automáticamente el campo a filtrar
         modelo = queryset.model
         campos_modelo = [f.name for f in modelo._meta.fields]
-        if 'almacen' in campos_modelo:
-            filtro = {'almacen': lugar}
-        elif 'lugar_de_trabajo' in campos_modelo:
-            filtro = {'lugar_de_trabajo': lugar}
-        else:
-            # Si el modelo no tiene ningún campo de relación con lugar de trabajo, devuelve todo
+
+        filtro_aplicado = None
+
+        # 1️⃣ Revisar campos directos
+        for campo in self.FILTROS_POR_DEFECTO:
+            if campo in campos_modelo:
+                filtro_aplicado = {campo: lugar}
+                break
+
+        # 2️⃣ Revisar relaciones FK si no encontró campo directo
+        if not filtro_aplicado:
+            for campo in self.FILTROS_POR_DEFECTO:
+                for f in modelo._meta.fields:
+                    if f.is_relation and f.many_to_one:
+                        # Construir filtro tipo 'fk__almacen'
+                        if hasattr(f.related_model, campo):
+                            filtro_aplicado = {f"{f.name}__{campo}": lugar}
+                            break
+                if filtro_aplicado:
+                    break
+
+        # 3️⃣ Si no encontró ningún campo ni relación, devuelve todo
+        if not filtro_aplicado:
             return queryset.order_by('id')
 
-        return queryset.filter(**filtro).order_by('id')
+        return queryset.filter(**filtro_aplicado).order_by('id')

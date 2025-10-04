@@ -1,17 +1,18 @@
 # views.py
 from rest_framework import viewsets
-from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer, PedidoRecepcionSerializer
+from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer, PedidoRecepcionSerializer, DetallesCompraPedidoSerializer
 from .models import Pedido, DetallePedido, Compra, DetalleCompra
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import permissions
 from core.views import AuditableModelViewSet
+from core.mixins import FiltradoPorUsuarioInteligenteMixin
 
 class PedidoRecepcionViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoRecepcionSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
-class PedidoViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
+class PedidoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     queryset = Pedido.objects.all()
     serializer_class = PedidoSerializer
     # permission_classes = [permissions.IsAuthenticated]
@@ -23,7 +24,7 @@ class DetallePedidoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class CompraViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
+class CompraViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     queryset = Compra.objects.all() 
     serializer_class = CompraSerializer
     # permission_classes = [permissions.IsAuthenticated]
@@ -33,5 +34,10 @@ class DetalleCompraViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = DetalleCompra.objects.all()
     serializer_class = DetalleCompraSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+class DetallesCompraPedidoViewSet(viewsets.ModelViewSet):
+    queryset = Compra.objects.all()
+    serializer_class = DetallesCompraPedidoSerializer
+    # permission_classes = [permissions.IsAuthenticated]
 
 

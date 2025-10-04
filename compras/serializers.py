@@ -37,6 +37,7 @@ class PedidoRecepcionSerializer(serializers.ModelSerializer):
 
 class DetallePedidoSerializer(serializers.ModelSerializer):
     pedido = serializers.PrimaryKeyRelatedField(read_only=True)
+    nombre_producto = serializers.CharField(source='producto.producto.nombre', read_only=True)
     class Meta:
         model = DetallePedido
         fields = '__all__'
@@ -202,6 +203,39 @@ class CompraSerializer(serializers.ModelSerializer):
 
         return compra
 
+class DetallesCompraPedidoSerializer(serializers.ModelSerializer):
+    detalles = DetalleCompraSerializer(many=True, read_only=True)
+    detallesPedido = PedidoSerializer(source="pedido", read_only=True)
+    almacen = serializers.PrimaryKeyRelatedField(read_only=True)
+    nombre_proveedor = serializers.CharField(source="pedido.proveedor.marca", read_only=True)
+    total_compra = serializers.DecimalField(max_digits=12, decimal_places=2, read_only=True)
+
+    # Totales calculados
+    total_cantidad = serializers.SerializerMethodField()
+    total_precio = serializers.SerializerMethodField()
+    total_descuento = serializers.SerializerMethodField()
+    total_subtotal = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Compra
+        fields = [
+            "id", "pedido", "almacen", "nro_factura", "razon_social", "observaciones",
+            "subtotal_compra", "descuento", "total_compra",
+            "detalles", "detallesPedido", "nombre_proveedor",
+            "total_cantidad", "total_precio", "total_descuento", "total_subtotal"
+        ]
+
+    def get_total_cantidad(self, obj):
+        return sum([d.cantidad for d in obj.detalles.all()])
+
+    def get_total_precio(self, obj):
+        return sum([d.precio_unitario for d in obj.detalles.all()])
+
+    def get_total_descuento(self, obj):
+        return sum([d.descuento_unitario for d in obj.detalles.all()])
+
+    def get_total_subtotal(self, obj):
+        return sum([d.subtotal for d in obj.detalles.all()])
 
 
 

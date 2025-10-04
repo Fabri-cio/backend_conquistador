@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import PedidoViewSet, DetallePedidoViewSet, CompraViewSet, DetalleCompraViewSet, PedidoRecepcionViewSet
+from .views import PedidoViewSet, DetallePedidoViewSet, CompraViewSet, DetalleCompraViewSet, PedidoRecepcionViewSet, DetallesCompraPedidoViewSet
 
 # Crear un router y registrar las vistas
 router = DefaultRouter()
@@ -9,6 +9,7 @@ router.register(r'detalles-pedido', DetallePedidoViewSet)
 router.register(r'compras', CompraViewSet)
 router.register(r'detalles-compra', DetalleCompraViewSet)
 router.register(r'pedidos-recepcion', PedidoRecepcionViewSet, basename='pedidos-recepcion')
+router.register(r'detalles-compra-pedido', DetallesCompraPedidoViewSet, basename='detalles-compra-pedido')
 
 urlpatterns = [
     path('', include(router.urls)),
