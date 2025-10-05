@@ -14,13 +14,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='compra',
             name='nro_factura',
-            field=models.CharField(default=django.utils.timezone.now, max_length=20),
+            field=models.CharField(default='FACT-00001', max_length=50),
             preserve_default=False,
         ),
         migrations.AddField(
             model_name='compra',
             name='razon_social',
-            field=models.CharField(default=django.utils.timezone.now, max_length=100),
+            field=models.CharField(default='Sin nombre', max_length=100),
             preserve_default=False,
         ),
         migrations.AddField(
