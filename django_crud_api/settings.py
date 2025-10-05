@@ -135,7 +135,7 @@ REST_FRAMEWORK = {
 # estas lineas solo sirven para desarrollo local con sqlite
 DATABASES = {
     'default': dj_database_url.config(
-        default=os.getenv('DATABASE_PUBLIC_URL')
+        default=os.getenv('DATABASE_URL')
     )
 }
 
