@@ -134,16 +134,9 @@ REST_FRAMEWORK = {
 
 # estas lineas solo sirven para desarrollo local con sqlite
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-        # 'ENGINE': 'django.db.backends.postgresql',
-        # 'NAME': 'django_api_db',
-        # 'USER': 'drf',
-        # 'PASSWORD': 'qwerty',
-        # 'HOST': 'localhost',  # O la dirección del servidor PostgreSQL
-        # 'PORT': '5432',  # Puerto por defecto de PostgreSQL
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL')
+    )
 }
 
 # print(os.environ.get('DATABASE_URL'))
