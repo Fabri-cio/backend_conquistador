@@ -91,7 +91,7 @@ CORS_ALLOWED_ORIGINS = [
 #     "http://127.0.0.1:9000",
 # ]
 
-AUTH_USER_MODEL = 'usuarios.Usuario'
+AUTH_USER_MODEL = 'usuarios.Usuario' # camvios de CustomUser a Usuario en dev
 
 AUTHENTICATION_BACKENDS = [
     # 'users.authback.EmailBackend',
@@ -121,6 +121,7 @@ WSGI_APPLICATION = 'django_crud_api.wsgi.application'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': ('knox.auth.TokenAuthentication',),
     "DEFAULT_SCHEMA_CLASS": "rest_framework.schemas.openapi.AutoSchema",#
+    # se añadio estas 4 lineas mas para dev
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
@@ -131,6 +132,7 @@ REST_FRAMEWORK = {
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+# estas lineas solo sirven para desarrollo local con sqlite
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -212,7 +214,7 @@ STATIC_URL = 'static/'
 
 STORAGES = {
     "default": {
-        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "BACKEND": "django.core.files.storage.FileSystemStorage", #esto no hay en la rama de produccion
     },
     "staticfiles": {
         "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
@@ -226,6 +228,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CSRF_TRUSTED_ORIGINS=['http://*','https://web-production-87467.up.railway.app']
 
+# estas cuatro linas son de la rama de desarrollo local
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
