@@ -29,7 +29,7 @@ class DetallePedido(models.Model):
 class Compra(AuditoriaBase):
     almacen = models.ForeignKey('inventarios.Almacen', on_delete=models.CASCADE)
     pedido = models.OneToOneField(Pedido, on_delete=models.CASCADE)
-    nro_factura = models.CharField(max_length=20)
+    nro_factura = models.CharField(max_length=50)
     razon_social = models.CharField(max_length=100)
     observaciones = models.TextField(blank=True, null=True)
     subtotal_compra = models.DecimalField(max_digits=12, decimal_places=2, default=0)
