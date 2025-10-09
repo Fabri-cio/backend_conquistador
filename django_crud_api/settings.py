@@ -50,7 +50,20 @@ INSTALLED_APPS = [
     'django_filters',
     'simple_history',
     'django_extensions',
+    'cloudinary',
+    'cloudinary_storage',
 ]
+
+# ==========================
+# Cloudinary
+# ==========================
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+}
+if IS_PRODUCTION:
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
 
 # ==========================
 # Middlewares
@@ -179,10 +192,10 @@ STORAGES = {
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+if not IS_PRODUCTION:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+    FILE_UPLOAD_TEMP_DIR = BASE_DIR / 'media'
 
 FILE_UPLOAD_MAX_MEMORY_SIZE = 2.5 * 1024 * 1024
-FILE_UPLOAD_TEMP_DIR = BASE_DIR / 'media'
-
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
