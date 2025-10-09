@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Almacen, TipoMovimiento, Inventario, Movimiento
-from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioVentasSerializer, InventarioABCSerializer
+from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
@@ -22,6 +22,10 @@ class InventarioViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMi
     serializer_class = InventarioSerializer
     queryset = Inventario.objects.all()
     permission_classes = [permissions.IsAuthenticated]
+
+class InventarioCarritoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = InventarioCarritoSerializer
+    queryset = Inventario.objects.all()
 
 class InventarioVentasViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = InventarioVentasSerializer
