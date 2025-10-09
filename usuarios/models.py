@@ -10,6 +10,7 @@ from django.dispatch import receiver
 from django.template.loader import render_to_string
 from django.core.mail import EmailMultiAlternatives
 from django.utils.html import strip_tags
+import os
 
 # Terceros
 from django_rest_passwordreset.signals import reset_password_token_created
@@ -53,7 +54,7 @@ class Usuario(AbstractUser):
 
 @receiver(reset_password_token_created)
 def password_reset_token_created(reset_password_token, *args, **kwargs):
-    sitelink = "http://localhost:5173/"
+    sitelink = os.getenv("FRONTEND_URL", "http://localhost:5173/")
     token = "{}".format(reset_password_token.key)
     full_link = sitelink + "password-reset/" + token
 
@@ -68,7 +69,7 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
     msg = EmailMultiAlternatives(
         subject=f"Request for resetting password for {reset_password_token.user.email}", 
         body=plain_message,
-        from_email="sender@example.com", 
+        from_email=os.getenv("EMAIL_HOST_USER", "sender@example.com"), 
         to=[reset_password_token.user.email]
     )
 
