@@ -81,6 +81,23 @@ class InventarioVentasSerializer(serializers.ModelSerializer):
             })
         return list(ventas_dict.values())
 
+class InventarioCarritoSerializer(serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
+    precio = serializers.DecimalField(source="producto.precio", read_only=True, max_digits=10, decimal_places=2)
+    producto_barcode = serializers.CharField(source="producto.codigo_barras", read_only=True)
+    imagen = serializers.ImageField(source="producto.imagen", read_only=True)
+
+    class Meta:
+        model = Inventario  
+        fields = [
+            'id',
+            'producto_nombre',
+            'producto_barcode',
+            'cantidad',
+            'precio',
+            'imagen',
+        ]
+
 # invetarioABC
 class InventarioABCSerializer(serializers.Serializer):
     producto_id = serializers.IntegerField()

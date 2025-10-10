@@ -6,6 +6,8 @@ class AlmacenAdmin(admin.ModelAdmin):
     list_display = ['nombre']
     search_fields = ['nombre']
 
+    readonly_fields = ['fecha_creacion', 'fecha_modificacion', 'usuario_creacion', 'usuario_modificacion','comentario_modificacion']
+
 @admin.register(TipoMovimiento)
 class TipoMovimientoAdmin(admin.ModelAdmin):
     list_display = ['nombre', 'descripcion']

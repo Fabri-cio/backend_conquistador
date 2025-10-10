@@ -1,7 +1,7 @@
-from pathlib import Path
-import dj_database_url
-from dotenv import load_dotenv
 import os
+from pathlib import Path
+from dotenv import load_dotenv
+import dj_database_url
 
 # ==========================
 # Cargar variables .env
@@ -9,23 +9,20 @@ import os
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# ==========================
-# Configuración general
-# ==========================
+# ======================
+# General
+# ======================
 SECRET_KEY = os.getenv("SECRET_KEY", "clave-de-desarrollo")
-
-# Detectar entorno: producción si no es localhost
-IS_PRODUCTION = os.getenv("IS_PRODUCTION", "False") == "True"
-DEBUG = not IS_PRODUCTION
+DEBUG = os.getenv("DEBUG", "True") == "True"
+IS_PRODUCTION = not DEBUG
 
 ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "localhost,127.0.0.1,web-production-87467.up.railway.app"
+    "ALLOWED_HOSTS", "localhost,127.0.0.1"
 ).split(",")
 
-# ==========================
+# ======================
 # Aplicaciones
-# ==========================
+# ======================
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -54,20 +51,9 @@ INSTALLED_APPS = [
     'cloudinary_storage',
 ]
 
-# ==========================
-# Cloudinary
-# ==========================
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
-}
-if IS_PRODUCTION:
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-
-# ==========================
+# ======================
 # Middlewares
-# ==========================
+# ======================
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
@@ -83,25 +69,21 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# ==========================
+# ======================
 # CORS y CSRF
-# ==========================
-CORS_ALLOWED_ORIGINS = os.getenv(
-    "CORS_ALLOWED_ORIGINS",
-    "http://localhost:5173,https://lovely-respect-production.up.railway.app"
-).split(",")
+# ======================
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
-CSRF_TRUSTED_ORIGINS = os.getenv(
-    "CSRF_TRUSTED_ORIGINS",
-    "http://*,https://web-production-87467.up.railway.app"
-).split(",")
-
-# ==========================
-# Usuario personalizado
-# ==========================
+# ======================
+# Autenticación
+# ======================
 AUTH_USER_MODEL = 'usuarios.Usuario'
 AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend"]
 
+# ======================
+# URLs y Templates
+# ======================
 ROOT_URLCONF = 'django_crud_api.urls'
 
 # ==========================
@@ -141,11 +123,11 @@ REST_FRAMEWORK = {
     ],
 }
 
-# ==========================
-# Base de datos
-# ==========================
+# ======================
+# Base de datos (PostgreSQL)
+# ======================
 DATABASES = {
-    'default': dj_database_url.config(default=os.getenv('DATABASE_PUBLIC_URL'))
+    'default': dj_database_url.config(default=os.getenv('DATABASE_URL'))
 }
 
 # ==========================
@@ -158,9 +140,37 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
-# ==========================
-# Configuración de correo
-# ==========================
+# ======================
+# Cloudinary
+# ======================
+CLOUDINARY_STORAGE = {
+    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
+    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
+    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
+}
+
+if IS_PRODUCTION:
+    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
+else:
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+    FILE_UPLOAD_TEMP_DIR = MEDIA_ROOT
+
+# ======================
+# Archivos estáticos
+# ======================
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STORAGES = {
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
+}
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ======================
+# Email
+# ======================
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_PORT = int(os.getenv("EMAIL_PORT", 587))
@@ -169,33 +179,25 @@ EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
 EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 DEFAULT_FROM_EMAIL = os.getenv("DEFAULT_FROM_EMAIL", EMAIL_HOST_USER)
 
-# ==========================
+# ======================
 # Internacionalización
-# ==========================
+# ======================
 LANGUAGE_CODE = os.getenv("LANGUAGE_CODE", "es")
 TIME_ZONE = os.getenv("TIME_ZONE", "America/La_Paz")
 USE_I18N = True
 USE_L10N = True
 USE_TZ = os.getenv("USE_TZ", "False") == "True"
-
 LANGUAGES = [('es', 'Español'), ('en', 'English')]
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
-# ==========================
-# Archivos estáticos y media
-# ==========================
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-STORAGES = {
-    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
-    "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
-}
-
-if not IS_PRODUCTION:
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
-    FILE_UPLOAD_TEMP_DIR = BASE_DIR / 'media'
-
-FILE_UPLOAD_MAX_MEMORY_SIZE = 2.5 * 1024 * 1024
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# ======================
+# Seguridad en producción
+# ======================
+if IS_PRODUCTION:
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    # Opcional: cabeceras extra de seguridad
+    SECURE_HSTS_SECONDS = 31536000
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True

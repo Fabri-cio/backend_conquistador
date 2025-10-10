@@ -1,6 +1,6 @@
 from rest_framework import viewsets
 from .models import Almacen, TipoMovimiento, Inventario, Movimiento
-from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioVentasSerializer, InventarioABCSerializer
+from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
@@ -13,6 +13,7 @@ from rest_framework.response import Response
 class AlmacenViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = AlmacenSerializer
     queryset = Almacen.objects.all()
+    # permission_classes = [permissions.IsAuthenticated]
 
 class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = TipoMovimientoSerializer
@@ -21,7 +22,11 @@ class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 class InventarioViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = InventarioSerializer
     queryset = Inventario.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
+
+class InventarioCarritoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = InventarioCarritoSerializer
+    queryset = Inventario.objects.all()
 
 class InventarioVentasViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = InventarioVentasSerializer
@@ -137,7 +142,7 @@ class InventarioABCViewSet(PaginacionYAllDataMixin, viewsets.GenericViewSet):
 class MovimientoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = MovimientoSerializer 
     queryset = Movimiento.objects.all()
-    permission_classes = [permissions.IsAuthenticated]
+    # permission_classes = [permissions.IsAuthenticated]
 
     search_fields = [
         'inventario__producto__nombre',
