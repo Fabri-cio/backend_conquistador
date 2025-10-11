@@ -44,8 +44,6 @@ INSTALLED_APPS = [
     'django_filters',
     'simple_history',
     'django_extensions',
-    'cloudinary',
-    'cloudinary_storage',
 ]
 
 # ======================
@@ -155,26 +153,25 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ======================
-# Cloudinary
-# ======================
-CLOUDINARY_STORAGE = {
-    "CLOUD_NAME": os.getenv("CLOUDINARY_CLOUD_NAME"),
-    "API_KEY": os.getenv("CLOUDINARY_API_KEY"),
-    "API_SECRET": os.getenv("CLOUDINARY_API_SECRET"),
-}
-
-if IS_PRODUCTION:
-    DEFAULT_FILE_STORAGE = "cloudinary_storage.storage.MediaCloudinaryStorage"
-else:
-    MEDIA_URL = '/media/'
-    MEDIA_ROOT = BASE_DIR / 'media'
-    FILE_UPLOAD_TEMP_DIR = MEDIA_ROOT
-
-# ======================
 # Archivos estáticos
 # ======================
+# Archivos estáticos (JS, CSS)
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
+
+# Media (imágenes subidas por usuarios)
+if IS_PRODUCTION:
+    # En producción: usa el volumen montado
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = Path('/app/media')
+else:
+    # En desarrollo: usa la carpeta local
+    MEDIA_URL = '/media/'
+    MEDIA_ROOT = BASE_DIR / 'media'
+
+FILE_UPLOAD_TEMP_DIR = MEDIA_ROOT
+
+# Configuración de almacenamiento
 STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
