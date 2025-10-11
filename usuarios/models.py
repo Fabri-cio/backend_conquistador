@@ -70,7 +70,7 @@ def password_reset_token_created(reset_password_token, *args, **kwargs):
     msg = EmailMultiAlternatives(
         subject=f"Request for resetting password for {reset_password_token.user.email}", 
         body=plain_message,
-        from_email="sender@example.com", 
+        from_email=os.getenv("EMAIL_HOST_USER"), 
         to=[reset_password_token.user.email]
     )
 
