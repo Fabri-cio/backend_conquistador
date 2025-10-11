@@ -72,26 +72,9 @@ MIDDLEWARE = [
 # ======================
 # CORS y CSRF
 # ======================
-# Obtenemos las variables de entorno
-cors_env = os.getenv("CORS_ALLOWED_ORIGINS", "")
-csrf_env = os.getenv("CSRF_TRUSTED_ORIGINS", "")
+CORS_ALLOWED_ORIGINS = os.getenv("CORS_ALLOWED_ORIGINS", "").split(",")
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
 
-# Convertimos los strings separados por comas en listas
-CORS_ALLOWED_ORIGINS = [url.strip() for url in cors_env.split(",") if url.strip()]
-CSRF_TRUSTED_ORIGINS = [url.strip() for url in csrf_env.split(",") if url.strip()]
-
-# Opcional: valores por defecto si no hay variables de entorno (desarrollo local)
-if not CORS_ALLOWED_ORIGINS:
-    CORS_ALLOWED_ORIGINS = [
-        "http://localhost:5173",
-        "http://127.0.0.1:5173",
-    ]
-
-if not CSRF_TRUSTED_ORIGINS:
-    CSRF_TRUSTED_ORIGINS = [
-        "http://localhost:8000",
-        "http://127.0.0.1:8000",
-    ]
 # ======================
 # Autenticación
 # ======================
@@ -207,14 +190,14 @@ USE_TZ = os.getenv("USE_TZ", "False") == "True"
 LANGUAGES = [('es', 'Español'), ('en', 'English')]
 LOCALE_PATHS = [BASE_DIR / 'locale']
 
-# ======================
-# Seguridad en producción
-# ======================
-if IS_PRODUCTION:
-    SECURE_SSL_REDIRECT = True
-    SESSION_COOKIE_SECURE = True
-    CSRF_COOKIE_SECURE = True
-    # Opcional: cabeceras extra de seguridad
-    SECURE_HSTS_SECONDS = 31536000
-    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
-    SECURE_HSTS_PRELOAD = True
+# # ======================
+# # Seguridad en producción
+# # ======================
+# if IS_PRODUCTION:
+#     SECURE_SSL_REDIRECT = True
+#     SESSION_COOKIE_SECURE = True
+#     CSRF_COOKIE_SECURE = True
+#     # Opcional: cabeceras extra de seguridad
+#     SECURE_HSTS_SECONDS = 31536000
+#     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+#     SECURE_HSTS_PRELOAD = True
