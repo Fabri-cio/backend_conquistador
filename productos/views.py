@@ -10,6 +10,7 @@ from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from core.views import AuditableModelViewSet
+from rest_framework.parsers import MultiPartParser, FormParser
 
 class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = CategoriaSerializer
@@ -21,6 +22,7 @@ class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
 
 class ProveedorView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = ProveedorSerializer
+    parser_classes = [MultiPartParser, FormParser]
     queryset = Proveedor.objects.all()
 
     search_fields = [
