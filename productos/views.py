@@ -23,7 +23,7 @@ class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
 class ProveedorView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = ProveedorSerializer
     parser_classes = [MultiPartParser, FormParser]
-    queryset = Proveedor.objects.all()
+    queryset = Proveedor.objects.all().order_by('id')
 
     search_fields = [
         'marca',
