@@ -10,11 +10,12 @@ from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from core.views import AuditableModelViewSet
-from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.parsers import JSONParser
 
 class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = CategoriaSerializer
-    queryset = Categoria.objects.all()
+    parser_classes = [JSONParser]
+    queryset = Categoria.objects.all().order_by('id')
 
     search_fields = [
         'nombre',
@@ -22,7 +23,7 @@ class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
 
 class ProveedorView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = ProveedorSerializer
-    parser_classes = [MultiPartParser, FormParser]
+    parser_classes = [JSONParser]
     queryset = Proveedor.objects.all().order_by('id')
 
     search_fields = [
@@ -53,7 +54,7 @@ class ProductoView(PaginacionYAllDataMixin, AuditableModelViewSet):
     - ?page=1&per_page=10 → Control de paginación
     - ?all_data=true → Devuelve todos los productos sin paginar (útil para exportar)
     """
-    queryset = Producto.objects.all()
+    queryset = Producto.objects.select_related('categoria', 'proveedor').all()
     
     filter_backends = [
         DjangoFilterBackend,
