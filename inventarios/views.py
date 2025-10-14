@@ -145,7 +145,9 @@ class MovimientoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMi
     # permission_classes = [permissions.IsAuthenticated]
 
     search_fields = [
-        'inventario__producto__nombre',
-        'inventario__almacen__nombre',
+        'tipo_nombre',
+        'producto_nombre',
+        'almacen_nombre',
+        'usuario_creacion',
     ]
 
