@@ -1,1 +1,1 @@
-web: gunicorn django_crud_api.wsgi --config gunicorn.conf.py
+web: gunicorn django_crud_api.wsgi
