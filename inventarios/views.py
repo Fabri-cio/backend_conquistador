@@ -12,16 +12,16 @@ from rest_framework.response import Response
 
 class AlmacenViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = AlmacenSerializer
-    queryset = Almacen.objects.all()
+    queryset = Almacen.objects.all().order_by('id')
     # permission_classes = [permissions.IsAuthenticated]
 
 class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = TipoMovimientoSerializer
-    queryset = TipoMovimiento.objects.all()
+    queryset = TipoMovimiento.objects.all().order_by('id')
 
 class InventarioViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = InventarioSerializer
-    queryset = Inventario.objects.all()
+    queryset = Inventario.objects.all().order_by('id')
     # permission_classes = [permissions.IsAuthenticated]
 
 class InventarioCarritoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
@@ -141,7 +141,7 @@ class InventarioABCViewSet(PaginacionYAllDataMixin, viewsets.GenericViewSet):
 
 class MovimientoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = MovimientoSerializer 
-    queryset = Movimiento.objects.all()
+    queryset = Movimiento.objects.all().order_by('id')
     # permission_classes = [permissions.IsAuthenticated]
 
     search_fields = [

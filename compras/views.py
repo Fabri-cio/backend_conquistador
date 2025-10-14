@@ -8,35 +8,35 @@ from core.views import AuditableModelViewSet
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
 
 class PedidoRecepcionViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('id')
     serializer_class = PedidoRecepcionSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 class PedidoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
-    queryset = Pedido.objects.all()
+    queryset = Pedido.objects.all().order_by('id')
     serializer_class = PedidoSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 
 class DetallePedidoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = DetallePedido.objects.all()
+    queryset = DetallePedido.objects.all().order_by('id')
     serializer_class = DetallePedidoSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
 class CompraViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
-    queryset = Compra.objects.all() 
+    queryset = Compra.objects.all().order_by('id')
     serializer_class = CompraSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
 
 class DetalleCompraViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
-    queryset = DetalleCompra.objects.all()
+    queryset = DetalleCompra.objects.all().order_by('id')
     serializer_class = DetalleCompraSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 class DetallesCompraPedidoViewSet(viewsets.ModelViewSet):
-    queryset = Compra.objects.all()
+    queryset = Compra.objects.all().order_by('id')
     serializer_class = DetallesCompraPedidoSerializer
     # permission_classes = [permissions.IsAuthenticated]
 

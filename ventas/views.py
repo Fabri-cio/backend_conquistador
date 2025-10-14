@@ -48,7 +48,7 @@ class VentaView(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, Aud
 
 # Vista para reporte de ventas
 class VentaReporteView(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = Venta.objects.all()
+    queryset = Venta.objects.all().order_by('id')
     serializer_class = VentaReporteSerializer
     filter_backends = [DjangoFilterBackend]
     filterset_class = VentaReporteFilter

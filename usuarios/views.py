@@ -33,7 +33,7 @@ class PermissionViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     """
     Listar y detallar permisos disponibles
     """
-    queryset = Permission.objects.all()
+    queryset = Permission.objects.all().order_by('id')
     serializer_class = PermissionSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
@@ -67,4 +67,4 @@ class UsuarioViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     """
     serializer_class = UsuarioSerializer
     # permission_classes = [permissions.IsAuthenticated]
-    queryset = Usuario.objects.all()
+    queryset = Usuario.objects.all().order_by('id')
