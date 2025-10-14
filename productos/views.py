@@ -54,7 +54,7 @@ class ProductoView(PaginacionYAllDataMixin, AuditableModelViewSet):
     - ?page=1&per_page=10 → Control de paginación
     - ?all_data=true → Devuelve todos los productos sin paginar (útil para exportar)
     """
-    queryset = Producto.objects.select_related('categoria', 'proveedor').all()
+    queryset = Producto.objects.all().order_by('id')
     
     filter_backends = [
         DjangoFilterBackend,
