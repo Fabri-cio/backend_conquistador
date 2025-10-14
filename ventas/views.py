@@ -31,6 +31,9 @@ class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = ComprobanteVenta.objects.all().order_by('id')
     serializer_class = ComprobanteVentaSerializer
     permission_classes = [permissions.IsAuthenticated]
+    search_fields = [
+        'numero_comprobante'
+    ]
 
 # Vista para la venta
 class VentaView(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
