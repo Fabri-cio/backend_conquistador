@@ -10,11 +10,11 @@ from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from core.views import AuditableModelViewSet
-from rest_framework.parsers import JSONParser
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = CategoriaSerializer
-    parser_classes = [JSONParser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     queryset = Categoria.objects.all().order_by('id')
 
     search_fields = [
@@ -23,7 +23,7 @@ class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
 
 class ProveedorView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = ProveedorSerializer
-    parser_classes = [JSONParser]
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     queryset = Proveedor.objects.all().order_by('id')
 
     search_fields = [
@@ -70,6 +70,7 @@ class ProductoView(PaginacionYAllDataMixin, AuditableModelViewSet):
     ]
     ordering_fields = ['precio','fecha_creacion','nombre']
     ordering = ['-fecha_creacion']  # ✅ orden por defecto
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
 
     def get_serializer_class(self):
         if self.action == 'list':

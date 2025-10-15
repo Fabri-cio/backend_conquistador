@@ -103,7 +103,7 @@ class PrediccionViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     """
     ViewSet para manejar las operaciones CRUD del modelo Prediccion.
     """
-    queryset = Prediccion.objects.all()
+    queryset = Prediccion.objects.all().order_by('id')
     serializer_class = PrediccionSerializer
     permission_classes = [permissions.AllowAny]  # Asegura que solo usuarios autenticados accedan a la API
 
@@ -112,7 +112,7 @@ class DetallePrediccionViewSet(viewsets.ModelViewSet):
     """
     ViewSet para manejar las operaciones CRUD del modelo DetallePrediccion.
     """
-    queryset = DetallePrediccion.objects.all()
+    queryset = DetallePrediccion.objects.all().order_by('id')
     serializer_class = DetallePrediccionSerializer
     permission_classes = [permissions.AllowAny]  # Asegura que solo usuarios autenticados accedan a la API
 
@@ -121,6 +121,6 @@ class ConfiguracionModeloViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet)
     """
     ViewSet para manejar las operaciones CRUD del modelo ConfiguracionModelo.
     """
-    queryset = ConfiguracionModelo.objects.all()
+    queryset = ConfiguracionModelo.objects.all().order_by('id')    
     serializer_class = ConfiguracionModeloSerializer
     permission_classes = [permissions.AllowAny]  # Asegura que solo usuarios autenticados accedan a la API
