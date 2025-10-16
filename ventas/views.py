@@ -8,9 +8,10 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.views import AuditableModelViewSet
 from rest_framework import filters
-from .filters import VentaReporteFilter
+from .filters import VentaReporteFilter, VentasPorInventarioFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
+from ventas.services_ventas_por_inventario import obtener_ventas_por_inventario
 
 # Vista para el cliente
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -61,3 +62,30 @@ class DetalleVentaView(viewsets.ModelViewSet):
     queryset = DetalleVenta.objects.all().order_by('id')
     serializer_class = DetalleVentaSerializer
     # permission_classes = [permissions.IsAuthenticated]
+
+class VentasPorInventarioViewSet(PaginacionYAllDataMixin, viewsets.ViewSet):
+    """
+    Endpoint para obtener ventas por inventario y por rango de fechas con paginación.
+    """
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = VentasPorInventarioFilter
+
+    def list(self, request):
+        # Aplicamos filtros
+        filterset = self.filterset_class(request.GET, queryset=None)
+        if not filterset.is_valid():
+            return Response(filterset.errors, status=400)
+
+        inventario_id = filterset.form.cleaned_data.get('inventario_id')
+        fecha_inicio = filterset.form.cleaned_data.get('fecha_inicio')
+        fecha_fin = filterset.form.cleaned_data.get('fecha_fin')
+
+        if not inventario_id:
+            return Response({"error": "Falta inventario_id"}, status=400)
+
+        datos = obtener_ventas_por_inventario(inventario_id, fecha_inicio, fecha_fin)
+
+        # Usamos la función de paginación del mixin
+        return self.paginate_list(datos, request)
+
+    

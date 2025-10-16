@@ -88,3 +88,7 @@ class ComprobanteVentaSerializer(serializers.ModelSerializer):
     class Meta:
         model = ComprobanteVenta
         fields = '__all__'
+
+class VentasPorInventarioSerializer(serializers.Serializer):
+    fecha = serializers.DateField(read_only=True)
+    cantidad = serializers.FloatField(read_only=True)
