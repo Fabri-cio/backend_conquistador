@@ -19,7 +19,7 @@ class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = TipoMovimientoSerializer
     queryset = TipoMovimiento.objects.all().order_by('id')
 
-class InventarioViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
+class InventarioViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = InventarioSerializer
     queryset = Inventario.objects.all().order_by('id')
     # permission_classes = [permissions.IsAuthenticated]
