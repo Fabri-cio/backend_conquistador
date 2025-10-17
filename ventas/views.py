@@ -38,7 +38,7 @@ class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
 # Vista para la venta
 class VentaView(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
-    queryset = Venta.objects.all().order_by('id')
+    queryset = Venta.objects.all()
     serializer_class = VentaSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
