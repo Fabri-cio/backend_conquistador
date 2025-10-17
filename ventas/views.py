@@ -38,7 +38,13 @@ class ComprobanteVentaView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
 # Vista para la venta
 class VentaView(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, AuditableModelViewSet):
-    queryset = Venta.objects.all()
+    queryset = (
+        Venta.objects
+        .select_related("cliente", "tienda")
+        .prefetch_related("detalles__inventario__producto")
+        .all()
+        .order_by("id")
+    )
     serializer_class = VentaSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
@@ -59,7 +65,7 @@ class VentaReporteView(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
 
 # Vista para los detalles de la venta
 class DetalleVentaView(viewsets.ModelViewSet):
-    queryset = DetalleVenta.objects.all().order_by('id')
+    queryset = DetalleVenta.objects.select_related("inventario__producto").all().order_by("id")
     serializer_class = DetalleVentaSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
