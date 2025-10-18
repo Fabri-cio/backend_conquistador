@@ -15,10 +15,6 @@ class ImagenThumbMixin(models.Model):
         abstract = True
 
 class ImageThumbMixinSerializer:
-    """
-    Mixin para serializers que quieren exponer `image_url` con cache-busting.
-    """
-    image_url = serializers.SerializerMethodField()
 
     def get_image_url(self, obj):
         request = self.context.get("request")

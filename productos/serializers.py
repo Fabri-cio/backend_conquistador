@@ -54,9 +54,10 @@ class ProductoCreateSerializer(BaseProductoSerializer):
 # List
 # ---------------------
 
-class ProductoListSerializer(serializers.ModelSerializer):
+class ProductoListSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
     categoria = serializers.CharField(source="categoria.nombre", read_only=True)
     marca = serializers.CharField(source="proveedor.marca", read_only=True)
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Producto
@@ -67,7 +68,7 @@ class ProductoListSerializer(serializers.ModelSerializer):
             "precio",
             "marca",
             "categoria",
-            "imagen",
+            "image_url",
         ]
 
 # ---------------------
@@ -198,6 +199,8 @@ class ProductosPorProveedorSerializer(serializers.ModelSerializer):
         return serializer.data
 
 class CategoriaListSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Categoria
         fields = [
@@ -208,6 +211,8 @@ class CategoriaListSerializer(ImageThumbMixinSerializer, serializers.ModelSerial
         ]
 
 class ProveedorListSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):    
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Proveedor
         fields = [
