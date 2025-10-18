@@ -1,28 +1,19 @@
 from django.db import models
 from core.models import AuditoriaBase
 from simple_history.models import HistoricalRecords
-from imagekit.models import ImageSpecField
-from imagekit.processors import ResizeToFill
+from .mixins import ImagenThumbMixin
 
 # Modelo de Categoría
-class Categoria(AuditoriaBase):
+class Categoria(AuditoriaBase, ImagenThumbMixin):
     nombre = models.CharField(max_length=100, unique=True)
     descripcion = models.TextField(null=True, blank=True)
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
 
-        # Miniatura para listados
-    imagen_thumb = ImageSpecField(
-        source='imagen',
-        processors=[ResizeToFill(200, 200)],  # tamaño 200x200
-        format='WEBP',  # formato más ligero
-        options={'quality': 80}
-    )
-
     def __str__(self):
         return self.nombre
     
-class Proveedor(AuditoriaBase):
+class Proveedor(AuditoriaBase, ImagenThumbMixin):
     marca = models.CharField("Marca",max_length=100,blank=True,null=True,unique=True)
     contacto = models.CharField("Nombre de Contacto",max_length=100,blank=True,null=True)
     telefono = models.CharField(max_length=15, null=True, blank=True)
@@ -33,7 +24,7 @@ class Proveedor(AuditoriaBase):
         return self.marca
 
 # Modelo de Producto
-class Producto(AuditoriaBase):
+class Producto(AuditoriaBase, ImagenThumbMixin):
     nombre = models.CharField(max_length=100)
     proveedor = models.ForeignKey(Proveedor, on_delete=models.CASCADE)
     precio = models.DecimalField(max_digits=10, decimal_places=2)

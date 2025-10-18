@@ -1,9 +1,9 @@
-from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer, ProductosPorCategoriaSerializer, ProductosPorProveedorSerializer, ProductoHistorySerializer, CategoriaListSerializer
+from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer, ProductosPorCategoriaSerializer, ProductosPorProveedorSerializer, ProductoHistorySerializer, CategoriaListSerializer, ProveedorListSerializer
 from .models import Categoria, Proveedor, Producto
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ProductoFilter, CategoriaFilter
+from .filters import ProductoFilter, CategoriaFilter, ProveedorFilter
 from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
@@ -117,3 +117,22 @@ class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
     def get_queryset(self):
         # Solo traer los campos necesarios
         return Categoria.objects.only("id", "estado", "nombre", "imagen").order_by(*self.ordering)
+
+@method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
+class ProveedorListView(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = ProveedorListSerializer
+    # permission_classes = [permissions.AllowAny]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = ProveedorFilter
+    search_fields = ['marca','contacto','telefono']
+    ordering_fields = ['estado', 'marca','contacto','telefono']
+    ordering = ['-fecha_creacion']
+
+    def get_queryset(self):
+        # Solo traer los campos necesarios
+        return Proveedor.objects.only("id", "estado", "marca", "contacto", "telefono", "imagen").order_by(*self.ordering)
+

@@ -1,5 +1,5 @@
 import django_filters
-from .models import Producto, Categoria
+from .models import Producto, Categoria, Proveedor
 
 class ProductoFilter(django_filters.FilterSet):
     precio_min = django_filters.NumberFilter(field_name="precio", lookup_expr="gte")
@@ -20,3 +20,11 @@ class CategoriaFilter(django_filters.FilterSet):
     class Meta:
         model = Categoria
         fields = []
+
+class ProveedorFilter(django_filters.FilterSet):
+    marca = django_filters.CharFilter(field_name="marca", lookup_expr="exact")
+
+    class Meta:
+        model = Proveedor
+        fields = []
+
