@@ -112,8 +112,8 @@ class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
     search_fields = ['nombre']
     ordering_fields = ['estado', 'nombre']
     ordering = ['-estado']
-    pagination_class = None
+
 
     def get_queryset(self):
         # Solo traer los campos necesarios
-        return Categoria.objects.only("id", "estado", "nombre", "imagen")
+        return Categoria.objects.only("id", "estado", "nombre", "imagen").order_by(*self.ordering)
