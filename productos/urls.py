@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 from rest_framework import routers
-from .views import CategoriaView, ProveedorView, ProductoView, ProductoHistoryView, ProductoPorCategoriaView, ProductoPorProveedorView
+from .views import CategoriaView, ProveedorView, ProductoView, ProductoHistoryView, ProductoPorCategoriaView, ProductoPorProveedorView, CategoriaListView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -34,6 +34,8 @@ urlpatterns = [
    path('productos_por_categoria/<int:pk>/', ProductoPorCategoriaView.as_view(), name='productos_por_categoria'),
    # Productos por proveedor
    path('productos_por_proveedor/<int:pk>/', ProductoPorProveedorView.as_view(), name='productos_por_proveedor'),
+   # Productos por categoria
+   path('categorias-list/', CategoriaListView.as_view(), name='categorias-list'),
 
    # swagger
    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

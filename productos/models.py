@@ -1,6 +1,8 @@
 from django.db import models
 from core.models import AuditoriaBase
 from simple_history.models import HistoricalRecords
+from imagekit.models import ImageSpecField
+from imagekit.processors import ResizeToFill
 
 # Modelo de Categoría
 class Categoria(AuditoriaBase):
@@ -8,6 +10,14 @@ class Categoria(AuditoriaBase):
     descripcion = models.TextField(null=True, blank=True)
     estado = models.BooleanField(default=True)
     imagen = models.ImageField(upload_to='categorias/', null=True, blank=True)
+
+        # Miniatura para listados
+    imagen_thumb = ImageSpecField(
+        source='imagen',
+        processors=[ResizeToFill(200, 200)],  # tamaño 200x200
+        format='WEBP',  # formato más ligero
+        options={'quality': 80}
+    )
 
     def __str__(self):
         return self.nombre

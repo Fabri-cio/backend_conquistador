@@ -92,3 +92,18 @@ class ComprobanteVentaSerializer(serializers.ModelSerializer):
 class VentasPorInventarioSerializer(serializers.Serializer):
     fecha = serializers.DateField(read_only=True)
     cantidad = serializers.FloatField(read_only=True)
+
+class VentaListSerializer(serializers.ModelSerializer):
+    fecha_creacion = serializers.DateTimeField(read_only=True)
+    usuario_creacion = serializers.CharField(source="usuario_creacion.username", read_only=True)
+    nombre_tienda = serializers.CharField(source="tienda.nombre", read_only=True)
+    
+    class Meta:
+        model = Venta
+        fields = [
+            "id",
+            "fecha_creacion",
+            "usuario_creacion",
+            "nombre_tienda",
+            "metodo_pago"
+        ]

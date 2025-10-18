@@ -1,6 +1,6 @@
 # views.py
 from rest_framework import viewsets
-from .serializers import VentaSerializer, DetalleVentaSerializer, ClienteSerializer, ComprobanteVentaSerializer, VentaReporteSerializer
+from .serializers import VentaSerializer, DetalleVentaSerializer, ClienteSerializer, ComprobanteVentaSerializer, VentaReporteSerializer, VentaListSerializer
 from .models import Venta, DetalleVenta, Cliente, ComprobanteVenta
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import permissions
@@ -12,6 +12,7 @@ from .filters import VentaReporteFilter, VentasPorInventarioFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
 from ventas.services_ventas_por_inventario import obtener_ventas_por_inventario
+from django.core.cache import cache
 
 # Vista para el cliente
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -93,5 +94,19 @@ class VentasPorInventarioViewSet(PaginacionYAllDataMixin, viewsets.ViewSet):
 
         # Usamos la función de paginación del mixin
         return self.paginate_list(datos, request)
+
+class VentaListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = VentaListSerializer
+
+    def get_queryset(self):
+        cache_key = "ventas_listado"
+        ventas = cache.get(cache_key)
+        if not ventas:
+            ventas = Venta.objects.select_related("usuario_creacion", "tienda").only(
+                "id", "fecha_creacion", "usuario_creacion__username", "tienda__nombre", "metodo_pago"
+            ).order_by("-fecha_creacion")
+            cache.set(cache_key, ventas, 60)  # cache 1 minuto
+        return ventas
+
 
     

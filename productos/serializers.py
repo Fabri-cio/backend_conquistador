@@ -195,3 +195,21 @@ class ProductosPorProveedorSerializer(serializers.ModelSerializer):
         request = self.context.get('request')
         serializer = ProductosParaProveedorSerializer(productos, many=True, context={'request': request})
         return serializer.data
+
+class CategoriaListSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Categoria
+        fields = [
+            "id",
+            "estado",
+            "nombre",
+            "image_url",
+        ]
+    
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if obj.imagen_thumb:
+            return request.build_absolute_uri(obj.imagen_thumb.url)
+        return None

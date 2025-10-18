@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'drf_yasg',
     'rest_framework',
+    'imagekit',
     'productos',
     'inventarios',
     'predicciones',
@@ -187,6 +188,10 @@ STORAGES = {
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
 }
+
+if IS_PRODUCTION:
+    # Cache para archivos estáticos
+    WHITENOISE_MAX_AGE = 31536000  # 1 año
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

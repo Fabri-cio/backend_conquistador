@@ -1,6 +1,6 @@
 from re import search
 from rest_framework import viewsets
-from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer, ProductosPorCategoriaSerializer, ProductosPorProveedorSerializer, ProductoHistorySerializer
+from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer, ProductosPorCategoriaSerializer, ProductosPorProveedorSerializer, ProductoHistorySerializer, CategoriaListSerializer
 from .models import Categoria, Proveedor, Producto
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import filters
@@ -11,6 +11,7 @@ from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from core.views import AuditableModelViewSet
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+from django.core.cache import cache
 
 class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = CategoriaSerializer
@@ -96,3 +97,21 @@ class ProductoPorProveedorView(generics.RetrieveAPIView):
     serializer_class = ProductosPorProveedorSerializer
     permission_classes = [permissions.AllowAny]
     queryset = Proveedor.objects.all()
+
+class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = CategoriaListSerializer
+    # permission_classes = [permissions.AllowAny]
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = CategoriaFilter
+    search_fields = ['estado', 'nombre']
+    ordering_fields = ['estado', 'nombre']
+    ordering = ['-estado'] 
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
+
+    def get_queryset(self):
+        # Solo traer los campos necesarios
+        return Categoria.objects.only("id", "estado", "nombre", "imagen").order_by("id")
