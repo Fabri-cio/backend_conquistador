@@ -1,5 +1,3 @@
-from re import search
-from rest_framework import viewsets
 from .serializers import CategoriaSerializer, ProveedorSerializer, ProductoListSerializer, ProductoDetailSerializer, ProductoCreateSerializer, ProductosPorCategoriaSerializer, ProductosPorProveedorSerializer, ProductoHistorySerializer, CategoriaListSerializer
 from .models import Categoria, Proveedor, Producto
 from django_crud_api.mixins import PaginacionYAllDataMixin
@@ -11,7 +9,10 @@ from rest_framework import permissions
 from django.shortcuts import get_object_or_404
 from core.views import AuditableModelViewSet
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
-from django.core.cache import cache
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
+
+cache_alias = 'default'
 
 class CategoriaView(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = CategoriaSerializer
@@ -98,6 +99,7 @@ class ProductoPorProveedorView(generics.RetrieveAPIView):
     permission_classes = [permissions.AllowAny]
     queryset = Proveedor.objects.all()
 
+@method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
 class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
     serializer_class = CategoriaListSerializer
     # permission_classes = [permissions.AllowAny]
@@ -107,11 +109,11 @@ class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
         filters.OrderingFilter
     ]
     filterset_class = CategoriaFilter
-    search_fields = ['estado', 'nombre']
+    search_fields = ['nombre']
     ordering_fields = ['estado', 'nombre']
-    ordering = ['-estado'] 
-    parser_classes = [JSONParser, MultiPartParser, FormParser]
+    ordering = ['-estado']
+    pagination_class = None
 
     def get_queryset(self):
         # Solo traer los campos necesarios
-        return Categoria.objects.only("id", "estado", "nombre", "imagen").order_by("id")
+        return Categoria.objects.only("id", "estado", "nombre", "imagen")
