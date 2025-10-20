@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from .models import Almacen, TipoMovimiento, Inventario, Movimiento
-from ventas.models import DetalleVenta, Venta
+from .models import Almacen, TipoMovimiento, Inventario, Movimiento, Notificacion
 
 class AlmacenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -135,3 +134,22 @@ class MovimientoSerializer(serializers.ModelSerializer):
             'almacen_nombre',
             'usuario_creacion',
         ]
+
+class NotificacionSerializer(serializers.ModelSerializer):
+    usuario_nombre = serializers.CharField(source='usuario.username', read_only=True)
+
+    class Meta:
+        model = Notificacion
+        fields = [
+            'id',
+            'usuario',
+            'usuario_nombre',
+            'titulo',
+            'mensaje',
+            'tipo',
+            'leida',
+            'inventario',
+            'fecha_creacion',
+            'fecha_modificacion',
+        ]
+        read_only_fields = ['fecha_creacion', 'fecha_modificacion', 'usuario_nombre']

@@ -1,6 +1,6 @@
 from rest_framework import viewsets
-from .models import Almacen, TipoMovimiento, Inventario, Movimiento
-from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer
+from .models import Almacen, TipoMovimiento, Inventario, Movimiento, Notificacion
+from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer, NotificacionSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
@@ -9,6 +9,7 @@ from ventas.models import DetalleVenta
 from rest_framework import permissions
 from django.db.models import Sum, F
 from rest_framework.response import Response
+from rest_framework.decorators import action
 
 class AlmacenViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = AlmacenSerializer
@@ -151,3 +152,15 @@ class MovimientoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMi
         'usuario_creacion',
     ]
 
+class NotificacionViewSet(FiltradoPorUsuarioInteligenteMixin, AuditableModelViewSet):
+    serializer_class = NotificacionSerializer
+
+    def get_queryset(self):
+        # Filtrado inteligente + solo del usuario autenticado
+        return super().get_queryset().filter(usuario=self.request.user).order_by('-fecha_creacion')
+
+    @action(detail=False, methods=['post'])
+    def marcar_como_leida(self, request):
+        ids = request.data.get('ids', [])
+        Notificacion.objects.filter(id__in=ids, usuario=request.user).update(leida=True)
+        return Response({"status": "ok"})

@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'drf_yasg',
     'rest_framework',
     'imagekit',
+    'channels',
     'productos',
     'inventarios',
     'predicciones',
@@ -228,3 +229,11 @@ LOCALE_PATHS = [BASE_DIR / 'locale']
 #     SECURE_HSTS_SECONDS = 31536000
 #     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
 #     SECURE_HSTS_PRELOAD = True
+
+ASGI_APPLICATION = 'django_crud_api.asgi.application'
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer"
+    }
+}
