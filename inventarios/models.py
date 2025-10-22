@@ -103,26 +103,24 @@ def revertir_inventario_eliminar(sender, instance, **kwargs):
     except Exception as e:
         raise ValidationError(str(e))
 
-class Notificacion(AuditoriaBase):
-    usuario = models.ForeignKey(
-        'usuarios.Usuario', 
-        on_delete=models.CASCADE,
-        related_name='notificaciones'
-    )
+class Notificacion(models.Model):
     titulo = models.CharField(max_length=255)
     mensaje = models.TextField()
     tipo = models.CharField(
         max_length=50,
-        choices=[('info','Info'),('warning','Warning'),('error','Error')],
+        choices=[
+            ('info','Información'),
+            ('warning','Advertencia'),
+            ('error','Error')
+        ],
         default='info'
     )
     leida = models.BooleanField(default=False)
     inventario = models.ForeignKey(
         Inventario,
         on_delete=models.CASCADE,
-        null=True, blank=True
     )
 
     def __str__(self):
-        return f"{self.usuario.username} - {self.titulo}"
+        return f"{self.titulo}"
 

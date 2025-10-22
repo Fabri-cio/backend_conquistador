@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Almacen, Inventario, Movimiento, TipoMovimiento
+from .models import Almacen, Inventario, Movimiento, TipoMovimiento, Notificacion
 
 @admin.register(Almacen)
 class AlmacenAdmin(admin.ModelAdmin):
@@ -65,3 +65,17 @@ class MovimientoAdmin(admin.ModelAdmin):
         if not change or not obj.usuario_creacion:
             obj.usuario_creacion = request.user
         super().save_model(request, obj, form, change)
+
+@admin.register(Notificacion)
+class NotificacionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'inventario', 'tipo', 'leida']
+    search_fields = ['inventario', 'tipo']
+    list_filter = ['tipo', 'inventario']
+    
+
+    fieldsets = (
+        (None, {
+            'fields': ('inventario', 'tipo', 'leida'),
+        }),
+    )
+

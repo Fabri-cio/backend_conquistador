@@ -152,15 +152,26 @@ class MovimientoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMi
         'usuario_creacion',
     ]
 
-class NotificacionViewSet(FiltradoPorUsuarioInteligenteMixin, AuditableModelViewSet):
+class NotificacionViewSet(viewsets.ModelViewSet):
+    """
+    CRUD para notificaciones de inventario.
+    - Lista todas las notificaciones.
+    - Permite marcar notificaciones como leídas.
+    """
     serializer_class = NotificacionSerializer
+    queryset = Notificacion.objects.all().order_by('-id')  # las más recientes primero
 
-    def get_queryset(self):
-        # Filtrado inteligente + solo del usuario autenticado
-        return super().get_queryset().filter(usuario=self.request.user).order_by('-fecha_creacion')
+    @action(detail=True, methods=['patch'], url_path='marcar-como-leida')
+    def marcar_una_como_leida(self, request, pk=None):
+        """Marcar una sola notificación como leída"""
+        notificacion = self.get_object()
+        notificacion.leida = True
+        notificacion.save()
+        return Response({"status": "ok", "id": notificacion.id})
 
-    @action(detail=False, methods=['post'])
-    def marcar_como_leida(self, request):
+    @action(detail=False, methods=['post'], url_path='marcar-varias')
+    def marcar_varias(self, request):
+        """Marcar varias notificaciones como leídas"""
         ids = request.data.get('ids', [])
-        Notificacion.objects.filter(id__in=ids, usuario=request.user).update(leida=True)
-        return Response({"status": "ok"})
+        Notificacion.objects.filter(id__in=ids).update(leida=True)
+        return Response({"status": "ok", "marcadas": ids})

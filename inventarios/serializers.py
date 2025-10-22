@@ -136,20 +136,13 @@ class MovimientoSerializer(serializers.ModelSerializer):
         ]
 
 class NotificacionSerializer(serializers.ModelSerializer):
-    usuario_nombre = serializers.CharField(source='usuario.username', read_only=True)
-
     class Meta:
         model = Notificacion
         fields = [
             'id',
-            'usuario',
-            'usuario_nombre',
             'titulo',
             'mensaje',
             'tipo',
             'leida',
             'inventario',
-            'fecha_creacion',
-            'fecha_modificacion',
         ]
-        read_only_fields = ['fecha_creacion', 'fecha_modificacion', 'usuario_nombre']
