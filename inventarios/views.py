@@ -10,6 +10,7 @@ from rest_framework import permissions
 from django.db.models import Sum, F
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
 
 class AlmacenViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = AlmacenSerializer
@@ -22,6 +23,7 @@ class TipoMovimientoViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
 
 class InventarioViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = InventarioSerializer
+    parser_classes = [JSONParser, MultiPartParser, FormParser]
     queryset = Inventario.objects.all().order_by('id')
     # permission_classes = [permissions.IsAuthenticated]
 
