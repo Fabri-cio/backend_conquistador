@@ -178,9 +178,25 @@ class NotificacionViewSet(viewsets.ModelViewSet):
         Notificacion.objects.filter(id__in=ids).update(leida=True)
         return Response({"status": "ok", "marcadas": ids})
 
+# 🔹 Endpoint: Lista de inventario con miniaturas
 class InventarioListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = InventarioListSerializer
-    queryset = Inventario.objects.all().order_by('id')
+    # Traemos producto y almacen en una sola query
+    def get_queryset(self):
+        return (
+            Inventario.objects
+            .select_related('producto', 'almacen')
+            .only(
+                'id',
+                'cantidad',
+                'stock_minimo',
+                'stock_maximo',
+                'producto__nombre',
+                'producto__imagen',
+                'almacen__nombre'
+            )
+            .order_by('id')
+        )
 
 class AlmacenListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = AlmacenListSerializer
@@ -205,6 +221,19 @@ class TiposMovimientoSelectViewSet(PaginacionYAllDataMixin, generics.ListAPIView
     def get_queryset(self):
         return TipoMovimiento.objects.only("id", "nombre").order_by("nombre")
 
+# 🔹 Endpoint: Inventario para pedidos (producto, precio, miniatura)
 class InventarioPedidosViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = InventarioPedidosSerializer
-    queryset = Inventario.objects.all().order_by('id')
+    # Solo traemos el producto relacionado para evitar consultas extras
+    queryset = (
+    Inventario.objects
+    .select_related('producto')  # Trae el producto en la misma query
+    .only(
+        'id',
+        'producto__nombre',
+        'producto__imagen',
+        'producto__precio'
+    )
+    .order_by('id')
+)
+

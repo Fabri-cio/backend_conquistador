@@ -1,6 +1,6 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import AlmacenViewSet, TipoMovimientoViewSet, InventarioViewSet, MovimientoViewSet, InventarioVentasViewSet, InventarioABCViewSet, InventarioCarritoViewSet, NotificacionViewSet, InventarioListViewSet, AlmacenListViewSet, MovimientoListViewSet, AlmacenSelectViewSet, InventarioSelectViewSet, TiposMovimientoSelectViewSet
+from .views import AlmacenViewSet, TipoMovimientoViewSet, InventarioViewSet, MovimientoViewSet, InventarioVentasViewSet, InventarioABCViewSet, InventarioCarritoViewSet, NotificacionViewSet, InventarioListViewSet, AlmacenListViewSet, MovimientoListViewSet, AlmacenSelectViewSet, InventarioSelectViewSet, TiposMovimientoSelectViewSet, InventarioPedidosViewSet
 
 router = DefaultRouter()
 router.register(r'almacenes', AlmacenViewSet)
@@ -14,6 +14,7 @@ router.register(r'notificaciones', NotificacionViewSet, basename='notificaciones
 router.register(r'inventarios-list', InventarioListViewSet, basename='inventarios-list')
 router.register(r'almacenes-list', AlmacenListViewSet, basename='almacenes-list')
 router.register(r'movimientos-list', MovimientoListViewSet, basename='movimientos-list')
+router.register(r'inventarios-pedidos', InventarioPedidosViewSet, basename='inventarios-pedidos')
 
 urlpatterns = [
     path('', include(router.urls)),

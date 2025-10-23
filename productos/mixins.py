@@ -16,10 +16,19 @@ class ImagenThumbMixin(models.Model):
 
 class ImageThumbMixinSerializer:
 
-    def get_image_url(self, obj):
-        request = self.context.get("request")
-        if hasattr(obj, "imagen_thumb") and obj.imagen_thumb:
-            url = obj.imagen_thumb.url
-            ts = int(getattr(obj, "fecha_modificacion", 0).timestamp()) if hasattr(obj, "fecha_modificacion") else 0
-            return request.build_absolute_uri(f"{url}?v={ts}")
+    def get_image_url(self, obj, field='imagen_thumb', related_obj=None):
+        """
+        Devuelve la URL de la miniatura cacheada de la imagen.
+        - obj: objeto actual (Inventario, Producto, etc.)
+        - field: nombre del atributo ImageSpecField (por defecto 'imagen_thumb')
+        - related_obj: si la imagen está en un objeto relacionado (por ejemplo producto)
+        """
+        target = related_obj if related_obj else obj
+        if hasattr(target, field) and getattr(target, field):
+            url = getattr(target, field).url
+            ts = int(getattr(target, "fecha_modificacion", 0).timestamp()) if hasattr(target, "fecha_modificacion") else 0
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(f"{url}?v={ts}")
+            return f"{url}?v={ts}"
         return None

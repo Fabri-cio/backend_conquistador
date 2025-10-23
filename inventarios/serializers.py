@@ -148,21 +148,26 @@ class NotificacionSerializer(serializers.ModelSerializer):
             'inventario',
         ]
 
-class InventarioListSerializer(serializers.ModelSerializer):
+class InventarioListSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
     producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
     almacen_nombre = serializers.CharField(source="almacen.nombre", read_only=True)
-    imagen = serializers.ImageField(source="producto.imagen", read_only=True)
+    imagen_url = serializers.SerializerMethodField()  # usamos método para reutilizar imagen
+
     class Meta:
         model = Inventario
         fields = [
             'id',
-            'imagen',
+            'imagen_url',
             'producto_nombre',
             'almacen_nombre',
             'stock_minimo',
             'cantidad',
             'stock_maximo',
         ]
+
+    def get_imagen_url(self, obj):
+        # reutiliza la miniatura del producto relacionado
+        return self.get_image_url(obj, related_obj=obj.producto)
 
 class AlmacenListSerializer(serializers.ModelSerializer):
     class Meta:
@@ -219,13 +224,17 @@ class TiposMovimientoSelectSerializer(serializers.ModelSerializer):
 class InventarioPedidosSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
     producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
     precio = serializers.DecimalField(source="producto.precio", read_only=True, max_digits=10, decimal_places=2)
-    image_url = serializers.SerializerMethodField()
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Inventario
         fields = [
             'id',
             'producto_nombre',
-            'image_url',
+            'imagen_url',
             'precio',
         ]
+
+    def get_imagen_url(self, obj):
+        # reutiliza la miniatura del producto relacionado
+        return super().get_image_url(obj, related_obj=obj.producto)
