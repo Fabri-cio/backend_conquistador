@@ -1,6 +1,6 @@
 from django.urls import path, include, re_path
 from rest_framework import routers
-from .views import CategoriaView, ProveedorView, ProductoView, ProductoHistoryView, ProductoPorCategoriaView, ProductoPorProveedorView, CategoriaListView, ProveedorListView
+from .views import CategoriaView, ProveedorView, ProductoView, ProductoHistoryView, ProductoPorCategoriaView, ProductoPorProveedorView, CategoriaListView, ProveedorListView, CategoriaSelectViewSet, ProveedorSelectViewSet, ProveedorPedidosViewSet, ProductoListViewSet, ProductoSelectViewSet
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from rest_framework import permissions
@@ -10,6 +10,7 @@ router = routers.DefaultRouter()
 router.register(r'categorias', CategoriaView)  # Rutas para manejar categorías
 router.register(r'productos', ProductoView)  # Rutas para manejar productos
 router.register(r'proveedores', ProveedorView)  # Rutas para manejar proveedores
+router.register(r'proveedores-pedidos', ProveedorPedidosViewSet, basename='proveedores-pedidos')  # Rutas para manejar proveedores
 
 schema_view = get_schema_view(
    openapi.Info(
@@ -38,6 +39,13 @@ urlpatterns = [
    path('categorias-list/', CategoriaListView.as_view(), name='categorias-list'),
    # lista de proveedores
    path('proveedores-list/', ProveedorListView.as_view(), name='proveedores-list'),
+   # lista de productos
+   path('productos-list/', ProductoListViewSet.as_view(), name='productos-list'),
+
+   # selects
+   path('productos-select/', ProductoSelectViewSet.as_view(), name='productos-select'),
+   path('categorias-select/', CategoriaSelectViewSet.as_view(), name='categorias-select'),
+   path('proveedores-select/', ProveedorSelectViewSet.as_view(), name='proveedores-select'),
 
    # swagger
    re_path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),

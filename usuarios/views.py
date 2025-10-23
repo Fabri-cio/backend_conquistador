@@ -1,6 +1,7 @@
 # Django REST Framework
-from rest_framework import viewsets, permissions, status
+from rest_framework import viewsets, permissions, generics
 from rest_framework.response import Response
+from django.db.models import Prefetch
 
 # Django
 from django.contrib.auth import get_user_model, authenticate
@@ -15,6 +16,9 @@ from .serializers import (
     LoginSerializer,
     GroupSerializer,
     PermissionSerializer,
+    UsuarioListSerializer,
+    RolSelectDualSerializer,
+    RolListSerializer,
 )
 from .models import Usuario
 from django_crud_api.mixins import PaginacionYAllDataMixin
@@ -68,3 +72,30 @@ class UsuarioViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     serializer_class = UsuarioSerializer
     # permission_classes = [permissions.IsAuthenticated]
     queryset = Usuario.objects.all().order_by('id')
+
+
+class UsuarioListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    """
+    Listar y detallar usuarios
+    """
+    serializer_class = UsuarioListSerializer
+    queryset = Usuario.objects.all().prefetch_related(
+        Prefetch(
+            'groups',
+            queryset=Group.objects.only('name'),
+            to_attr='_prefetched_groups'
+        )
+    ).order_by('id')
+    # permission_classes = [permissions.IsAuthenticated]
+
+
+class RolListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = RolListSerializer
+    def get_queryset(self):
+        return Group.objects.only("id", "name").order_by("name")
+    # permission_classes = [permissions.IsAuthenticated]
+
+class RolSelectDualViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = RolSelectDualSerializer
+    def get_queryset(self):
+        return Group.objects.only("id", "name").order_by("name")

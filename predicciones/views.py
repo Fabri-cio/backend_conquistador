@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions
 from django.http import JsonResponse
 from .models import Prediccion, DetallePrediccion, ConfiguracionModelo
-from .serializers import PrediccionSerializer, DetallePrediccionSerializer, ConfiguracionModeloSerializer, ConfigModelSelectIDSerializer
+from .serializers import PrediccionSerializer, DetallePrediccionSerializer, ConfiguracionModeloSerializer, ConfigModelSelectIDSerializer, ConfigModelListSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import viewsets
 from rest_framework.response import Response
@@ -129,4 +129,9 @@ class ConfiguracionModeloViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet)
 class ConfigModelSelectIDViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = ConfiguracionModelo.objects.all().order_by('id')    
     serializer_class = ConfigModelSelectIDSerializer
+    # permission_classes = [permissions.AllowAny]
+
+class ConfigModelListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    queryset = ConfiguracionModelo.objects.all().order_by('id')    
+    serializer_class = ConfigModelListSerializer
     # permission_classes = [permissions.AllowAny]

@@ -147,3 +147,34 @@ class UsuarioSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError({"roles": f"Error actualizando roles: {str(e)}"})
 
         return instance
+
+class UsuarioListSerializer(serializers.ModelSerializer):
+    roles = serializers.SerializerMethodField()  # Para mostrar múltiples roles
+    name_work = serializers.CharField(source="lugar_de_trabajo.nombre", read_only=True)
+    class Meta:
+        model = Usuario
+        fields = [
+            'id',
+            'first_name', 
+            'last_name',
+            'username', 
+            'roles',
+            'name_work', 
+            'is_active',
+            'date_joined', 
+        ]
+
+    def get_roles(self, obj):
+        # Usamos _prefetched_groups si está cargado, si no, caemos a groups.all()
+        groups = getattr(obj, "_prefetched_groups", obj.groups.all())
+        return [g.name for g in groups]
+
+class RolListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']
+
+class RolSelectDualSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = ['id', 'name']

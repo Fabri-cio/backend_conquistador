@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Almacen, TipoMovimiento, Inventario, Movimiento, Notificacion
+from productos.mixins import ImageThumbMixinSerializer
 
 class AlmacenSerializer(serializers.ModelSerializer):
     class Meta:
@@ -145,4 +146,86 @@ class NotificacionSerializer(serializers.ModelSerializer):
             'tipo',
             'leida',
             'inventario',
+        ]
+
+class InventarioListSerializer(serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
+    almacen_nombre = serializers.CharField(source="almacen.nombre", read_only=True)
+    imagen = serializers.ImageField(source="producto.imagen", read_only=True)
+    class Meta:
+        model = Inventario
+        fields = [
+            'id',
+            'imagen',
+            'producto_nombre',
+            'almacen_nombre',
+            'stock_minimo',
+            'cantidad',
+            'stock_maximo',
+        ]
+
+class AlmacenListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Almacen
+        fields = [
+            'id',
+            'nombre',
+            'direccion',
+            'telefono',
+            'es_principal',
+            'estado',
+        ]
+
+class MovimientoListSerializer(serializers.ModelSerializer):
+    tipo_nombre = serializers.CharField(source="tipo.nombre", read_only=True)
+    producto_nombre = serializers.CharField(source="inventario.producto.nombre", read_only=True)
+    almacen_nombre = serializers.CharField(source="inventario.almacen.nombre", read_only=True)
+    class Meta:
+        model = Movimiento
+        fields = [
+            'id',
+            'cantidad',
+            'producto_nombre',
+            'almacen_nombre',
+            'tipo_nombre',
+            'fecha_creacion',
+        ]
+
+class AlmacenSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Almacen
+        fields = [
+            'id',
+            'nombre',
+        ]
+
+class InventarioSelectSerializer(serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
+    class Meta:
+        model = Inventario
+        fields = [
+            'id',
+            'producto_nombre',
+        ]
+
+class TiposMovimientoSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoMovimiento
+        fields = [
+            'id',
+            'nombre',
+        ]
+
+class InventarioPedidosSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
+    producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
+    precio = serializers.DecimalField(source="producto.precio", read_only=True, max_digits=10, decimal_places=2)
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Inventario
+        fields = [
+            'id',
+            'producto_nombre',
+            'image_url',
+            'precio',
         ]

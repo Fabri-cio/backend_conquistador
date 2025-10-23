@@ -1,6 +1,6 @@
-from rest_framework import viewsets
+from rest_framework import viewsets, generics
 from .models import Almacen, TipoMovimiento, Inventario, Movimiento, Notificacion
-from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer, NotificacionSerializer
+from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer, NotificacionSerializer, InventarioListSerializer, AlmacenListSerializer, MovimientoListSerializer, AlmacenSelectSerializer, InventarioPedidosSerializer, InventarioSelectSerializer, TiposMovimientoSelectSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
@@ -177,3 +177,34 @@ class NotificacionViewSet(viewsets.ModelViewSet):
         ids = request.data.get('ids', [])
         Notificacion.objects.filter(id__in=ids).update(leida=True)
         return Response({"status": "ok", "marcadas": ids})
+
+class InventarioListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = InventarioListSerializer
+    queryset = Inventario.objects.all().order_by('id')
+
+class AlmacenListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = AlmacenListSerializer
+    queryset = Almacen.objects.all().order_by('id')
+
+class MovimientoListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = MovimientoListSerializer
+    queryset = Movimiento.objects.all().order_by('id')
+
+class AlmacenSelectViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = AlmacenSelectSerializer
+    def get_queryset(self):
+        return Almacen.objects.only("id", "nombre").order_by("-nombre")
+
+class InventarioSelectViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = InventarioSelectSerializer
+    def get_queryset(self):
+        return Inventario.objects.only("id", "producto__nombre").order_by("producto__nombre")
+
+class TiposMovimientoSelectViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
+    serializer_class = TiposMovimientoSelectSerializer
+    def get_queryset(self):
+        return TipoMovimiento.objects.only("id", "nombre").order_by("nombre")
+
+class InventarioPedidosViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = InventarioPedidosSerializer
+    queryset = Inventario.objects.all().order_by('id')

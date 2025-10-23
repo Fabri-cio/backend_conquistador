@@ -69,3 +69,16 @@ class ConfigModelSelectIDSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConfiguracionModelo
         fields = ['id', 'nombre']
+
+class ConfigModelListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ConfiguracionModelo
+        fields = [
+            'estado',
+            'nombre',
+            'crecimiento',
+            'dataset',
+            'modo_est',
+            'frecuencia',
+            'int_confianza'
+        ]

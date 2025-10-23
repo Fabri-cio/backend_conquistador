@@ -17,79 +17,10 @@ class ProveedorSerializer(serializers.ModelSerializer):
         model = Proveedor
         fields = '__all__'
 
-# ---------------------
-# Base Serializer común
-# ---------------------
-
-class BaseProductoSerializer(serializers.ModelSerializer):
+class ProductoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Producto
-        fields = [
-            "estado",
-            "nombre",
-            "precio",
-            "codigo_barras",
-            "proveedor",
-            "categoria",
-            "imagen",
-        ]
-
-    def validate_codigo_barras(self, value):
-        instance = getattr(self, 'instance', None)
-        qs = Producto.objects.exclude(pk=instance.pk) if instance else Producto.objects.all()
-        if qs.filter(codigo_barras=value).exists():
-            raise serializers.ValidationError(
-                _("Ya existe un producto con este código de barras.")
-            )
-        return value
-
-# ---------------------
-# Create / Update
-# ---------------------
-
-class ProductoCreateSerializer(BaseProductoSerializer):
-    pass  # Hereda validación y campos del base
-
-# ---------------------
-# List
-# ---------------------
-
-class ProductoListSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
-    categoria = serializers.CharField(source="categoria.nombre", read_only=True)
-    marca = serializers.CharField(source="proveedor.marca", read_only=True)
-    image_url = serializers.SerializerMethodField()
-
-    class Meta:
-        model = Producto
-        fields = [
-            "id",
-            "estado",
-            "nombre",
-            "precio",
-            "marca",
-            "categoria",
-            "image_url",
-        ]
-
-# ---------------------
-# Detail
-# ---------------------
-
-class ProductoDetailSerializer(serializers.ModelSerializer):
-    precio = serializers.DecimalField(max_digits=10, decimal_places=2)
-
-    class Meta:
-        model = Producto
-        fields = [
-            "id",
-            "estado",
-            "nombre",
-            "precio",
-            "codigo_barras",
-            "proveedor",
-            "categoria",
-            "imagen",
-        ]
+        fields = '__all__'
 
 # ---------------------
 # Historial
@@ -198,6 +129,9 @@ class ProductosPorProveedorSerializer(serializers.ModelSerializer):
         serializer = ProductosParaProveedorSerializer(productos, many=True, context={'request': request})
         return serializer.data
 
+#-------------------------
+#       listas
+#------------------------
 class CategoriaListSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
     image_url = serializers.SerializerMethodField()
 
@@ -223,3 +157,42 @@ class ProveedorListSerializer(ImageThumbMixinSerializer, serializers.ModelSerial
             "telefono",
             "image_url",
         ]
+
+class ProductoListSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+    marca_proveedor = serializers.CharField(source="proveedor.marca", read_only=True)
+    categoria_nombre = serializers.CharField(source="categoria.nombre", read_only=True)
+
+    class Meta:
+        model = Producto
+        fields = [
+            "id",
+            "estado",
+            "nombre",
+            "marca_proveedor",
+            "categoria_nombre",
+            "precio",
+            "image_url",
+        ]
+
+class CategoriaSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Categoria
+        fields = ["id", "nombre"]
+
+class ProveedorSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Proveedor
+        fields = ["id", "marca"]
+
+class ProductoSelectSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Producto
+        fields = ["id", "nombre"]
+
+class ProveedorPedidosSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Proveedor
+        fields = ["id", "image_url", "marca"]

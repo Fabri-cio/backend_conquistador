@@ -1,7 +1,7 @@
 # urls.py
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import PrediccionViewSet, PrediccionCSV, DetallePrediccionViewSet, ConfiguracionModeloViewSet, ConfigModelSelectIDViewSet
+from .views import PrediccionViewSet, PrediccionCSV, DetallePrediccionViewSet, ConfiguracionModeloViewSet, ConfigModelSelectIDViewSet, ConfigModelListViewSet
 
 # Configuramos el router para las predicciones
 router = DefaultRouter()
@@ -9,6 +9,7 @@ router.register(r'predicciones', PrediccionViewSet)
 router.register(r'detalles-predicciones', DetallePrediccionViewSet)
 router.register(r'configuraciones-modelo', ConfiguracionModeloViewSet)
 router.register(r'config-model-select-id', ConfigModelSelectIDViewSet, basename='config-model-select-id')
+router.register(r'config-model-list', ConfigModelListViewSet, basename='config-model-list')
 
 urlpatterns = [
     # URL para la vista de predicción CSV
