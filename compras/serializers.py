@@ -2,11 +2,12 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
 from .models import Pedido, DetallePedido, Compra, DetalleCompra
+from productos.mixins import ImageThumbMixinSerializer
 
-class DetallePedidoRecepcionSerializer(serializers.ModelSerializer):
+class DetallePedidoRecepcionSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
     producto_nombre = serializers.CharField(source='producto.producto.nombre', read_only=True)
-    producto_imagen = serializers.ImageField(source='producto.producto.imagen', read_only=True)
     cantidad_solicitada = serializers.DecimalField(max_digits=10, decimal_places=3, read_only=True)
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = DetallePedido
@@ -15,8 +16,12 @@ class DetallePedidoRecepcionSerializer(serializers.ModelSerializer):
             'producto',
             'cantidad_solicitada',
             'producto_nombre',
-            'producto_imagen'
+            'imagen_url'
         ]
+
+    def get_imagen_url(self, obj):
+        # reutiliza la miniatura del producto relacionado
+        return self.get_image_url(obj, related_obj=obj.producto.producto)
 
 class PedidoRecepcionSerializer(serializers.ModelSerializer):
     nombre_proveedor = serializers.CharField(source='proveedor.marca', read_only=True)
@@ -238,4 +243,12 @@ class DetallesCompraPedidoSerializer(serializers.ModelSerializer):
         return sum([d.subtotal for d in obj.detalles.all()])
 
 
+class PedidoListSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    estado = serializers.CharField()
+    fecha_creacion = serializers.DateTimeField()
+    fecha_entrega = serializers.DateField()
+    nombre_proveedor = serializers.CharField()
+    nombre_almacen = serializers.CharField()
+    observaciones = serializers.CharField(allow_blank=True, allow_null=True)
 

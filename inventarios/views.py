@@ -226,14 +226,14 @@ class InventarioPedidosViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelVi
     serializer_class = InventarioPedidosSerializer
     # Solo traemos el producto relacionado para evitar consultas extras
     queryset = (
-    Inventario.objects
-    .select_related('producto')  # Trae el producto en la misma query
-    .only(
-        'id',
-        'producto__nombre',
-        'producto__imagen',
-        'producto__precio'
+        Inventario.objects
+        .select_related('producto')  # Trae el producto en la misma query
+        .only(
+            'id',
+            'producto__nombre',
+            'producto__imagen',
+            'producto__precio'
+        )
+        .order_by('id')
     )
-    .order_by('id')
-)
 
