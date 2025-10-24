@@ -57,13 +57,6 @@ class VentaView(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, Aud
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
-# Vista para reporte de ventas
-class VentaReporteView(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
-    queryset = Venta.objects.all().order_by('id')
-    serializer_class = VentaReporteSerializer
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = VentaReporteFilter
-
 # Vista para los detalles de la venta
 class DetalleVentaView(viewsets.ModelViewSet):
     queryset = DetalleVenta.objects.select_related("inventario__producto").all().order_by("id")
@@ -109,4 +102,14 @@ class VentaListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
         return ventas
 
 
+# Vista para reporte de ventas
+class VentaReporteView(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = VentaReporteSerializer
     
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = VentaReporteFilter
+    
+    def get_queryset(self):
+        return Venta.objects.select_related('tienda').only(
+            "id", "fecha_creacion", "total_venta", "tienda__id"
+        ).order_by("fecha_creacion")

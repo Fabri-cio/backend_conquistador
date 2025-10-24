@@ -209,7 +209,7 @@ class MovimientoListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewS
 class AlmacenSelectViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
     serializer_class = AlmacenSelectSerializer
     def get_queryset(self):
-        return Almacen.objects.only("id", "nombre").order_by("-nombre")
+        return Almacen.objects.only("id", "nombre").order_by("nombre")
 
 class InventarioSelectViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
     serializer_class = InventarioSelectSerializer

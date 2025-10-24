@@ -74,15 +74,6 @@ class VentaSerializer(serializers.ModelSerializer):
                 DetalleVenta.objects.create(venta=venta, **detalle_data)
         return venta
 
-class VentaReporteSerializer(serializers.ModelSerializer):
-    fecha = serializers.DateTimeField(source="fecha_creacion", read_only=True)
-    almacen = serializers.CharField(source="tienda.nombre", read_only=True)
-    total_venta = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
-
-    class Meta:
-        model = Venta
-        fields = ["fecha", "almacen", "total_venta"]
-
 # Serializer para ComprobanteVenta
 class ComprobanteVentaSerializer(serializers.ModelSerializer):
     class Meta:
@@ -107,3 +98,9 @@ class VentaListSerializer(serializers.ModelSerializer):
             "nombre_tienda",
             "metodo_pago"
         ]
+
+class VentaReporteSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    almacen = serializers.IntegerField(source="tienda.id")
+    fecha = serializers.DateTimeField(source="fecha_creacion", read_only=True)
+    cantidad = serializers.DecimalField(source="total_venta", max_digits=10, decimal_places=2, read_only=True)
