@@ -1,12 +1,12 @@
 from django.db import models
 from imagekit.models import ImageSpecField
 from imagekit.processors import ResizeToFill
-from rest_framework import serializers
+from utils.image_processors import SkipIfWebP
 
 class ImagenThumbMixin(models.Model):
     imagen_thumb = ImageSpecField(
         source='imagen',
-        processors=[ResizeToFill(200, 200)],
+        processors=[SkipIfWebP(200, 200)],
         format='WEBP',
         options={'quality': 80}
     )
