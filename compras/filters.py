@@ -1,5 +1,5 @@
 import django_filters
-from .models import Pedido
+from .models import Pedido, Compra
 
 class PedidoFilter(django_filters.FilterSet):
     fecha_creacion = django_filters.DateFilter(field_name="fecha_creacion", lookup_expr="exact")
@@ -8,4 +8,11 @@ class PedidoFilter(django_filters.FilterSet):
     
     class Meta:
         model = Pedido
+        fields = []
+
+class CompraFilter(django_filters.FilterSet):
+    fecha_creacion = django_filters.DateFilter(field_name="fecha_creacion", lookup_expr="exact")
+    
+    class Meta:
+        model = Compra
         fields = []

@@ -1,14 +1,14 @@
 # views.py
 from django.db import models
 from rest_framework import viewsets, permissions, filters   
-from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer, PedidoRecepcionSerializer, DetallesCompraPedidoSerializer, PedidoListSerializer
+from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer, PedidoRecepcionSerializer, DetallesCompraPedidoSerializer, PedidoListSerializer, CompraListSerializer
 from .models import Pedido, DetallePedido, Compra, DetalleCompra
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
 from django.db.models import F
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import PedidoFilter
+from .filters import PedidoFilter, CompraFilter
 
 class PedidoRecepcionViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     queryset = Pedido.objects.all().order_by('id')
@@ -67,4 +67,26 @@ class PedidoListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
         )
     # permission_classes = [permissions.IsAuthenticated]
 
+class CompraListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = CompraListSerializer
 
+    # ✅ Filtros y búsqueda
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = CompraFilter
+    search_fields = ['pedido__proveedor__marca', 'almacen__nombre']
+    ordering_fields = ['fecha_creacion', 'fecha_entrega', 'estado']
+    ordering = ['-fecha_creacion']  # orden por defecto
+
+    def get_queryset(self):
+        # Ultra rápido: solo trae los campos necesarios
+        return Compra.objects.select_related('almacen', 'pedido__proveedor').annotate(
+            nombre_almacen=models.F('almacen__nombre'),
+            nombre_proveedor=models.F('pedido__proveedor__marca')
+        ).values(
+            'id', 'fecha_creacion', 'nombre_proveedor', 'descuento', 'total_compra', 'nombre_almacen'
+        )
+    # permission_classes = [permissions.IsAuthenticated]

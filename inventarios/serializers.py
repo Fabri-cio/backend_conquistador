@@ -81,11 +81,11 @@ class InventarioVentasSerializer(serializers.ModelSerializer):
             })
         return list(ventas_dict.values())
 
-class InventarioCarritoSerializer(serializers.ModelSerializer):
+class InventarioCarritoSerializer(ImageThumbMixinSerializer, serializers.ModelSerializer):
     producto_nombre = serializers.CharField(source="producto.nombre", read_only=True)
     precio = serializers.DecimalField(source="producto.precio", read_only=True, max_digits=10, decimal_places=2)
     producto_barcode = serializers.CharField(source="producto.codigo_barras", read_only=True)
-    imagen = serializers.ImageField(source="producto.imagen", read_only=True)
+    imagen_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Inventario  
@@ -95,8 +95,12 @@ class InventarioCarritoSerializer(serializers.ModelSerializer):
             'producto_barcode',
             'cantidad',
             'precio',
-            'imagen',
+            'imagen_url',
         ]
+
+    def get_imagen_url(self, obj):
+        # reutiliza la miniatura del producto relacionado
+        return self.get_image_url(obj, related_obj=obj.producto)
 
 # invetarioABC
 class InventarioABCSerializer(serializers.Serializer):

@@ -252,3 +252,10 @@ class PedidoListSerializer(serializers.Serializer):
     nombre_almacen = serializers.CharField()
     observaciones = serializers.CharField(allow_blank=True, allow_null=True)
 
+class CompraListSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    fecha_creacion = serializers.DateTimeField()
+    nombre_proveedor = serializers.CharField()
+    descuento = serializers.DecimalField(max_digits=12, decimal_places=2)
+    total_compra = serializers.DecimalField(max_digits=12, decimal_places=2)
+    nombre_almacen = serializers.CharField()
