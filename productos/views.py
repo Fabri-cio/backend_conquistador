@@ -105,9 +105,9 @@ class ProductoListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
        filters.SearchFilter,
        filters.OrderingFilter
     ]
-    filterset_class = ProductoListFilter
-    search_fields = ['nombre', 'proveedor__marca', 'categoria__nombre']
-    ordering_fields = ['precio','nombre']
+    filterset_class = ProductoListFilter # filtros
+    search_fields = ['nombre', 'proveedor__marca', 'categoria__nombre'] # search
+    ordering_fields = ['precio','nombre'] # ordenes
     ordering = ['nombre']  # ✅ orden por defecto
 
     def get_queryset(self):
@@ -116,7 +116,7 @@ class ProductoListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
             Producto.objects
             .select_related("proveedor", "categoria")
             .only("id", "estado", "nombre", "precio", "imagen", "proveedor__marca", "categoria__nombre")
-            .order_by(*self.ordering)
+            .order_by(*self.ordering) # pone el lugar de ordering
         )
 
 # -------------------------------
