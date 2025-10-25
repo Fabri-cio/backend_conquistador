@@ -259,3 +259,9 @@ class CompraListSerializer(serializers.Serializer):
     descuento = serializers.DecimalField(max_digits=12, decimal_places=2)
     total_compra = serializers.DecimalField(max_digits=12, decimal_places=2)
     nombre_almacen = serializers.CharField()
+
+class CompraReporteSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    almacen = serializers.IntegerField(source='almacen_id') # ⚡ aquí mapeas el alias
+    fecha = serializers.DateTimeField(source="fecha_creacion", read_only=True)
+    cantidad = serializers.DecimalField(source="total_compra", max_digits=10, decimal_places=2, read_only=True)

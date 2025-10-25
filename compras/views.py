@@ -1,7 +1,7 @@
 # views.py
 from django.db import models
 from rest_framework import viewsets, permissions, filters   
-from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer, PedidoRecepcionSerializer, DetallesCompraPedidoSerializer, PedidoListSerializer, CompraListSerializer
+from .serializers import PedidoSerializer, DetallePedidoSerializer, CompraSerializer, DetalleCompraSerializer, PedidoRecepcionSerializer, DetallesCompraPedidoSerializer, PedidoListSerializer, CompraListSerializer, CompraReporteSerializer
 from .models import Pedido, DetallePedido, Compra, DetalleCompra
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
@@ -90,3 +90,16 @@ class CompraListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
             'id', 'fecha_creacion', 'nombre_proveedor', 'descuento', 'total_compra', 'nombre_almacen'
         )
     # permission_classes = [permissions.IsAuthenticated]
+
+class CompraReporteViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = CompraReporteSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = CompraFilter
+
+    def get_queryset(self):
+        return Compra.objects.values(
+            'id', 
+            'fecha_creacion', 
+            'total_compra', 
+            'almacen_id'  # DRF puede usar directamente
+        ).order_by('-fecha_creacion')
