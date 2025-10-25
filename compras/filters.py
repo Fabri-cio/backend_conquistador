@@ -16,3 +16,12 @@ class CompraFilter(django_filters.FilterSet):
     class Meta:
         model = Compra
         fields = []
+
+class CompraReporteFilter(django_filters.FilterSet):
+    fecha_inicio = django_filters.DateFilter(field_name="compra__fecha_creacion", lookup_expr="exact")
+    fecha_fin = django_filters.DateFilter(field_name="compra__fecha_creacion", lookup_expr="exact")
+    
+    
+    class Meta:
+        model = Compra
+        fields = []

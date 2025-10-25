@@ -242,3 +242,13 @@ class InventarioPedidosSerializer(ImageThumbMixinSerializer, serializers.ModelSe
     def get_imagen_url(self, obj):
         # reutiliza la miniatura del producto relacionado
         return super().get_image_url(obj, related_obj=obj.producto)
+
+
+class InventarioReporteSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    producto = serializers.CharField(source="producto__nombre")
+    almacen = serializers.IntegerField()
+    cantidad = serializers.IntegerField()
+    stock_minimo = serializers.IntegerField()
+    stock_maximo = serializers.IntegerField()
+    estado = serializers.BooleanField()

@@ -1,6 +1,6 @@
 from rest_framework import viewsets, generics
 from .models import Almacen, TipoMovimiento, Inventario, Movimiento, Notificacion
-from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer, NotificacionSerializer, InventarioListSerializer, AlmacenListSerializer, MovimientoListSerializer, AlmacenSelectSerializer, InventarioPedidosSerializer, InventarioSelectSerializer, TiposMovimientoSelectSerializer
+from .serializers import AlmacenSerializer, TipoMovimientoSerializer, InventarioSerializer, MovimientoSerializer, InventarioCarritoSerializer, InventarioVentasSerializer, InventarioABCSerializer, NotificacionSerializer, InventarioListSerializer, AlmacenListSerializer, MovimientoListSerializer, AlmacenSelectSerializer, InventarioPedidosSerializer, InventarioSelectSerializer, TiposMovimientoSelectSerializer, InventarioReporteSerializer
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from core.views import AuditableModelViewSet
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
@@ -11,6 +11,9 @@ from django.db.models import Sum, F
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.parsers import JSONParser, MultiPartParser, FormParser
+from .filters import InventarioReporteFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import filters
 
 class AlmacenViewSet(PaginacionYAllDataMixin, AuditableModelViewSet):
     serializer_class = AlmacenSerializer
@@ -236,4 +239,20 @@ class InventarioPedidosViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelVi
         )
         .order_by('id')
     )
+
+class InventarioReporteViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+    serializer_class = InventarioReporteSerializer
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_class = InventarioReporteFilter
+
+    def get_queryset(self):
+        return Inventario.objects.values(
+            'id',
+            'producto__nombre',
+            'almacen',
+            'cantidad',
+            'stock_minimo',
+            'stock_maximo',
+            'estado',
+        ).order_by('producto__nombre')
 

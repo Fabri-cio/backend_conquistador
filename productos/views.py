@@ -60,7 +60,7 @@ class ProductoPorProveedorView(generics.RetrieveAPIView):
 # -------------------------------
 # LISTADOS CACHEADOS
 # -------------------------------
-@method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
+# @method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
 class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
     serializer_class = CategoriaListSerializer
     # permission_classes = [permissions.AllowAny]
@@ -78,7 +78,7 @@ class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
         # Solo traer los campos necesarios
         return Categoria.objects.only("id", "estado", "nombre", "imagen").order_by(*self.ordering)
 
-@method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
+# @method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
 class ProveedorListView(PaginacionYAllDataMixin, generics.ListAPIView):
     serializer_class = ProveedorListSerializer
     # permission_classes = [permissions.AllowAny]
@@ -97,7 +97,7 @@ class ProveedorListView(PaginacionYAllDataMixin, generics.ListAPIView):
         return Proveedor.objects.only("id", "estado", "marca", "contacto", "telefono", "imagen").order_by(*self.ordering)
 
 # LISTA DE PRODUCTOS CACHE
-@method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
+# @method_decorator(cache_page(60*5, cache=cache_alias), name='dispatch')  # Cachea 5 minutos
 class ProductoListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
     serializer_class = ProductoListSerializer
     filter_backends = [
