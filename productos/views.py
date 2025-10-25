@@ -4,7 +4,7 @@ from .models import Categoria, Proveedor, Producto
 from django_crud_api.mixins import PaginacionYAllDataMixin
 from rest_framework import filters
 from django_filters.rest_framework import DjangoFilterBackend
-from .filters import ProductoFilter, CategoriaFilter, ProveedorFilter
+from .filters import ProductoListFilter, CategoriaListFilter, ProveedorListFilter
 from rest_framework import generics
 from rest_framework import permissions
 from django.shortcuts import get_object_or_404
@@ -69,7 +69,7 @@ class CategoriaListView(PaginacionYAllDataMixin, generics.ListAPIView):
         filters.SearchFilter,
         filters.OrderingFilter
     ]
-    filterset_class = CategoriaFilter
+    filterset_class = CategoriaListFilter
     search_fields = ['nombre']
     ordering_fields = ['estado', 'nombre']
     ordering = ['-estado']
@@ -87,10 +87,10 @@ class ProveedorListView(PaginacionYAllDataMixin, generics.ListAPIView):
         filters.SearchFilter,
         filters.OrderingFilter
     ]
-    filterset_class = ProveedorFilter
+    filterset_class = ProveedorListFilter
     search_fields = ['marca','contacto','telefono']
     ordering_fields = ['estado', 'marca','contacto','telefono']
-    ordering = ['-fecha_creacion']
+    ordering = ['marca']
 
     def get_queryset(self):
         # Solo traer los campos necesarios
@@ -105,10 +105,10 @@ class ProductoListViewSet(PaginacionYAllDataMixin, generics.ListAPIView):
        filters.SearchFilter,
        filters.OrderingFilter
     ]
-    filterset_class = ProductoFilter
-    search_fields = ['nombre', 'marca_proveedor','categoria_nombre']
+    filterset_class = ProductoListFilter
+    search_fields = ['nombre', 'proveedor__marca', 'categoria__nombre']
     ordering_fields = ['precio','nombre']
-    ordering = ['-nombre']  # ✅ orden por defecto
+    ordering = ['nombre']  # ✅ orden por defecto
 
     def get_queryset(self):
         # Solo traer campos existentes y optimizar relaciones
