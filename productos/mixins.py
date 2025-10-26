@@ -26,7 +26,8 @@ class ImageThumbMixinSerializer:
         target = related_obj if related_obj else obj
         if hasattr(target, field) and getattr(target, field):
             url = getattr(target, field).url
-            ts = int(getattr(target, "fecha_modificacion", 0).timestamp()) if hasattr(target, "fecha_modificacion") else 0
+            fecha_mod = getattr(target, "fecha_modificacion", None)
+            ts = int(fecha_mod.timestamp()) if fecha_mod else 0
             request = self.context.get("request")
             if request:
                 return request.build_absolute_uri(f"{url}?v={ts}")
