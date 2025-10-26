@@ -43,8 +43,9 @@ class DetallesCompraPedidoViewSet(viewsets.ModelViewSet):
     serializer_class = DetallesCompraPedidoSerializer
     # permission_classes = [permissions.IsAuthenticated]
 
-class PedidoListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+class PedidoListViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = PedidoListSerializer
+    queryset = Pedido.objects.all()  # ✅ Esto evita el AssertionError
 
     # ✅ Filtros y búsqueda
     filter_backends = [
@@ -58,8 +59,10 @@ class PedidoListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     ordering = ['-fecha_creacion']  # orden por defecto
 
     def get_queryset(self):
+        queryset = super().get_queryset()
+
         # Ultra rápido: solo trae los campos necesarios
-        return Pedido.objects.select_related('proveedor', 'almacen').annotate(
+        return queryset.select_related('proveedor', 'almacen').annotate(
             nombre_proveedor=models.F('proveedor__marca'),
             nombre_almacen=models.F('almacen__nombre')
         ).values(
@@ -67,8 +70,9 @@ class PedidoListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
         )
     # permission_classes = [permissions.IsAuthenticated]
 
-class CompraListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+class CompraListViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = CompraListSerializer
+    queryset = Compra.objects.all()  # ✅ Esto evita el AssertionError
 
     # ✅ Filtros y búsqueda
     filter_backends = [
@@ -82,8 +86,9 @@ class CompraListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     ordering = ['-fecha_creacion']  # orden por defecto
 
     def get_queryset(self):
+        queryset = super().get_queryset()
         # Ultra rápido: solo trae los campos necesarios
-        return Compra.objects.select_related('almacen', 'pedido__proveedor').annotate(
+        return queryset.select_related('almacen', 'pedido__proveedor').annotate(
             nombre_almacen=models.F('almacen__nombre'),
             nombre_proveedor=models.F('pedido__proveedor__marca')
         ).values(

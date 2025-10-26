@@ -84,20 +84,16 @@ class VentasPorInventarioSerializer(serializers.Serializer):
     fecha = serializers.DateField(read_only=True)
     cantidad = serializers.FloatField(read_only=True)
 
-class VentaListSerializer(serializers.ModelSerializer):
-    fecha_creacion = serializers.DateTimeField(read_only=True)
-    usuario_creacion = serializers.CharField(source="usuario_creacion.username", read_only=True)
-    nombre_tienda = serializers.CharField(source="tienda.nombre", read_only=True)
-    
-    class Meta:
-        model = Venta
-        fields = [
-            "id",
-            "fecha_creacion",
-            "usuario_creacion",
-            "nombre_tienda",
-            "metodo_pago"
-        ]
+class VentaListSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    fecha_creacion = serializers.DateTimeField()
+    metodo_pago = serializers.CharField()
+    descuento = serializers.DecimalField(max_digits=10, decimal_places=2)
+    total_venta = serializers.DecimalField(max_digits=10, decimal_places=2)
+    nombre_cliente = serializers.CharField()
+    nombre_tienda = serializers.CharField()
+    nombre_cajero = serializers.CharField()
+
 
 class VentaReporteSerializer(serializers.Serializer):
     id = serializers.IntegerField()

@@ -182,12 +182,20 @@ class NotificacionViewSet(viewsets.ModelViewSet):
         return Response({"status": "ok", "marcadas": ids})
 
 # 🔹 Endpoint: Lista de inventario con miniaturas
-class InventarioListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+class InventarioListViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = InventarioListSerializer
-    # Traemos producto y almacen en una sola query
+
+    # 👇 se define un queryset base para que el mixin lo pueda usar
+    queryset = Inventario.objects.all()
+
     def get_queryset(self):
+        # ✅ Esto llama al mixin FiltradoPorUsuarioInteligenteMixin,
+        # que filtra según el lugar_de_trabajo del usuario
+        queryset = super().get_queryset()
+
+        # ✅ optimizamos las relaciones y campos
         return (
-            Inventario.objects
+            queryset
             .select_related('producto', 'almacen')
             .only(
                 'id',
@@ -201,11 +209,12 @@ class InventarioListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewS
             .order_by('id')
         )
 
+
 class AlmacenListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = AlmacenListSerializer
     queryset = Almacen.objects.all().order_by('id')
 
-class MovimientoListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+class MovimientoListViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = MovimientoListSerializer
     queryset = Movimiento.objects.all().order_by('id')
 

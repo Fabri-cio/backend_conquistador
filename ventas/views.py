@@ -8,11 +8,13 @@ from rest_framework.response import Response
 from rest_framework import status
 from core.views import AuditableModelViewSet
 from rest_framework import filters
-from .filters import VentaReporteFilter, VentasPorInventarioFilter
+from .filters import VentaReporteFilter, VentasPorInventarioFilter, VentasListFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from core.mixins import FiltradoPorUsuarioInteligenteMixin
 from ventas.services_ventas_por_inventario import obtener_ventas_por_inventario
 from django.core.cache import cache
+from django.db.models import F
+from django.db import models
 
 # Vista para el cliente
 class ClienteView(PaginacionYAllDataMixin, viewsets.ModelViewSet):
@@ -90,16 +92,39 @@ class VentasPorInventarioViewSet(PaginacionYAllDataMixin, viewsets.ViewSet):
 
 class VentaListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = VentaListSerializer
+    queryset = Venta.objects.all()  # Necesario para evitar AssertionError
+
+    # Filtros, búsqueda y orden
+    filter_backends = [
+        DjangoFilterBackend,
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    filterset_class = VentasListFilter
+    search_fields = ['cliente__nombre', 'tienda__nombre', 'metodo_pago']
+    ordering_fields = ['fecha_creacion', 'total_venta']
+    ordering = ['-fecha_creacion']  # orden por defecto
 
     def get_queryset(self):
-        cache_key = "ventas_listado"
-        ventas = cache.get(cache_key)
-        if not ventas:
-            ventas = Venta.objects.select_related("usuario_creacion", "tienda").only(
-                "id", "fecha_creacion", "usuario_creacion__username", "tienda__nombre", "metodo_pago"
-            ).order_by("-fecha_creacion")
-            cache.set(cache_key, ventas, 60)  # cache 1 minuto
-        return ventas
+        """
+        Devuelve solo los campos necesarios, ultrarrápido y compatible con filtros, búsqueda y paginación.
+        """
+        queryset = super().get_queryset()  # aplica FiltradoPorUsuarioInteligenteMixin
+
+        return queryset.select_related('cliente', 'tienda', 'usuario_creacion').annotate(
+            nombre_cliente=models.F('cliente__nombre'),
+            nombre_tienda=models.F('tienda__nombre'),
+            nombre_cajero=models.F('usuario_creacion__username')
+        ).values(
+            'id',
+            'fecha_creacion',
+            'nombre_cliente',
+            'nombre_tienda',
+            'nombre_cajero',
+            'metodo_pago',
+            'descuento',
+            'total_venta'
+        ).order_by('-fecha_creacion')
 
 
 # Vista para reporte de ventas
