@@ -90,7 +90,7 @@ class VentasPorInventarioViewSet(PaginacionYAllDataMixin, viewsets.ViewSet):
         # Usamos la función de paginación del mixin
         return self.paginate_list(datos, request)
 
-class VentaListViewSet(PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
+class VentaListViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMixin, viewsets.ReadOnlyModelViewSet):
     serializer_class = VentaListSerializer
     queryset = Venta.objects.all()  # Necesario para evitar AssertionError
 
