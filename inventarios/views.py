@@ -157,7 +157,7 @@ class MovimientoViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDataMi
         'usuario_creacion',
     ]
 
-class NotificacionViewSet(viewsets.ModelViewSet):
+class NotificacionViewSet(PaginacionYAllDataMixin, viewsets.ModelViewSet):
     """
     CRUD para notificaciones de inventario.
     - Lista todas las notificaciones.

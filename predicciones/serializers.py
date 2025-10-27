@@ -74,6 +74,7 @@ class ConfigModelListSerializer(serializers.ModelSerializer):
     class Meta:
         model = ConfiguracionModelo
         fields = [
+            'id',
             'estado',
             'nombre',
             'crecimiento',
