@@ -188,6 +188,11 @@ class InventarioListViewSet(FiltradoPorUsuarioInteligenteMixin, PaginacionYAllDa
     # 👇 se define un queryset base para que el mixin lo pueda usar
     queryset = Inventario.objects.all()
 
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['producto__nombre', 'almacen__nombre']
+    ordering_fields = ['id', 'cantidad', 'stock_minimo', 'stock_maximo', 'producto__nombre', 'almacen__nombre']
+    ordering = ['id']  # por defecto
+
     def get_queryset(self):
         # ✅ Esto llama al mixin FiltradoPorUsuarioInteligenteMixin,
         # que filtra según el lugar_de_trabajo del usuario
